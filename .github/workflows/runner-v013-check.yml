@@ -34,6 +34,17 @@ jobs:
           }
           if ($failed) { exit 1 }
 
+      - name: Test UTG native wager aliases
+        shell: pwsh
+        run: |
+          $worker = Get-Content -LiteralPath ./tsgpu-worker.ps1 -Raw
+          if ($worker -notmatch '\(\?:Bet\|Raise\)') {
+            throw 'UTG_CBET must accept both native Bet and Raise labels for the first IP wager.'
+          }
+          if ($worker -match "\$betSlot = Get-ActionSlot \$validActions 'Bet'") {
+            throw 'UTG_CBET still hardcodes a Bet-only exported action slot.'
+          }
+
       - name: Test UTG dataset collector schema
         shell: pwsh
         run: |
