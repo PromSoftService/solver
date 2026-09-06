@@ -21,6 +21,18 @@ CLASSES = [
 ]
 CLASS_OF = {flop:k for k,flops in CLASSES for flop in flops}
 
+# Candidate compression of the legacy 13 labels. It preserves the texture splits that
+# remain visible in the current B33-only solve while merging labels with similar profiles.
+MERGED = [
+    ('HIGH', ('ABB','A[K/Q]x','BBB','BBx dis')),
+    ('BET75', ('K/Qx dis','A[J-T][9-5]','A[J-T][4-2]')),
+    ('MID55', ('K/Qx con','A[9-7]x','[J-8]x dis')),
+    ('CON47', ('[J-8]x con',)),
+    ('A_LOW30', ('A[6-2]',)),
+    ('LOW13', ('[7-4]x',)),
+]
+MERGED_OF = {k:g for g,ks in MERGED for k in ks}
+
 ORDER='AKQJT98765432'
 VAL={r:13-i for i,r in enumerate(ORDER)}
 def f(s): return float(str(s).replace(',','.'))
@@ -43,20 +55,23 @@ def hand_cat(fx):
 
 p=sorted(glob.glob('datasets/DS__RNG001__CFG001__NOD002__BRD001__RUN-*.csv'))[-1]
 agg=defaultdict(lambda:[0.0,0.0,0.0,0.0,0]) # w, wb, wlossB, wlossX, nrows
+magg=defaultdict(lambda:[0.0,0.0,0.0,0.0,0])
 board=defaultdict(lambda:defaultdict(lambda:[0.0,0.0])) # class -> board -> w, wb
-board_seen=defaultdict(set)
 all_board=defaultdict(lambda:[0.0,0.0])
+merged_board=defaultdict(lambda:defaultdict(lambda:[0.0,0.0]))
 with open(p,encoding='utf-8-sig',newline='') as fh:
     for x in csv.DictReader(fh):
         sig=rank_sig(x['board']); k=CLASS_OF.get(sig)
         if k is None: continue
+        g=MERGED_OF[k]
         w=f(x['reach_probability']); bf=f(x['bet_frequency']); lb=f(x['loss_if_bet_utg']); lx=f(x['loss_if_check_utg'])
         b=board[k][sig]; b[0]+=w; b[1]+=w*bf
-        board_seen[k].add(sig)
+        mb=merged_board[g][sig]; mb[0]+=w; mb[1]+=w*bf
         q=all_board[k]; q[0]+=w; q[1]+=w*bf
         fx=features(x['board'],x['combo']); c=hand_cat(fx)
         if c is None: continue
         a=agg[(k,c)]; a[0]+=w; a[1]+=w*bf; a[2]+=w*lb; a[3]+=w*lx; a[4]+=1
+        ma=magg[(g,c)]; ma[0]+=w; ma[1]+=w*bf; ma[2]+=w*lb; ma[3]+=w*lx; ma[4]+=1
 
 cats=['Weak pair','3-rd pair','2-nd pair','BDFD','Air','Top pair','Overpair','Gutshot']
 print('UTG_OLD13_REANALYSIS')
@@ -76,4 +91,23 @@ for c in cats:
         else:
             w,wb,lb,lx,n=a
             out.append(f'{k}={100*wb/w:.1f}/{lb/w:.4f}/{lx/w:.4f}/{w:.1f}')
+    print(c,' | '.join(out))
+
+print('MERGED_BOARD_SUMMARY name n reachBet boardAvg min max MAE_to_group_mean')
+for g,ks in MERGED:
+    vals=[100*wb/w for w,wb in merged_board[g].values() if w]
+    totalw=sum(w for w,wb in merged_board[g].values()); totalwb=sum(wb for w,wb in merged_board[g].values())
+    mean=100*totalwb/totalw
+    mae=sum(abs(v-mean) for v in vals)/len(vals)
+    print(g,'n',len(vals),'reachBet',f'{mean:.1f}','boardAvg',f'{sum(vals)/len(vals):.1f}','min',f'{min(vals):.1f}','max',f'{max(vals):.1f}','MAE',f'{mae:.1f}')
+print('MERGED_CELL_SUMMARY: betPct/lossB/lossX/weight')
+for c in cats:
+    out=[]
+    for g,_ in MERGED:
+        a=magg.get((g,c))
+        if not a or a[0]==0:
+            out.append(f'{g}=--')
+        else:
+            w,wb,lb,lx,n=a
+            out.append(f'{g}={100*wb/w:.1f}/{lb/w:.4f}/{lx/w:.4f}/{w:.1f}')
     print(c,' | '.join(out))
