@@ -6,6 +6,7 @@ on:
     paths:
       - 'datasets/DS__RNG001__CFG001__BRD001__RUN-*.csv'
       - 'tools/analyze_strategy.py'
+      - 'tools/analyze_targeted.py'
       - '.github/workflows/analyze-strategy.yml'
   workflow_dispatch:
 
@@ -15,7 +16,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Analyze dataset
-        run: python3 tools/analyze_strategy.py
+        run: |
+          python3 tools/analyze_strategy.py
+          python3 tools/analyze_targeted.py
       - name: Upload analysis
         uses: actions/upload-artifact@v4
         with:
