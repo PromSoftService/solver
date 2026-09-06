@@ -2,9 +2,7 @@
 output/*
 !output/.gitkeep
 
-# Generated analysis datasets
-datasets/*
-!datasets/.gitkeep
+# Analysis datasets are versioned in Git
 
 # Python cache
 __pycache__/
