@@ -10,9 +10,9 @@ def f(s): return float(str(s).replace(',','.'))
 def bc(fx):
     h,m=fx['top'],fx['mid']
     if h==14: return 'A[K-J]x' if m>=11 else 'A[T-2]x'
-    if sum(v>=10 for v in (fx['top'],fx['mid'],fx['low']))>=2: return 'BBx'
-    if h==13: return 'K[9-2]x'
-    if 8<=h<=12: return '[Q-8]x'
+    if sum(v>=10 for v in (fx['top'],fx['mid'],fx['low']))>=2:return 'BBx'
+    if h==13:return 'K[9-2]x'
+    if 8<=h<=12:return '[Q-8]x'
     return '[7-4]x'
 
 def cat(fx):
@@ -31,8 +31,8 @@ def cat(fx):
     return 'Air'
 
 def action(k,c):
-    # Simplification target: BET by default. Keep only clearly bad BET cells as CHECK.
-    if k=='[7-4]x' and c in ('Two pair+','Weak pocket pair','OESD'):
+    # BET by default. CHECK only when forced BET exceeds the established ~0.02bb tolerance.
+    if k=='[7-4]x' and c in ('Two pair+','Weak pocket pair','OESD','Air'):
         return 'X'
     return 'B'
 
