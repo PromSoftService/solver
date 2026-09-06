@@ -21,8 +21,22 @@ Files:
 | ID | Spot | Native money scale | Target node |
 |---|---|---:|---|
 | `CFG001` | UTG open 2.5bb, BB call; flop BB check, UTG bet 33%, BB response | x10 | `Check -> Bet 18 -> Fold/Call/Raise 73` |
+| `CFG002` | Same spot and tree as CFG001; flop BB check, UTG bet 75%, BB response | x10 | `Check -> Bet 41 -> Fold/Call/Raise 123` |
 
 `CFG001` uses a flop pot of 55 and effective stack of 975, representing 5.5bb and 97.5bb at x10 scale. The runner verifies the expected flop bet and raise amounts so a changed tree cannot silently produce the wrong dataset.
+
+`CFG002` is intentionally derived from `CFG001`: the only tree change is `ipFlopBet = 75` instead of `33`. BB flop raise remains `60`, and all turn/river sizings, ranges, stack, pot, rake and solver settings remain unchanged. To avoid duplicating the two 1326-entry range arrays in Git, the persistent definition is stored as:
+
+- `configs/CFG002__6M100_UTG-O2p5_BB-C__F_BB-X_UTG-B75_BB-XR60__T-B100-R100__R-B100-R100__V1.derived.json`
+
+The launcher materializes the full effective native config in a temporary file, validates `Bet 41` and `Raise 123`, and `Run-Study.ps1` copies that effective config into the raw run directory before the temporary file is removed.
+
+Launchers:
+
+```powershell
+.\scripts\RUN__CFG001__BRD001.cmd
+.\scripts\RUN__CFG002__BRD001.cmd
+```
 
 ## Board sets
 
@@ -37,13 +51,13 @@ Files:
 Raw runs:
 
 ```text
-output/OUT__RNG001__CFG001__BRD001__RUN-YYYYMMDD-HHMMSS/
+output/OUT__RNG001__<CFGID>__BRD001__RUN-YYYYMMDD-HHMMSS/
 ```
 
 Analysis datasets:
 
 ```text
-datasets/DS__RNG001__CFG001__BRD001__RUN-YYYYMMDD-HHMMSS.csv
+datasets/DS__RNG001__<CFGID>__BRD001__RUN-YYYYMMDD-HHMMSS.csv
 ```
 
 Every run stores a `RUN_MANIFEST.json` with IDs, input filenames, SHA-256 hashes, money scale, expected action amounts, and board count. A copy of the manifest is stored next to the analysis dataset.
