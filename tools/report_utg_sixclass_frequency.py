@@ -32,6 +32,7 @@ def nearest(v,vals): return min(vals,key=lambda q:(abs(q-v),-q))
 SCHEMES={
     'PURE': lambda v: 1.0 if v>=.5 else 0.0,
     'MIX50': lambda v: nearest(v,(0,.5,1)),
+    'THRESH_30_70': lambda v: 1.0 if v>=.70 else (0.0 if v<=.30 else .5),
     'QUARTERS': lambda v: nearest(v,(0,.25,.5,.75,1)),
 }
 
