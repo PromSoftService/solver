@@ -36,25 +36,28 @@ with open(p,encoding='utf-8-sig',newline='') as fh:
         fx=features(x['board'],x['combo']); k=bc(fx); c=cat(fx); w=f(x['reach_probability'])
         a=cells[(k,c)]; a[0]+=w; a[1]+=w*f(x['bet_frequency']); a[2]+=w*f(x['loss_if_bet_utg']); a[3]+=w*f(x['loss_if_check_utg'])
 
-# Enumerate all 0/50/100 cell assignments. Print Pareto-like selections:
-# 1) closest frequency, tie -> loss
-# 2) lowest loss among solutions within 2pp of target
-# 3) lowest loss among solutions within 5pp of target
+# Enumerate all 0/50/100 assignments. Besides exact aggregate frequency and local regret,
+# also measure weighted squared distance from the solver's hand-class frequencies. This
+# discourages pathological solutions that match the total by checking a 95%-bet category
+# while betting a 20%-bet category.
 for k in BCS:
     present=[c for c in CATS if cells[(k,c)][0]>0]
     W=sum(cells[(k,c)][0] for c in present); target=sum(cells[(k,c)][1] for c in present)/W
-    best_close=None; best2=None; best5=None
+    best_close=None; best2=None; best5=None; best_shape2=None; best_shape5=None
     for acts in itertools.product((0.,.5,1.), repeat=len(present)):
         ab=sum(cells[(k,c)][0]*q for c,q in zip(present,acts))/W
         loss=sum(q*cells[(k,c)][2]+(1-q)*cells[(k,c)][3] for c,q in zip(present,acts))/W
+        shape=sum(cells[(k,c)][0]*(q-cells[(k,c)][1]/cells[(k,c)][0])**2 for c,q in zip(present,acts))/W
         err=abs(ab-target)
-        rec=(err,loss,ab,acts)
-        if best_close is None or rec[:2]<best_close[:2]: best_close=rec
+        rec=(err,loss,shape,ab,acts)
+        if best_close is None or (err,loss)<(best_close[0],best_close[1]): best_close=rec
         if err<=.02 and (best2 is None or (loss,err)<(best2[1],best2[0])): best2=rec
         if err<=.05 and (best5 is None or (loss,err)<(best5[1],best5[0])): best5=rec
+        if err<=.02 and (best_shape2 is None or (shape,loss,err)<(best_shape2[2],best_shape2[1],best_shape2[0])): best_shape2=rec
+        if err<=.05 and (best_shape5 is None or (shape,loss,err)<(best_shape5[2],best_shape5[1],best_shape5[0])): best_shape5=rec
     print('CLASS',k,'target',round(100*target,2),'n',len(present))
-    for label,rec in [('CLOSEST',best_close),('LOSS_WITHIN_2PP',best2),('LOSS_WITHIN_5PP',best5)]:
+    for label,rec in [('CLOSEST',best_close),('LOSS_WITHIN_2PP',best2),('SHAPE_WITHIN_2PP',best_shape2),('SHAPE_WITHIN_5PP',best_shape5)]:
         if rec is None: continue
-        err,loss,ab,acts=rec
-        print(label,'actual',round(100*ab,2),'delta',round(100*(ab-target),2),'loss',round(loss,5))
+        err,loss,shape,ab,acts=rec
+        print(label,'actual',round(100*ab,2),'delta',round(100*(ab-target),2),'loss',round(loss,5),'shape',round(shape,5))
         print(' ', ' | '.join(f'{c}={"CHECK" if q==0 else "MIX" if q==.5 else "BET"}' for c,q in zip(present,acts)))
