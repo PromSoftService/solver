@@ -1,0 +1,68 @@
+name: Runner v013 checks
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'tsgpu-worker.ps1'
+      - 'tsgpu-batch.ps1'
+      - 'scripts/Run-Study.ps1'
+      - 'scripts/RUN__CFG001__NOD002__BRD001.cmd'
+      - 'tools/collect_dataset.ps1'
+      - '.github/workflows/runner-v013-check.yml'
+  workflow_dispatch:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Parse PowerShell scripts
+        shell: pwsh
+        run: |
+          $failed = $false
+          foreach ($path in @('tsgpu-worker.ps1', 'tsgpu-batch.ps1', 'scripts/Run-Study.ps1', 'tools/collect_dataset.ps1')) {
+            $tokens = $null
+            $errors = $null
+            [void][System.Management.Automation.Language.Parser]::ParseFile((Resolve-Path $path), [ref]$tokens, [ref]$errors)
+            if ($errors.Count -gt 0) {
+              Write-Host "Parser errors in $path"
+              $errors | ForEach-Object { Write-Host $_.Message }
+              $failed = $true
+            }
+          }
+          if ($failed) { exit 1 }
+
+      - name: Test UTG dataset collector schema
+        shell: pwsh
+        run: |
+          $root = Join-Path $PWD '_collector_test'
+          $job = Join-Path $root '0001_As_Kh_Qd'
+          New-Item -ItemType Directory -Path $job -Force | Out-Null
+          @'
+          {
+            "schema_version": 2,
+            "decision_node": "UTG_CBET",
+            "board": "As Kh Qd",
+            "final_status": {"iteration": 1000, "exploitability": 0.5}
+          }
+          '@ | Set-Content -LiteralPath (Join-Path $job 'run.json') -Encoding UTF8
+          @'
+          [
+            {
+              "combo": "AcKd",
+              "reach_probability": 0.5,
+              "check_frequency": 0.25,
+              "bet_frequency": 0.75,
+              "ev_check": 10.0,
+              "ev_bet": 12.0,
+              "mixed_ev": 11.5
+            }
+          ]
+          '@ | Set-Content -LiteralPath (Join-Path $job 'combos.json') -Encoding UTF8
+          & ./tools/collect_dataset.ps1 -OutputDir $root -MoneyScale 10
+          $row = Import-Csv (Join-Path $root 'dataset.csv') | Select-Object -First 1
+          if ($row.highest_frequency_action -ne 'B') { throw 'Expected B as highest-frequency action.' }
+          if ([math]::Abs([double]$row.ev_bet_utg - 1.2) -gt 0.000001) { throw 'UTG bet EV scaling failed.' }
+          if ([math]::Abs([double]$row.loss_if_check_utg - 0.2) -gt 0.000001) { throw 'UTG check-loss calculation failed.' }
