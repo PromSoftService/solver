@@ -583,13 +583,16 @@ try {
 
     Invoke-Bridge $socket 'solver.history.apply' '/api/apply-history' 'POST' ([ordered]@{ history = $history }) 10000 $transcript | Out-Null
     $ipActions = Split-Actions (Invoke-Bridge $socket 'solver.node.actionsAfter' '/api/actions-after' 'POST' ([ordered]@{ append = @() }) 10000 $transcript)
-    $bet = Find-ActionIndex $ipActions 'Bet' ([Nullable[int]]$ExpectedBetAmount)
 
     if ($DecisionNode -eq 'UTG_CBET') {
+        # We export the node immediately after BB checks, so no UTG action is
+        # applied here. Native APIs are inconsistent about naming the first IP
+        # wager after a check (Bet vs Raise), therefore do not preselect it.
         $exportHistory = @($history)
         $selectedActions = @($check.Label)
         $actingPlayer = 'UTG'
     } else {
+        $bet = Find-ActionIndex $ipActions 'Bet' ([Nullable[int]]$ExpectedBetAmount)
         $history = @($history + [int]$bet.Index)
         Invoke-Bridge $socket 'solver.history.apply' '/api/apply-history' 'POST' ([ordered]@{ history = $history }) 10000 $transcript | Out-Null
         $exportHistory = @($history)
@@ -603,12 +606,24 @@ try {
 
     if ($DecisionNode -eq 'UTG_CBET') {
         $checkSlot = Get-ActionSlot $validActions 'Check'
-        $betSlot = Get-ActionSlot $validActions 'Bet'
-        if ($validActions.Count -ne 2) {
-            throw "UTG_CBET expects exactly Check/Bet at the target node; got: $($validActions -join ' / ')"
+        # TexasSolverGPU v0.2.0 may expose the first IP wager after an OOP
+        # check as either `Bet 18` or `Raise 18` depending on the native API.
+        # Semantically both are the UTG c-bet at this node.
+        $betSlot = $null
+        for ($i = 0; $i -lt $validActions.Count; $i++) {
+            if ($validActions[$i] -match '(?i)^(?:Bet|Raise)(?:(?:\s+|:)|$)') {
+                $betSlot = $i
+                break
+            }
         }
-        if ($ExpectedBetAmount -gt 0 -and $validActions[$betSlot] -notmatch "(?i)^Bet(?:\s+|:)\s*$ExpectedBetAmount(?:\.0+)?$") {
-            throw "Expected Bet $ExpectedBetAmount, got: $($validActions -join ' / ')"
+        if ($null -eq $betSlot) {
+            throw "Required UTG wager action is missing: $($validActions -join ' / ')"
+        }
+        if ($validActions.Count -ne 2) {
+            throw "UTG_CBET expects exactly Check plus one wager at the target node; got: $($validActions -join ' / ')"
+        }
+        if ($ExpectedBetAmount -gt 0 -and $validActions[$betSlot] -notmatch "(?i)^(?:Bet|Raise)(?:\s+|:)\s*$ExpectedBetAmount(?:\.0+)?$") {
+            throw "Expected UTG wager $ExpectedBetAmount, got: $($validActions -join ' / ')"
         }
     } else {
         $foldSlot = Get-ActionSlot $validActions 'Fold'
