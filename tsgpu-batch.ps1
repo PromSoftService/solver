@@ -8,6 +8,7 @@ param(
     [Nullable[double]]$TargetExploitability = $null,
     [int]$ExpectedBetAmount = 0,
     [int]$ExpectedRaiseAmount = 0,
+    [ValidateSet('BB_RESPONSE', 'UTG_CBET')][string]$DecisionNode = 'BB_RESPONSE',
     [int]$SolveTimeoutMinutes = 180,
     [switch]$ShowHostWindow
 )
@@ -79,6 +80,7 @@ for ($i = 0; $i -lt $boardList.Count; $i++) {
             TargetExploitability = $effectiveTargetExploitability
             ExpectedBetAmount = $ExpectedBetAmount
             ExpectedRaiseAmount = $ExpectedRaiseAmount
+            DecisionNode = $DecisionNode
             SolveTimeoutMinutes = $SolveTimeoutMinutes
             ShowHostWindow = $ShowHostWindow
         }
@@ -90,6 +92,7 @@ for ($i = 0; $i -lt $boardList.Count; $i++) {
         $summary.Add([pscustomobject][ordered]@{
             index = $i + 1
             board = $board
+            decision_node = $DecisionNode
             status = 'done'
             output_directory = $jobName
             combos = [int]$run.combo_count
@@ -103,6 +106,7 @@ for ($i = 0; $i -lt $boardList.Count; $i++) {
         $summary.Add([pscustomobject][ordered]@{
             index = $i + 1
             board = $board
+            decision_node = $DecisionNode
             status = 'error'
             output_directory = $jobName
             combos = 0
@@ -119,5 +123,6 @@ $summary | ConvertTo-Json -Depth 20 | Set-Content -LiteralPath (Join-Path $outpu
 $summary | Export-Csv -LiteralPath (Join-Path $outputPath 'batch-summary.csv') -NoTypeInformation -Encoding UTF8
 
 Write-Host "Batch complete: $($boardList.Count - $failed) done, $failed failed."
+Write-Host "Decision: $DecisionNode"
 Write-Host "Summary: $outputPath"
 if ($failed -gt 0) { throw "$failed batch job(s) failed." }
