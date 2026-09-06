@@ -72,7 +72,8 @@ for c in CATS:
     print(c, ' | '.join(f'{g}={100*cells[(g,c)][1]/cells[(g,c)][0]:.1f}' if cells[(g,c)][0] else f'{g}=--' for g,_ in MERGED))
 for name,fn in SCHEMES.items():
     probs={}
-    for key,(w,wb,lb,lx) in cells.items(): probs[key]=fn(wb/w)
+    for key,(w,wb,lb,lx) in cells.items():
+        if w>0: probs[key]=fn(wb/w)
     totalw=targetb=actualb=loss=0.
     per=defaultdict(lambda:[0.,0.,0.,0.])
     for g,c,w,bf,lb,lx in rows:
