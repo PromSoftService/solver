@@ -32,21 +32,30 @@ The runner automatically searches for:
 
 You can also pass `-SolverExe` to `tsgpu-batch.ps1` or set `TSGPU_SOLVER_EXE`.
 
-## Canonical study run
+## Registered study runs
 
-The first permanent study is already registered as:
+The permanent baseline is:
 
 - `RNG001`: 6-max, 100bb, UTG open 2.5bb, BB call baseline ranges from the TexasSolverGPU v0.2.0 bundled range library;
-- `CFG001`: flop BB check -> UTG bet 33% -> BB Fold/Call/XR, with x10 native money scale;
 - `BRD001`: 286 canonical unpaired rainbow flops, one for every three-distinct-rank combination.
 
-Run it from the repository root:
+Two flop c-bet configs are registered:
+
+- `CFG001`: BB check -> UTG bet 33% -> BB Fold/Call/XR60;
+- `CFG002`: identical spot/tree, but UTG bet 75% -> BB Fold/Call/XR60.
+
+Run from the repository root:
 
 ```powershell
 .\scripts\RUN__CFG001__BRD001.cmd
+.\scripts\RUN__CFG002__BRD001.cmd
 ```
 
-The wrapper calls the production GPU batch runner, validates the expected native flop actions (`Bet 18`, `Raise 73`), builds a single analysis CSV, copies all input definitions into the run directory, and writes a manifest with SHA-256 hashes.
+`CFG001` validates native actions `Bet 18` and `Raise 73`.
+
+`CFG002` is derived from CFG001 at runtime, changing only `ipFlopBet` from `33` to `75`. It validates native actions `Bet 41` and `Raise 123`. The full effective CFG002 native config is copied into the raw run directory, so the result remains reproducible without duplicating the two 1326-entry range arrays in Git.
+
+Both wrappers call the production GPU batch runner, build a single analysis CSV, copy all input definitions into the run directory, and write a manifest with SHA-256 hashes.
 
 See `docs/STUDY_REGISTRY.md` for the permanent ID and naming rules.
 
@@ -55,7 +64,7 @@ See `docs/STUDY_REGISTRY.md` for the permanent ID and naming rules.
 Each study run gets a unique raw directory:
 
 ```text
-output\OUT__RNG001__CFG001__BRD001__RUN-YYYYMMDD-HHMMSS\
+output\OUT__RNG001__<CFGID>__BRD001__RUN-YYYYMMDD-HHMMSS\
 ```
 
 It contains the normal runner output plus provenance files:
@@ -86,10 +95,10 @@ Every board directory contains:
 A compact analysis copy is also written to:
 
 ```text
-datasets\DS__RNG001__CFG001__BRD001__RUN-YYYYMMDD-HHMMSS.csv
+datasets\DS__RNG001__<CFGID>__BRD001__RUN-YYYYMMDD-HHMMSS.csv
 ```
 
-Generated `output/` and `datasets/` contents are ignored by Git by default.
+Raw `output/` contents are ignored by Git. Analysis datasets under `datasets/` are intentionally versioned so completed studies can be pushed and reviewed later.
 
 ## Dataset fields
 
@@ -104,8 +113,6 @@ Generated `output/` and `datasets/` contents are ignored by Git by default.
 - best-EV action;
 - EV loss from forcing each pure action;
 - iteration and final exploitability.
-
-Raw showdown equity is not currently exported by the native bridge and is therefore not part of this dataset.
 
 ## Low-level runner
 
