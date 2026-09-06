@@ -1,0 +1,23 @@
+name: Analyze BRD001 strategy
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'datasets/DS__RNG001__CFG001__BRD001__RUN-*.csv'
+      - 'tools/analyze_strategy.py'
+      - '.github/workflows/analyze-strategy.yml'
+  workflow_dispatch:
+
+jobs:
+  analyze:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Analyze dataset
+        run: python3 tools/analyze_strategy.py
+      - name: Upload analysis
+        uses: actions/upload-artifact@v4
+        with:
+          name: BRD001-strategy-analysis
+          path: analysis/BRD001_strategy_analysis.json
