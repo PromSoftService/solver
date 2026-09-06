@@ -9,6 +9,7 @@ on:
       - 'tools/analyze_strategy.py'
       - 'tools/analyze_targeted.py'
       - 'tools/analyze_cfg002_compare.py'
+      - 'tools/report_cfg002_compact.py'
       - '.github/workflows/analyze-strategy.yml'
   workflow_dispatch:
 
@@ -22,6 +23,7 @@ jobs:
           python3 tools/analyze_strategy.py
           python3 tools/analyze_targeted.py
           python3 tools/analyze_cfg002_compare.py
+          python3 tools/report_cfg002_compact.py
       - name: Upload analysis
         uses: actions/upload-artifact@v4
         with:
