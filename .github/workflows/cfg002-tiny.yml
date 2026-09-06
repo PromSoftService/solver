@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - 'tools/report_cfg002_tiny.py'
+      - 'tools/report_cfg002_refine.py'
       - '.github/workflows/cfg002-tiny.yml'
   workflow_dispatch:
 
@@ -13,5 +14,5 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Print tiny report
-        run: python3 tools/report_cfg002_tiny.py
+      - name: Print refinement report
+        run: python3 tools/report_cfg002_refine.py
