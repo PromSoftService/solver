@@ -8,6 +8,7 @@ param(
     [double]$TargetExploitability = 0.5,
     [int]$ExpectedBetAmount = 0,
     [int]$ExpectedRaiseAmount = 0,
+    [ValidateSet('BB_RESPONSE', 'UTG_CBET')][string]$DecisionNode = 'BB_RESPONSE',
     [int]$ExportMaxNodes = 5000,
     [int]$SolveTimeoutMinutes = 180,
     [switch]$ShowHostWindow,
@@ -16,7 +17,7 @@ param(
 
 $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version Latest
-$ScriptVersion = 'v012-production'
+$ScriptVersion = 'v013-production'
 $StatusRetryLimit = 3
 
 # The host can call ShowWindow after ProcessStartInfo has requested Hidden.
@@ -583,17 +584,39 @@ try {
     Invoke-Bridge $socket 'solver.history.apply' '/api/apply-history' 'POST' ([ordered]@{ history = $history }) 10000 $transcript | Out-Null
     $ipActions = Split-Actions (Invoke-Bridge $socket 'solver.node.actionsAfter' '/api/actions-after' 'POST' ([ordered]@{ append = @() }) 10000 $transcript)
     $bet = Find-ActionIndex $ipActions 'Bet' ([Nullable[int]]$ExpectedBetAmount)
-    $history = @($history + [int]$bet.Index)
 
-    Invoke-Bridge $socket 'solver.history.apply' '/api/apply-history' 'POST' ([ordered]@{ history = $history }) 10000 $transcript | Out-Null
-    $export = Invoke-Bridge $socket 'solver.export.currentStreet' '/api/export/current-street' 'POST' ([ordered]@{ history = $history; max_nodes = $ExportMaxNodes }) 120000 $transcript
+    if ($DecisionNode -eq 'UTG_CBET') {
+        $exportHistory = @($history)
+        $selectedActions = @($check.Label)
+        $actingPlayer = 'UTG'
+    } else {
+        $history = @($history + [int]$bet.Index)
+        Invoke-Bridge $socket 'solver.history.apply' '/api/apply-history' 'POST' ([ordered]@{ history = $history }) 10000 $transcript | Out-Null
+        $exportHistory = @($history)
+        $selectedActions = @($check.Label, $bet.Label)
+        $actingPlayer = 'BB'
+    }
+
+    $export = Invoke-Bridge $socket 'solver.export.currentStreet' '/api/export/current-street' 'POST' ([ordered]@{ history = $exportHistory; max_nodes = $ExportMaxNodes }) 120000 $transcript
     $node = Read-Property $export 'payload' $export
     $validActions = @($node.valid_actions)
-    $foldSlot = Get-ActionSlot $validActions 'Fold'
-    $callSlot = Get-ActionSlot $validActions 'Call'
-    $raiseSlot = Get-ActionSlot $validActions 'Raise'
-    if ($ExpectedRaiseAmount -gt 0 -and $validActions[$raiseSlot] -notmatch "(?i)^Raise(?:\s+|:)\s*$ExpectedRaiseAmount(?:\.0+)?$") {
-        throw "Expected Raise $ExpectedRaiseAmount, got: $($validActions -join ' / ')"
+
+    if ($DecisionNode -eq 'UTG_CBET') {
+        $checkSlot = Get-ActionSlot $validActions 'Check'
+        $betSlot = Get-ActionSlot $validActions 'Bet'
+        if ($validActions.Count -ne 2) {
+            throw "UTG_CBET expects exactly Check/Bet at the target node; got: $($validActions -join ' / ')"
+        }
+        if ($ExpectedBetAmount -gt 0 -and $validActions[$betSlot] -notmatch "(?i)^Bet(?:\s+|:)\s*$ExpectedBetAmount(?:\.0+)?$") {
+            throw "Expected Bet $ExpectedBetAmount, got: $($validActions -join ' / ')"
+        }
+    } else {
+        $foldSlot = Get-ActionSlot $validActions 'Fold'
+        $callSlot = Get-ActionSlot $validActions 'Call'
+        $raiseSlot = Get-ActionSlot $validActions 'Raise'
+        if ($ExpectedRaiseAmount -gt 0 -and $validActions[$raiseSlot] -notmatch "(?i)^Raise(?:\s+|:)\s*$ExpectedRaiseAmount(?:\.0+)?$") {
+            throw "Expected Raise $ExpectedRaiseAmount, got: $($validActions -join ' / ')"
+        }
     }
 
     $strategy = $node.strategy
@@ -609,21 +632,36 @@ try {
     $combos = for ($i = 0; $i -lt $cards.Count; $i++) {
         $p = @($probs[$i]); $e = @($actionEvs[$i])
         if ($p.Count -ne $validActions.Count -or $e.Count -ne $validActions.Count) { throw "Action vector mismatch at combo $($cards[$i])." }
-        [ordered]@{
-            combo = [string]$cards[$i]
-            reach_probability = [double]$reach[$i]
-            fold_frequency = [double]$p[$foldSlot]
-            call_frequency = [double]$p[$callSlot]
-            raise_frequency = [double]$p[$raiseSlot]
-            ev_fold = [double]$e[$foldSlot]
-            ev_call = [double]$e[$callSlot]
-            ev_raise = [double]$e[$raiseSlot]
-            mixed_ev = [double]$mixedEvs[$i]
+        if ($DecisionNode -eq 'UTG_CBET') {
+            [ordered]@{
+                combo = [string]$cards[$i]
+                reach_probability = [double]$reach[$i]
+                check_frequency = [double]$p[$checkSlot]
+                bet_frequency = [double]$p[$betSlot]
+                ev_check = [double]$e[$checkSlot]
+                ev_bet = [double]$e[$betSlot]
+                mixed_ev = [double]$mixedEvs[$i]
+            }
+        } else {
+            [ordered]@{
+                combo = [string]$cards[$i]
+                reach_probability = [double]$reach[$i]
+                fold_frequency = [double]$p[$foldSlot]
+                call_frequency = [double]$p[$callSlot]
+                raise_frequency = [double]$p[$raiseSlot]
+                ev_fold = [double]$e[$foldSlot]
+                ev_call = [double]$e[$callSlot]
+                ev_raise = [double]$e[$raiseSlot]
+                mixed_ev = [double]$mixedEvs[$i]
+            }
         }
     }
 
     $run = [ordered]@{
-        schema_version = 1
+        schema_version = 2
+        runner_version = $ScriptVersion
+        decision_node = $DecisionNode
+        acting_player = $actingPlayer
         solver_exe = $solverPath
         solver_sha256 = (Get-FileHash -LiteralPath $solverPath -Algorithm SHA256).Hash.ToLowerInvariant()
         board = $Board
@@ -631,8 +669,8 @@ try {
         max_iterations = $MaxIterations
         target_exploitability = $TargetExploitability
         final_status = $status
-        selected_history = $history
-        selected_actions = @($check.Label, $bet.Label)
+        selected_history = $exportHistory
+        selected_actions = $selectedActions
         node_actions = $validActions
         combo_count = $cards.Count
         elapsed_ms = [int]([DateTime]::UtcNow - $runStarted).TotalMilliseconds
@@ -644,6 +682,7 @@ try {
     $transcript | ForEach-Object { ConvertTo-CompactJson $_ } | Set-Content -LiteralPath (Join-Path $outputPath 'bridge-transcript.jsonl') -Encoding UTF8
 
     Write-Host "OK: $Board -> $($cards.Count) combos"
+    Write-Host "Decision: $DecisionNode ($actingPlayer)"
     Write-Host "Actions: $($validActions -join ' / ')"
     Write-Host "Output: $outputPath"
 } catch {
