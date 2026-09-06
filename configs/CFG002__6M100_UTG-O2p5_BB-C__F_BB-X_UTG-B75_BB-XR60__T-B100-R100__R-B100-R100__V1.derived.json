@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "config_id": "CFG002",
+  "base_config": "configs/CFG001__6M100_UTG-O2p5_BB-C__F_BB-X_UTG-B33_BB-XR60__T-B100-R100__R-B100-R100__V1.json",
+  "overrides": {
+    "ipFlopBet": "75"
+  },
+  "expected_native_actions": {
+    "bet": 41,
+    "raise": 123
+  },
+  "note": "CFG002 is identical to CFG001 except UTG flop bet sizing is 75% instead of 33%. BB flop raise remains 60%. The launcher materializes the effective native config at runtime so the 1326-entry ranges are not duplicated in Git."
+}
