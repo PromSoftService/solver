@@ -1,0 +1,14 @@
+name: UTG six-class human candidate
+on:
+  push:
+    paths:
+      - 'tools/report_utg_sixclass_human_candidate.py'
+      - '.github/workflows/utg-sixclass-human-candidate.yml'
+      - 'datasets/DS__RNG001__CFG001__NOD002__BRD001__RUN-*.csv'
+  workflow_dispatch:
+jobs:
+  report:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: python3 tools/report_utg_sixclass_human_candidate.py
