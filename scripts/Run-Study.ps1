@@ -8,6 +8,8 @@ param(
     [Parameter(Mandatory = $true)][string]$RangeProfilePath,
     [Parameter(Mandatory = $true)][string]$UtgRangePath,
     [Parameter(Mandatory = $true)][string]$BbRangePath,
+    [ValidateSet('BB_RESPONSE', 'UTG_CBET')][string]$DecisionNode = 'BB_RESPONSE',
+    [string]$DecisionId = '',
     [int]$ExpectedBetAmount = 0,
     [int]$ExpectedRaiseAmount = 0,
     [double]$MoneyScale = 10.0
@@ -36,7 +38,11 @@ $utgRangePathAbs = Resolve-StudyPath $UtgRangePath
 $bbRangePathAbs = Resolve-StudyPath $BbRangePath
 
 $timestamp = Get-Date -Format 'yyyyMMdd-HHmmss'
-$runName = "OUT__${RangeId}__${ConfigId}__${BoardSetId}__RUN-${timestamp}"
+$idParts = @($RangeId, $ConfigId)
+if ($DecisionId) { $idParts += $DecisionId }
+$idParts += $BoardSetId
+$idStem = $idParts -join '__'
+$runName = "OUT__${idStem}__RUN-${timestamp}"
 $outputRoot = Join-Path $root 'output'
 $datasetsRoot = Join-Path $root 'datasets'
 $outputDir = Join-Path $outputRoot $runName
@@ -52,10 +58,11 @@ if ($boards.Count -eq 0) { throw "No boards found in $boardsPathAbs" }
 
 Write-Host ''
 Write-Host '============================================================'
-Write-Host "RANGE : $RangeId"
-Write-Host "CONFIG: $ConfigId"
-Write-Host "BOARDS: $BoardSetId ($($boards.Count))"
-Write-Host "OUTPUT: $outputDir"
+Write-Host "RANGE   : $RangeId"
+Write-Host "CONFIG  : $ConfigId"
+if ($DecisionId) { Write-Host "DECISION: $DecisionId ($DecisionNode)" } else { Write-Host "DECISION: $DecisionNode" }
+Write-Host "BOARDS  : $BoardSetId ($($boards.Count))"
+Write-Host "OUTPUT  : $outputDir"
 Write-Host '============================================================'
 Write-Host ''
 
@@ -65,6 +72,7 @@ $batchArgs = @{
     OutputDirectory = $outputDir
     ExpectedBetAmount = $ExpectedBetAmount
     ExpectedRaiseAmount = $ExpectedRaiseAmount
+    DecisionNode = $DecisionNode
 }
 & (Join-Path $root 'tsgpu-batch.ps1') @batchArgs
 
@@ -78,7 +86,8 @@ Copy-Item -LiteralPath $rangeProfilePathAbs -Destination (Join-Path $outputDir '
 Copy-Item -LiteralPath $utgRangePathAbs -Destination (Join-Path $outputDir 'INPUT_RANGE_UTG.txt') -Force
 Copy-Item -LiteralPath $bbRangePathAbs -Destination (Join-Path $outputDir 'INPUT_RANGE_BB.txt') -Force
 
-$versionPath = Join-Path $root 'VERSION-v012.txt'
+$versionPath = Join-Path $root 'VERSION-v013.txt'
+if (-not (Test-Path -LiteralPath $versionPath)) { $versionPath = Join-Path $root 'VERSION-v012.txt' }
 if (Test-Path -LiteralPath $versionPath) {
     Copy-Item -LiteralPath $versionPath -Destination (Join-Path $outputDir 'RUNNER_VERSION.txt') -Force
 }
@@ -88,16 +97,18 @@ if (-not (Test-Path -LiteralPath $datasetSource -PathType Leaf)) {
     throw 'dataset.csv was not created.'
 }
 
-$datasetName = "DS__${RangeId}__${ConfigId}__${BoardSetId}__RUN-${timestamp}.csv"
+$datasetName = "DS__${idStem}__RUN-${timestamp}.csv"
 $datasetPath = Join-Path $datasetsRoot $datasetName
 Copy-Item -LiteralPath $datasetSource -Destination $datasetPath -Force
 
 $manifest = [ordered]@{
-    schema_version = 1
+    schema_version = 2
     run_id = $runName
     created_at = (Get-Date).ToString('o')
     range_id = $RangeId
     config_id = $ConfigId
+    decision_id = $DecisionId
+    decision_node = $DecisionNode
     board_set_id = $BoardSetId
     board_count = $boards.Count
     money_scale = $MoneyScale
