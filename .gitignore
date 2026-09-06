@@ -1,0 +1,17 @@
+# Generated solver outputs
+output/*
+!output/.gitkeep
+
+# Generated analysis datasets
+datasets/*
+!datasets/.gitkeep
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Local/editor noise
+.vscode/
+.idea/
+Thumbs.db
+Desktop.ini
