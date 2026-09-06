@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "range_id": "RNG001",
+  "name": "RNG001__TSGPU020_6M100_UTG-O2p5_BB-C__V1",
+  "game": {
+    "format": "NLHE cash",
+    "players": 6,
+    "stack_bb": 100,
+    "sb_bb": 0.5,
+    "bb_bb": 1,
+    "ante_bb": 0
+  },
+  "spot": {
+    "open_position": "UTG",
+    "open_size_bb": 2.5,
+    "caller": "BB",
+    "oop": "BB",
+    "ip": "UTG",
+    "flop_pot_bb": 5.5,
+    "flop_effective_stack_bb": 97.5
+  },
+  "source": {
+    "provider": "TexasSolverGPU bundled 6-max range library",
+    "release": "v0.2.0",
+    "repo": "bupticybee/TexasSolverGPU",
+    "path": "ranges/6max_range/UTG/2.5bb/BB/Call",
+    "provenance_note": "Exact upstream solver/provider provenance is not documented in the public repository; do not label these ranges as GTO Wizard ranges."
+  },
+  "files": {
+    "UTG": "RNG001__TSGPU020_6M100_UTG-O2p5_BB-C__V1__UTG.txt",
+    "BB": "RNG001__TSGPU020_6M100_UTG-O2p5_BB-C__V1__BB.txt"
+  },
+  "sha256": {
+    "UTG": "8771ea78ac5644697a34e5eecb38c7d6d17cc8d17ee37f099b4335b6be482a8c",
+    "BB": "ef11970b67a5693e6d7ff35395c593ab5ca2fcd7c4d9d2792001f00953f82afb"
+  }
+}
