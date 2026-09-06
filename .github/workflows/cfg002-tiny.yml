@@ -4,7 +4,7 @@ on:
   push:
     branches: [main]
     paths:
-      - 'tools/report_cfg002_underpairs.py'
+      - 'tools/report_cfg002_oldclasses_expanded.py'
       - '.github/workflows/cfg002-tiny.yml'
   workflow_dispatch:
 
@@ -13,5 +13,5 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Print underpair report
-        run: python3 tools/report_cfg002_underpairs.py
+      - name: Print old-class expanded report
+        run: python3 tools/report_cfg002_oldclasses_expanded.py
