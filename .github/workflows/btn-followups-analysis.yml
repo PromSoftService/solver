@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - 'tools/analyze_rng002_btn_followups.py'
+      - 'tools/analyze_rng002_btn_refine.py'
       - 'datasets/DS__RNG002__CFG003__NOD004__BRD001__RUN-*.csv'
       - 'datasets/DS__RNG002__CFG003__NOD005__BRD001__RUN-*.csv'
       - '.github/workflows/btn-followups-analysis.yml'
@@ -17,3 +18,5 @@ jobs:
       - uses: actions/checkout@v4
       - name: Analyze BTN follow-up studies
         run: python3 tools/analyze_rng002_btn_followups.py
+      - name: Refine human simplifications
+        run: python3 tools/analyze_rng002_btn_refine.py
