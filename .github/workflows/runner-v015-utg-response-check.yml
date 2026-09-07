@@ -1,4 +1,5 @@
 name: Runner v015 UTG response checks
+# NOD006 static and schema validation
 
 on:
   push:
