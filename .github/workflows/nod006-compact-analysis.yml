@@ -1,0 +1,19 @@
+name: NOD006 compact analysis
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'tools/evaluate_utg_response_compact.py'
+      - 'tools/analyze_rng002_utg_response.py'
+      - 'datasets/DS__RNG002__CFG003__NOD006__BRD001__RUN-*.csv'
+      - '.github/workflows/nod006-compact-analysis.yml'
+  workflow_dispatch:
+
+jobs:
+  analyze:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Evaluate compact NOD006 classes
+        run: python3 tools/evaluate_utg_response_compact.py
