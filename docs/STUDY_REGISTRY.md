@@ -53,12 +53,18 @@ Decision-node IDs identify **which solved node is exported**. They do not change
 | `NOD001` | `BB_RESPONSE` | BB | after `BB Check -> UTG configured Bet`; `Fold / Call / Raise` |
 | `NOD002` | `UTG_CBET` | UTG | after `BB Check`, before any UTG action; `Check / configured Bet` |
 | `NOD003` | `UTG_OOP_CBET` | UTG | flop root in UTG-vs-BTN SRP, before any flop action; `Check / configured OOP Bet` |
+| `NOD004` | `BTN_RESPONSE` | BTN | after `UTG Bet 33%` at the CFG003 flop root; `Fold / Call / Raise 100%` |
+| `NOD005` | `BTN_STAB` | BTN | after `UTG Check` at the CFG003 flop root; `Check / Bet 33%` |
 
 `NOD001` is the semantics used by the original CFG001/CFG002 datasets. Older launchers keep their historical output names and therefore omit the node ID, but they still run with the default `BB_RESPONSE` extraction.
 
 `NOD002` is the UTG IP flop c-bet study for `CFG001`. The tree and ranges are unchanged: after BB checks, UTG has only `Check` and `Bet 33%` at the target node. With the x10 native money scale the runner validates `Bet 18`, then exports the UTG strategy before applying that bet.
 
 `NOD003` exports UTG's OOP decision at the **flop root** for `CFG003`, before UTG takes any action. The semantic actions are `Check / Bet 33%`; the launcher validates the native wager amount 21. The exported dataset uses the same UTG check/bet field schema as `NOD002`.
+
+`NOD004` exports BTN's response after `UTG Bet 33%` at the CFG003 root. BTN actions are `Fold / Call / Raise 100%`; native amounts are UTG Bet 21 and BTN Raise 128. The dataset uses BTN-specific `*_btn` EV/loss fields.
+
+`NOD005` exports BTN's stab decision after `UTG Check`. BTN actions are `Check / Bet 33%`; the expected native wager is 21. The dataset uses BTN-specific `ev_check_btn`, `ev_bet_btn`, `mixed_ev_btn`, and `loss_if_*_btn` fields.
 
 Launchers:
 
@@ -67,6 +73,9 @@ Launchers:
 .\scripts\RUN__CFG002__BRD001.cmd
 .\scripts\RUN__CFG001__NOD002__BRD001.cmd
 .\scripts\RUN__CFG003__NOD003__BRD001.cmd
+.\scripts\RUN__CFG003__NOD004__BRD001.cmd
+.\scripts\RUN__CFG003__NOD005__BRD001.cmd
+.\scripts\RUN__CFG003__NOD004_NOD005__BRD001__AND_PUSH.cmd
 ```
 
 ## Board sets

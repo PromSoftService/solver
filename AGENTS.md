@@ -382,3 +382,14 @@ It does **not** have to be an `.exe`; PowerShell/CMD is acceptable. The importan
 - no manual GUI interaction.
 
 Preserve that principle when extending the repository.
+
+
+### Additional registered UTG-vs-BTN nodes
+
+The authoritative current registry is `docs/STUDY_REGISTRY.md`. For `RNG002 / CFG003 / BRD001`:
+
+- `NOD003 / UTG_OOP_CBET`: UTG root Check/Bet 33%;
+- `NOD004 / BTN_RESPONSE`: BTN Fold/Call/Raise after UTG root Bet 33%; expected native UTG wager 21 and BTN Raise 128;
+- `NOD005 / BTN_STAB`: BTN Check/Bet 33% after UTG root Check; expected native BTN wager 21.
+
+BTN datasets use `*_btn` EV/loss field suffixes. Do not relabel these nodes as UTG or BB decisions.

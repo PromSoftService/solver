@@ -1,4 +1,4 @@
-﻿param(
+param(
     [Parameter(Mandatory=$true)][string]$OutputDir,
     [double]$MoneyScale = 10.0
 )
@@ -14,11 +14,21 @@ Get-ChildItem -LiteralPath $OutputDir -Directory | Sort-Object Name | ForEach-Ob
     $combos = Get-Content -LiteralPath $comboPath -Raw -Encoding UTF8 | ConvertFrom-Json
     $decisionProperty = $run.PSObject.Properties['decision_node']
     $decisionNode = if ($null -ne $decisionProperty -and $decisionProperty.Value) { [string]$decisionProperty.Value } else { 'BB_RESPONSE' }
+    $actingProperty = $run.PSObject.Properties['acting_player']
+    $actingPlayer = if ($null -ne $actingProperty -and $actingProperty.Value) {
+        ([string]$actingProperty.Value).ToUpperInvariant()
+    } elseif ($decisionNode -in @('BTN_RESPONSE', 'BTN_STAB')) {
+        'BTN'
+    } elseif ($decisionNode -in @('UTG_CBET', 'UTG_OOP_CBET')) {
+        'UTG'
+    } else {
+        'BB'
+    }
     if ($null -eq $datasetDecisionNode) { $datasetDecisionNode = $decisionNode }
     if ($datasetDecisionNode -ne $decisionNode) { throw "Mixed decision nodes in one output directory: $datasetDecisionNode and $decisionNode." }
 
     foreach ($x in $combos) {
-        if ($decisionNode -in @('UTG_CBET', 'UTG_OOP_CBET')) {
+        if ($decisionNode -in @('UTG_CBET', 'UTG_OOP_CBET', 'BTN_STAB')) {
             $check = [double]$x.check_frequency
             $bet = [double]$x.bet_frequency
             $evCheck = [double]$x.ev_check / $MoneyScale
@@ -28,24 +38,26 @@ Get-ChildItem -LiteralPath $OutputDir -Directory | Sort-Object Name | ForEach-Ob
             if ($evBet -gt $bestEv) { $best='B'; $bestEv=$evBet }
             $freqAction='X'; $freq=$check
             if ($bet -gt $freq) { $freqAction='B'; $freq=$bet }
-            $rows.Add([pscustomobject][ordered]@{
+            $suffix = if ($actingPlayer -eq 'BTN') { 'btn' } else { 'utg' }
+            $row = [ordered]@{
                 board = $run.board
                 combo = $x.combo
                 reach_probability = [double]$x.reach_probability
                 check_frequency = $check
                 bet_frequency = $bet
-                ev_check_utg = $evCheck
-                ev_bet_utg = $evBet
-                mixed_ev_utg = $mixed
-                best_ev_action = $best
-                best_ev_utg = $bestEv
-                highest_frequency_action = $freqAction
-                highest_frequency = $freq
-                loss_if_check_utg = $bestEv - $evCheck
-                loss_if_bet_utg = $bestEv - $evBet
-                iteration = $run.final_status.iteration
-                exploitability = $run.final_status.exploitability
-            }) | Out-Null
+            }
+            $row["ev_check_$suffix"] = $evCheck
+            $row["ev_bet_$suffix"] = $evBet
+            $row["mixed_ev_$suffix"] = $mixed
+            $row['best_ev_action'] = $best
+            $row["best_ev_$suffix"] = $bestEv
+            $row['highest_frequency_action'] = $freqAction
+            $row['highest_frequency'] = $freq
+            $row["loss_if_check_$suffix"] = $bestEv - $evCheck
+            $row["loss_if_bet_$suffix"] = $bestEv - $evBet
+            $row['iteration'] = $run.final_status.iteration
+            $row['exploitability'] = $run.final_status.exploitability
+            $rows.Add([pscustomobject]$row) | Out-Null
         } else {
             $f = [double]$x.fold_frequency
             $c = [double]$x.call_frequency
@@ -60,27 +72,29 @@ Get-ChildItem -LiteralPath $OutputDir -Directory | Sort-Object Name | ForEach-Ob
             $freqAction='F'; $freq=$f
             if ($c -gt $freq) { $freqAction='C'; $freq=$c }
             if ($r -gt $freq) { $freqAction='R'; $freq=$r }
-            $rows.Add([pscustomobject][ordered]@{
+            $suffix = if ($actingPlayer -eq 'BTN') { 'btn' } else { 'bb' }
+            $row = [ordered]@{
                 board = $run.board
                 combo = $x.combo
                 reach_probability = [double]$x.reach_probability
                 fold_frequency = $f
                 call_frequency = $c
                 raise_frequency = $r
-                ev_fold_bb = $evF
-                ev_call_bb = $evC
-                ev_raise_bb = $evR
-                mixed_ev_bb = $mixed
-                best_ev_action = $best
-                best_ev_bb = $bestEv
-                highest_frequency_action = $freqAction
-                highest_frequency = $freq
-                loss_if_fold_bb = $bestEv - $evF
-                loss_if_call_bb = $bestEv - $evC
-                loss_if_raise_bb = $bestEv - $evR
-                iteration = $run.final_status.iteration
-                exploitability = $run.final_status.exploitability
-            }) | Out-Null
+            }
+            $row["ev_fold_$suffix"] = $evF
+            $row["ev_call_$suffix"] = $evC
+            $row["ev_raise_$suffix"] = $evR
+            $row["mixed_ev_$suffix"] = $mixed
+            $row['best_ev_action'] = $best
+            $row["best_ev_$suffix"] = $bestEv
+            $row['highest_frequency_action'] = $freqAction
+            $row['highest_frequency'] = $freq
+            $row["loss_if_fold_$suffix"] = $bestEv - $evF
+            $row["loss_if_call_$suffix"] = $bestEv - $evC
+            $row["loss_if_raise_$suffix"] = $bestEv - $evR
+            $row['iteration'] = $run.final_status.iteration
+            $row['exploitability'] = $run.final_status.exploitability
+            $rows.Add([pscustomobject]$row) | Out-Null
         }
     }
 }

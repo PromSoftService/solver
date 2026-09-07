@@ -8,7 +8,7 @@ param(
     [double]$TargetExploitability = 0.5,
     [int]$ExpectedBetAmount = 0,
     [int]$ExpectedRaiseAmount = 0,
-    [ValidateSet('BB_RESPONSE', 'UTG_CBET', 'UTG_OOP_CBET')][string]$DecisionNode = 'BB_RESPONSE',
+    [ValidateSet('BB_RESPONSE', 'UTG_CBET', 'UTG_OOP_CBET', 'BTN_RESPONSE', 'BTN_STAB')][string]$DecisionNode = 'BB_RESPONSE',
     [int]$ExportMaxNodes = 5000,
     [int]$SolveTimeoutMinutes = 180,
     [switch]$ShowHostWindow,
@@ -17,7 +17,7 @@ param(
 
 $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version Latest
-$ScriptVersion = 'v013-production'
+$ScriptVersion = 'v014-production'
 $StatusRetryLimit = 3
 
 # The host can call ShowWindow after ProcessStartInfo has requested Hidden.
@@ -585,6 +585,20 @@ try {
         $exportHistory = @()
         $selectedActions = @()
         $actingPlayer = 'UTG'
+    } elseif ($DecisionNode -eq 'BTN_RESPONSE') {
+        # Export BTN's Fold/Call/Raise response after UTG bets at the flop root.
+        # Native APIs may label a first wager Bet or Raise, so accept either.
+        $rootBet = $null
+        try {
+            $rootBet = Find-ActionIndex $rootActions 'Bet' ([Nullable[int]]$ExpectedBetAmount)
+        } catch {
+            $rootBet = Find-ActionIndex $rootActions 'Raise' ([Nullable[int]]$ExpectedBetAmount)
+        }
+        $history = @([int]$rootBet.Index)
+        Invoke-Bridge $socket 'solver.history.apply' '/api/apply-history' 'POST' ([ordered]@{ history = $history }) 10000 $transcript | Out-Null
+        $exportHistory = @($history)
+        $selectedActions = @($rootBet.Label)
+        $actingPlayer = 'BTN'
     } else {
         $check = Find-ActionIndex $rootActions 'Check' $null
         $history = @([int]$check.Index)
@@ -599,6 +613,11 @@ try {
             $exportHistory = @($history)
             $selectedActions = @($check.Label)
             $actingPlayer = 'UTG'
+        } elseif ($DecisionNode -eq 'BTN_STAB') {
+            # Export BTN's Check/Bet decision after UTG checks the flop root.
+            $exportHistory = @($history)
+            $selectedActions = @($check.Label)
+            $actingPlayer = 'BTN'
         } else {
             $bet = Find-ActionIndex $ipActions 'Bet' ([Nullable[int]]$ExpectedBetAmount)
             $history = @($history + [int]$bet.Index)
@@ -613,7 +632,7 @@ try {
     $node = Read-Property $export 'payload' $export
     $validActions = @($node.valid_actions)
 
-    if ($DecisionNode -in @('UTG_CBET', 'UTG_OOP_CBET')) {
+    if ($DecisionNode -in @('UTG_CBET', 'UTG_OOP_CBET', 'BTN_STAB')) {
         $checkSlot = Get-ActionSlot $validActions 'Check'
         # TexasSolverGPU v0.2.0 may expose a first wager as either Bet or Raise
         # depending on the native API. Treat both labels as the semantic UTG bet.
@@ -625,13 +644,13 @@ try {
             }
         }
         if ($null -eq $betSlot) {
-            throw "Required UTG wager action is missing: $($validActions -join ' / ')"
+            throw "Required wager action is missing: $($validActions -join ' / ')"
         }
         if ($validActions.Count -ne 2) {
             throw "$DecisionNode expects exactly Check plus one wager at the target node; got: $($validActions -join ' / ')"
         }
         if ($ExpectedBetAmount -gt 0 -and $validActions[$betSlot] -notmatch "(?i)^(?:Bet|Raise)(?:\s+|:)\s*$ExpectedBetAmount(?:\.0+)?$") {
-            throw "Expected UTG wager $ExpectedBetAmount, got: $($validActions -join ' / ')"
+            throw "Expected wager $ExpectedBetAmount, got: $($validActions -join ' / ')"
         }
     } else {
         $foldSlot = Get-ActionSlot $validActions 'Fold'
@@ -655,7 +674,7 @@ try {
     $combos = for ($i = 0; $i -lt $cards.Count; $i++) {
         $p = @($probs[$i]); $e = @($actionEvs[$i])
         if ($p.Count -ne $validActions.Count -or $e.Count -ne $validActions.Count) { throw "Action vector mismatch at combo $($cards[$i])." }
-        if ($DecisionNode -in @('UTG_CBET', 'UTG_OOP_CBET')) {
+        if ($DecisionNode -in @('UTG_CBET', 'UTG_OOP_CBET', 'BTN_STAB')) {
             [ordered]@{
                 combo = [string]$cards[$i]
                 reach_probability = [double]$reach[$i]

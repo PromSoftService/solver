@@ -51,6 +51,8 @@ Decision-node extraction is separate from the tree:
 - `NOD001 / BB_RESPONSE`: export the BB Fold/Call/Raise decision after the configured UTG bet;
 - `NOD002 / UTG_CBET`: export the UTG IP Check/Bet decision immediately after BB checks;
 - `NOD003 / UTG_OOP_CBET`: export the UTG OOP Check/Bet decision at the flop root before any flop action.
+- `NOD004 / BTN_RESPONSE`: export BTN Fold/Call/Raise after UTG bets 33% at the CFG003 flop root.
+- `NOD005 / BTN_STAB`: export BTN Check/Bet 33% after UTG checks the CFG003 flop root.
 
 Run from the repository root:
 
@@ -59,6 +61,9 @@ Run from the repository root:
 .\scripts\RUN__CFG002__BRD001.cmd
 .\scripts\RUN__CFG001__NOD002__BRD001.cmd
 .\scripts\RUN__CFG003__NOD003__BRD001.cmd
+.\scripts\RUN__CFG003__NOD004__BRD001.cmd
+.\scripts\RUN__CFG003__NOD005__BRD001.cmd
+.\scripts\RUN__CFG003__NOD004_NOD005__BRD001__AND_PUSH.cmd
 ```
 
 The fourth command is the UTG-vs-BTN flop study. It uses `RNG002`, reuses `BRD001`, materializes the native 1326-combo ranges from the TexasSolver shorthand files, solves all 286 boards, and exports UTG's root `Check / Bet 33%` decision. The x10 native flop pot is 65, effective stack is 975, and the expected UTG root wager is 21.
@@ -201,3 +206,7 @@ When omitted, those same defaults are used.
 - `BB_RESPONSE` targets the single-raise BB decision after BB check and the configured IP flop bet. Multiple IP bet sizes are ambiguous unless `-ExpectedBetAmount` is supplied.
 - One native process per board is intentionally used for isolation. A crash on one board does not prevent later boards from running.
 - `RNG001` and `RNG002` are sourced from the bundled TexasSolverGPU range library. Their public upstream provider is not documented, so they must not be described as GTO Wizard/GTOBase ranges without separate evidence.
+
+### BTN follow-up studies on CFG003
+
+`NOD004` studies BTN defense versus UTG B33. `NOD005` studies BTN stab after UTG checks. The combined `AND_PUSH` launcher runs NOD004, then NOD005, retries an incomplete run once if necessary, stages generated datasets/manifests with `git add .`, commits them only after both studies complete, and pushes the commit.
