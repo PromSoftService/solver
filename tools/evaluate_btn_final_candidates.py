@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import json
+from collections import defaultdict
 import analyze_rng002_btn_followups as a
 import analyze_rng002_btn_refine as r
 
@@ -14,7 +15,7 @@ def stab_rule(x):
     return 1.
 
 def stab_same6_rule(x):
-    # Reuse exactly the familiar UTG-vs-BB c-bet hand pool and familiar six flop classes.
+    # Reuse the familiar UTG-vs-BB c-bet flop classes and familiar MIX hand pool.
     pool={'Two pair+','Overpair','Top pair','Second pair','OESD','Gutshot','BDFD','X-high'}
     if x['hb'] not in pool:return 0.
     rates={
@@ -56,11 +57,80 @@ def response_rule(x):
     elif c=='[T-4]x' and hb in ('OESD','Gutshot'):pr=1.
     return {'F':0.,'C':1-pr,'R':pr}
 
+
+def bdsd_paths(br,hr):
+    u=set(br+hr); hole_contrib=set(hr)-set(br); n=0
+    if not hole_contrib:return 0
+    for w in a.STRAIGHTS:
+        if len(w & u)==3 and len(w-u)==2 and (w & hole_contrib):n+=1
+    return n
+
+def response_same_as_bb33(x):
+    # Apply the existing BB-vs-UTG-B33 six-class defense taxonomy literally to BTN.
+    b=a.bc(x['board']);h=a.hc(x['combo']);br=a.ranks(b);hr=a.ranks(h)
+    top,mid,low=sorted(br,reverse=True)
+    cnt=defaultdict(int)
+    for v in br+hr:cnt[v]+=1
+    isstraight=a.straight(br+hr)
+    if isstraight:return {'F':0.,'C':0.,'R':1.}
+    if max(cnt.values())>=3 or sum(v>=2 for v in cnt.values())>=2:return {'F':0.,'C':0.,'R':1.}
+
+    if hr[0]==hr[1]:
+        pr=hr[0]
+        if pr<mid: # weak pocket pair in the established BB table
+            act='F' if x['b6']=='A[K-J]x' else 'C'
+        else:
+            act='C'
+        return {q:1. if q==act else 0. for q in 'FCR'}
+
+    matched=[v for v in hr if v in br]
+    if matched:return {'F':0.,'C':1.,'R':0.}
+
+    sd=a.sd_kind(br,hr)
+    bd=a.bdfd(b,h)
+    bdstraight=bdsd_paths(br,hr)>0
+    two_over=min(hr)>top
+    hole=''.join(sorted((h[0][0],h[1][0]),key=lambda z:a.RANK[z],reverse=True))
+
+    # Existing precedence: 2 overcards + any useful draw -> call.
+    if two_over and (sd is not None or bd or bdstraight):return {'F':0.,'C':1.,'R':0.}
+    if sd=='OESD':return {'F':0.,'C':0.,'R':1.}
+    if sd=='Gutshot' and bd:return {'F':0.,'C':0.,'R':1.}
+    if sd=='Gutshot':return {'F':0.,'C':1.,'R':0.}
+
+    # Bare strong ace-high row from the established table.
+    if hole in ('AK','AQ','AJ') and not bd and not bdstraight:return {'F':0.,'C':1.,'R':0.}
+    if two_over and not bd and not bdstraight:
+        act='F' if x['b6']=='[7-4]x' else 'C'
+        return {q:1. if q==act else 0. for q in 'FCR'}
+
+    # BDFD/BDSD-only and residual air are folds in the BB template.
+    return {'F':1.,'C':0.,'R':0.}
+
+
+def eval_response_by6(rows,rule):
+    by={c:{'w':0.,'sF':0.,'sC':0.,'sR':0.,'cF':0.,'cC':0.,'cR':0.,'reg':0.} for c in a.B6}
+    for x in rows:
+        p=rule(x);z=by[x['b6']];w=x['w'];z['w']+=w
+        for q in 'FCR':z['s'+q]+=w*x[q];z['c'+q]+=w*p[q]
+        z['reg']+=w*sum(p[q]*x['l'+q] for q in 'FCR')
+    out={};tot=defaultdict(float)
+    for c,z in by.items():
+        w=z['w'];v={'w':w,'reg':z['reg']/w}
+        for q in 'FCR':v['solver'+q]=z['s'+q]/w;v['cand'+q]=z['c'+q]/w;v['diff'+q]=v['cand'+q]-v['solver'+q]
+        out[c]=v;tot['w']+=w;tot['reg']+=z['reg']
+        for q in 'FCR':tot['s'+q]+=z['s'+q];tot['c'+q]+=z['c'+q]
+    W=tot['w'];ov={'reg':tot['reg']/W}
+    for q in 'FCR':ov['solver'+q]=tot['s'+q]/W;ov['cand'+q]=tot['c'+q]/W;ov['diff'+q]=ov['cand'+q]-ov['solver'+q]
+    return {'by':out,'overall':ov}
+
+
 def main():
     p4=a.latest('datasets/DS__RNG002__CFG003__NOD004__BRD001__RUN-*.csv');p5=a.latest('datasets/DS__RNG002__CFG003__NOD005__BRD001__RUN-*.csv')
     x4=a.load4(p4,'NOD004');x5=a.load4(p5,'NOD005')
     result={
       'NOD004_final':r.eval_response(x4,response_rule),
+      'NOD004_same_as_BB33':eval_response_by6(x4,response_same_as_bb33),
       'NOD005_final':eval_stab(x5),
       'NOD005_same6_familiar_pool':eval_stab(x5,stab_same6_rule,'b6',a.B6),
     }
