@@ -12,7 +12,6 @@ RANK = {r:i for i,r in enumerate('23456789TJQKA', 2)}
 STRAIGHTS = tuple(frozenset(range(i,i+5)) for i in range(2,11)) + (frozenset((14,2,3,4,5)),)
 HANDS = ('Two pair+', 'Overpair', 'Top pair', 'Second pair', 'Third pair', 'Underpair', 'Weak pair',
          'Combo draw', 'OESD', 'Gutshot', 'BDFD', '2 overcards + draw', '2 overcards', 'A-high', 'Air / Nothing')
-# Display order stays the approved order. Precedence is separate and explicit.
 GROUPS = ('Two pair+',) + ('Pairs',)*6 + ('Draws',)*5 + ('High cards',)*2 + ('Air',)
 B6 = ('A[K-J]x','A[T-2]x','BBx','K[9-2]x','[Q-8]x','[7-4]x')
 B8 = ('AKx','A[Q-J]x','A[T-2]x','BBx','K[9-2]x','[Q-J]x','[T-8]x','[7-4]x')
@@ -67,8 +66,6 @@ def board_class(board: str, grid: str='six') -> str:
         if lo>=10: return 'BBB'
         if mid>=10: return 'BBx'
         if hi<8: return '[7-4]x'
-        # Operational definition, not a claim about all straight connectivity:
-        # con = the two lower cards are consecutive. Both broadway ranks already excluded.
         return ('K/Qx ' if hi>=12 else '[J-8]x ') + ('con' if mid-lo==1 else 'dis')
     if grid!='six': raise ValueError(grid)
     if hi==14: return 'A[K-J]x' if mid>=11 else 'A[T-2]x'
@@ -93,12 +90,12 @@ def hand_class(board: str, combo: str) -> int:
     sd = 2 if len(missing)>=2 else 1 if len(missing)==1 else 0
     bd = holes[0][1]==holes[1][1] and holes[0][1] in [b[1] for b in cards]
     bs = any(len(s & u)==3 and bool(s & (set(hr)-set(br))) for s in STRAIGHTS) if not sd else False
-    # Retain the previously used BB rule: 2OC + any draw overrides generic draw rows.
+    # Definition v2: a backdoor straight alone does not remove bare A-high from its row.
+    if max(hr)==14 and not sd and not bd: return 13
     if min(hr)>br[0] and (sd or bd or bs): return 11
     if sd and bd: return 7
     if sd: return 8 if sd==2 else 9
     if bd: return 10
-    # A-high has precedence over bare 2OC, without introducing a new row.
     if max(hr)==14: return 13
     if min(hr)>br[0]: return 12
     return 14

@@ -33,38 +33,32 @@ jobs:
           python3 -m venv .analysis-venv
           .analysis-venv/bin/pip install numpy==2.3.5 scipy==1.17.0
           echo "$GITHUB_WORKSPACE/.analysis-venv/bin" >> "$GITHUB_PATH"
-      - name: EXP-001 dataset and taxonomy audit
-        run: python3 tools/universal_strategy/audit.py
-      - name: Record verified audit checkpoint
-        run: |
-          python3 - <<'PY'
-          import json, os, re
-          from pathlib import Path
-          p=Path('analysis/universal_strategy/PROGRESS.md')
-          s=p.read_text()
-          text=('### EXP-001 — dataset and taxonomy audit\n'
-                'Script: `tools/universal_strategy/audit.py`.\n'
-                'GHA run: '+os.environ['GITHUB_RUN_ID']+'; code commit: '+os.environ['GITHUB_SHA']+'.\n'
-                'Results: `experiments/EXP-001.json` and `experiments/EXP-001.md`.\n'
-                'KEEP: all seven dataset hashes, schemas, coverage and EV identities pass.\n'
-                'Legacy 13-label examples cover only 127 boards. All 6/8/13 operational partitions cover 286.\n'
-                'The approved vocabulary is frozen; classifier definitions/precedence are documented in EXP-001.\n'
-                'No strategy architecture has yet been accepted.\n\n')
-          s=re.sub(r'## Experiments completed\n.*?(?=## Current best candidate)', '## Experiments completed\n'+text,s,flags=re.S)
-          s=re.sub(r'## Next step\n.*', '## Next step\nImplement EXP-002: compare literal shared 2/4 action maps and spot-specific maps on fixed 6/8/13 grids, with explicit error/complexity safeguards.\n',s,flags=re.S)
-          p.write_text(s)
-          PY
-      - name: Commit generated audit and checkpoint
-        run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add analysis/universal_strategy/experiments/EXP-001.json analysis/universal_strategy/experiments/EXP-001.md analysis/universal_strategy/PROGRESS.md
+      - name: Validate Python sources
+        run: python3 -m py_compile tools/universal_strategy/core.py tools/universal_strategy/optimize.py tools/universal_strategy/experiments.py
+      - name: EXP-002 bounded architecture comparison
+        run: python3 tools/universal_strategy/experiments.py --stage architectures
+      - name: Persist verified EXP-002 checkpoint
+        run: |
+          git add analysis/universal_strategy/experiments/ analysis/universal_strategy/PROGRESS.md
           if ! git diff --cached --quiet; then
-            git commit -m 'universal strategy: persist verified EXP-001 audit'
+            git commit -m 'universal strategy: persist verified EXP-002 architecture comparison'
             git pull --rebase origin main
             git push origin HEAD:main
           fi
-      - name: Preserve audit reports
+      - name: EXP-003 fixed-grid action candidates
+        run: python3 tools/universal_strategy/experiments.py --stage candidates
+      - name: Persist verified EXP-003 checkpoint
+        run: |
+          git add analysis/universal_strategy/experiments/ analysis/universal_strategy/PROGRESS.md
+          if ! git diff --cached --quiet; then
+            git commit -m 'universal strategy: persist verified EXP-003 fixed-grid candidates'
+            git pull --rebase origin main
+            git push origin HEAD:main
+          fi
+      - name: Preserve reports including partial results on failure
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: universal-strategy-analysis
