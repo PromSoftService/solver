@@ -13,6 +13,7 @@ on:
       - 'tools/evaluate_utg_response_candidates.py'
       - 'tools/evaluate_utg_response_finalish.py'
       - 'tools/evaluate_utg_response_evpure.py'
+      - 'tools/evaluate_utg_response_compact.py'
       - 'datasets/DS__RNG002__CFG003__NOD004__BRD001__RUN-*.csv'
       - 'datasets/DS__RNG002__CFG003__NOD005__BRD001__RUN-*.csv'
       - 'datasets/DS__RNG002__CFG003__NOD006__BRD001__RUN-*.csv'
@@ -42,3 +43,5 @@ jobs:
         run: python3 tools/evaluate_utg_response_finalish.py
       - name: Evaluate EV-first NOD006 simplification
         run: python3 tools/evaluate_utg_response_evpure.py
+      - name: Evaluate compact NOD006 classes
+        run: python3 tools/evaluate_utg_response_compact.py
