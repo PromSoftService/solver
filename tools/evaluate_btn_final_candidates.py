@@ -30,6 +30,7 @@ def response_rule(x):
     pf=0.
     if hb=='Air':pf=1.
     elif c in ('AKx','Kxx','[A/Q/J]xx') and d=='BDFD 0OC':pf=1.
+    elif c=='[A/Q/J]xx' and d=='BDFD 1OC':pf=.50
     elif d=='X-high 1OC':pf=1.
     elif c=='AKx' and d=='Underpair 9-':pf=.75
     if pf>0:return {'F':pf,'C':1-pf,'R':0.}
