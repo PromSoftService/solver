@@ -6,9 +6,13 @@ param(
     [Parameter(Mandatory = $true)][string]$ConfigPath,
     [Parameter(Mandatory = $true)][string]$BoardsPath,
     [Parameter(Mandatory = $true)][string]$RangeProfilePath,
-    [Parameter(Mandatory = $true)][string]$UtgRangePath,
-    [Parameter(Mandatory = $true)][string]$BbRangePath,
-    [ValidateSet('BB_RESPONSE', 'UTG_CBET')][string]$DecisionNode = 'BB_RESPONSE',
+    [string]$UtgRangePath = '',
+    [string]$BbRangePath = '',
+    [string]$OopRangePath = '',
+    [string]$IpRangePath = '',
+    [string]$OopPosition = '',
+    [string]$IpPosition = '',
+    [ValidateSet('BB_RESPONSE', 'UTG_CBET', 'UTG_OOP_CBET')][string]$DecisionNode = 'BB_RESPONSE',
     [string]$DecisionId = '',
     [int]$ExpectedBetAmount = 0,
     [int]$ExpectedRaiseAmount = 0,
@@ -34,8 +38,28 @@ function Get-Sha256([string]$Path) {
 $configPathAbs = Resolve-StudyPath $ConfigPath
 $boardsPathAbs = Resolve-StudyPath $BoardsPath
 $rangeProfilePathAbs = Resolve-StudyPath $RangeProfilePath
-$utgRangePathAbs = Resolve-StudyPath $UtgRangePath
-$bbRangePathAbs = Resolve-StudyPath $BbRangePath
+
+$usingGenericRanges = [bool]($OopRangePath -or $IpRangePath -or $OopPosition -or $IpPosition)
+if ($usingGenericRanges) {
+    if (-not $OopRangePath -or -not $IpRangePath -or -not $OopPosition -or -not $IpPosition) {
+        throw 'Generic range mode requires OopRangePath, IpRangePath, OopPosition and IpPosition together.'
+    }
+    $oopRangePathAbs = Resolve-StudyPath $OopRangePath
+    $ipRangePathAbs = Resolve-StudyPath $IpRangePath
+} else {
+    if (-not $UtgRangePath -or -not $BbRangePath) {
+        throw 'Legacy range mode requires UtgRangePath and BbRangePath.'
+    }
+    # Existing RNG001 studies are BB OOP and UTG IP.
+    $oopRangePathAbs = Resolve-StudyPath $BbRangePath
+    $ipRangePathAbs = Resolve-StudyPath $UtgRangePath
+    $OopPosition = 'BB'
+    $IpPosition = 'UTG'
+}
+
+$OopPosition = $OopPosition.ToUpperInvariant()
+$IpPosition = $IpPosition.ToUpperInvariant()
+if ($OopPosition -eq $IpPosition) { throw 'OOP and IP positions must be different.' }
 
 $timestamp = Get-Date -Format 'yyyyMMdd-HHmmss'
 $idParts = @($RangeId, $ConfigId)
@@ -61,6 +85,7 @@ Write-Host '============================================================'
 Write-Host "RANGE   : $RangeId"
 Write-Host "CONFIG  : $ConfigId"
 if ($DecisionId) { Write-Host "DECISION: $DecisionId ($DecisionNode)" } else { Write-Host "DECISION: $DecisionNode" }
+Write-Host "PLAYERS : $OopPosition OOP / $IpPosition IP"
 Write-Host "BOARDS  : $BoardSetId ($($boards.Count))"
 Write-Host "OUTPUT  : $outputDir"
 Write-Host '============================================================'
@@ -83,8 +108,10 @@ Write-Host 'Building analysis dataset...'
 Copy-Item -LiteralPath $configPathAbs -Destination (Join-Path $outputDir 'INPUT_CONFIG.json') -Force
 Copy-Item -LiteralPath $boardsPathAbs -Destination (Join-Path $outputDir 'INPUT_BOARDS.txt') -Force
 Copy-Item -LiteralPath $rangeProfilePathAbs -Destination (Join-Path $outputDir 'INPUT_RANGE_PROFILE.json') -Force
-Copy-Item -LiteralPath $utgRangePathAbs -Destination (Join-Path $outputDir 'INPUT_RANGE_UTG.txt') -Force
-Copy-Item -LiteralPath $bbRangePathAbs -Destination (Join-Path $outputDir 'INPUT_RANGE_BB.txt') -Force
+Copy-Item -LiteralPath $oopRangePathAbs -Destination (Join-Path $outputDir 'INPUT_RANGE_OOP.txt') -Force
+Copy-Item -LiteralPath $ipRangePathAbs -Destination (Join-Path $outputDir 'INPUT_RANGE_IP.txt') -Force
+Copy-Item -LiteralPath $oopRangePathAbs -Destination (Join-Path $outputDir ("INPUT_RANGE_{0}.txt" -f $OopPosition)) -Force
+Copy-Item -LiteralPath $ipRangePathAbs -Destination (Join-Path $outputDir ("INPUT_RANGE_{0}.txt" -f $IpPosition)) -Force
 
 $versionPath = Join-Path $root 'VERSION-v013.txt'
 if (-not (Test-Path -LiteralPath $versionPath)) { $versionPath = Join-Path $root 'VERSION-v012.txt' }
@@ -101,26 +128,35 @@ $datasetName = "DS__${idStem}__RUN-${timestamp}.csv"
 $datasetPath = Join-Path $datasetsRoot $datasetName
 Copy-Item -LiteralPath $datasetSource -Destination $datasetPath -Force
 
+$inputs = [ordered]@{
+    config = [ordered]@{ file = [IO.Path]::GetFileName($configPathAbs); sha256 = Get-Sha256 $configPathAbs }
+    boards = [ordered]@{ file = [IO.Path]::GetFileName($boardsPathAbs); sha256 = Get-Sha256 $boardsPathAbs }
+    range_profile = [ordered]@{ file = [IO.Path]::GetFileName($rangeProfilePathAbs); sha256 = Get-Sha256 $rangeProfilePathAbs }
+    oop_range = [ordered]@{ position = $OopPosition; file = [IO.Path]::GetFileName($oopRangePathAbs); sha256 = Get-Sha256 $oopRangePathAbs }
+    ip_range = [ordered]@{ position = $IpPosition; file = [IO.Path]::GetFileName($ipRangePathAbs); sha256 = Get-Sha256 $ipRangePathAbs }
+}
+if (-not $usingGenericRanges) {
+    # Preserve the legacy manifest aliases for RNG001 consumers.
+    $inputs['utg_range'] = [ordered]@{ file = [IO.Path]::GetFileName($ipRangePathAbs); sha256 = Get-Sha256 $ipRangePathAbs }
+    $inputs['bb_range'] = [ordered]@{ file = [IO.Path]::GetFileName($oopRangePathAbs); sha256 = Get-Sha256 $oopRangePathAbs }
+}
+
 $manifest = [ordered]@{
-    schema_version = 2
+    schema_version = 3
     run_id = $runName
     created_at = (Get-Date).ToString('o')
     range_id = $RangeId
     config_id = $ConfigId
     decision_id = $DecisionId
     decision_node = $DecisionNode
+    oop_position = $OopPosition
+    ip_position = $IpPosition
     board_set_id = $BoardSetId
     board_count = $boards.Count
     money_scale = $MoneyScale
     expected_bet_amount = $ExpectedBetAmount
     expected_raise_amount = $ExpectedRaiseAmount
-    inputs = [ordered]@{
-        config = [ordered]@{ file = [IO.Path]::GetFileName($configPathAbs); sha256 = Get-Sha256 $configPathAbs }
-        boards = [ordered]@{ file = [IO.Path]::GetFileName($boardsPathAbs); sha256 = Get-Sha256 $boardsPathAbs }
-        range_profile = [ordered]@{ file = [IO.Path]::GetFileName($rangeProfilePathAbs); sha256 = Get-Sha256 $rangeProfilePathAbs }
-        utg_range = [ordered]@{ file = [IO.Path]::GetFileName($utgRangePathAbs); sha256 = Get-Sha256 $utgRangePathAbs }
-        bb_range = [ordered]@{ file = [IO.Path]::GetFileName($bbRangePathAbs); sha256 = Get-Sha256 $bbRangePathAbs }
-    }
+    inputs = $inputs
     artifacts = [ordered]@{
         raw_output_directory = $runName
         dataset = $datasetName
