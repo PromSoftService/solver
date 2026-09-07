@@ -52,6 +52,6 @@ jobs:
         run: |
           git config user.name "PromSoftService"
           git config user.email "97607535+PromSoftService@users.noreply.github.com"
-          git add AGENTS.md README.md docs/STUDY_REGISTRY.md configs tsgpu-worker.ps1 tsgpu-batch.ps1 scripts tools/collect_dataset.ps1 .github/workflows/runner-v015-utg-response-check.yml
+          git add AGENTS.md README.md docs/STUDY_REGISTRY.md configs tsgpu-worker.ps1 tsgpu-batch.ps1 scripts tools/collect_dataset.ps1
           git commit -m "add UTG defense versus BTN stab study"
           git push
