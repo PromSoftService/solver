@@ -5,7 +5,6 @@ on:
     branches: [main]
     paths:
       - 'tools/apply_btn_study_patch.py'
-      - 'tools/patch_runner_ci_btn.py'
       - '.github/workflows/apply-btn-study-patch.yml'
   workflow_dispatch:
 
@@ -29,8 +28,6 @@ jobs:
           test -f scripts/Run-CFG003-NOD004-BRD001.ps1
           test -f scripts/Run-CFG003-NOD005-BRD001.ps1
           test -f scripts/RUN__CFG003__NOD004_NOD005__BRD001__AND_PUSH.cmd
-      - name: Patch runner CI
-        run: python3 tools/patch_runner_ci_btn.py
       - name: Parse changed PowerShell
         shell: pwsh
         run: |
@@ -59,6 +56,6 @@ jobs:
         run: |
           git config user.name "PromSoftService"
           git config user.email "97607535+PromSoftService@users.noreply.github.com"
-          git add .
+          git add AGENTS.md README.md docs configs scripts tsgpu-worker.ps1 tsgpu-batch.ps1 tools/collect_dataset.ps1
           git commit -m "add BTN flop follow-up studies"
           git push
