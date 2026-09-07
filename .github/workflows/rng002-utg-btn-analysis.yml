@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - 'tools/analyze_rng002_utg_btn.py'
+      - 'tools/analyze_rng002_utg_btn_broad.py'
       - 'datasets/DS__RNG002__CFG003__NOD003__BRD001__RUN-*.csv'
       - '.github/workflows/rng002-utg-btn-analysis.yml'
   workflow_dispatch:
@@ -16,3 +17,5 @@ jobs:
       - uses: actions/checkout@v4
       - name: Analyze simplified UTG strategy
         run: python3 tools/analyze_rng002_utg_btn.py
+      - name: Search broader simplifications
+        run: python3 tools/analyze_rng002_utg_btn_broad.py
