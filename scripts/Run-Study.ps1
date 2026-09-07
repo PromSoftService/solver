@@ -16,7 +16,8 @@ param(
     [string]$DecisionId = '',
     [int]$ExpectedBetAmount = 0,
     [int]$ExpectedRaiseAmount = 0,
-    [double]$MoneyScale = 10.0
+    [double]$MoneyScale = 10.0,
+    [string]$ResumeOutputDirectory = ''
 )
 
 $ErrorActionPreference = 'Stop'
@@ -61,18 +62,33 @@ $OopPosition = $OopPosition.ToUpperInvariant()
 $IpPosition = $IpPosition.ToUpperInvariant()
 if ($OopPosition -eq $IpPosition) { throw 'OOP and IP positions must be different.' }
 
-$timestamp = Get-Date -Format 'yyyyMMdd-HHmmss'
 $idParts = @($RangeId, $ConfigId)
 if ($DecisionId) { $idParts += $DecisionId }
 $idParts += $BoardSetId
 $idStem = $idParts -join '__'
-$runName = "OUT__${idStem}__RUN-${timestamp}"
 $outputRoot = Join-Path $root 'output'
 $datasetsRoot = Join-Path $root 'datasets'
-$outputDir = Join-Path $outputRoot $runName
-
 [IO.Directory]::CreateDirectory($outputRoot) | Out-Null
 [IO.Directory]::CreateDirectory($datasetsRoot) | Out-Null
+
+$resuming = [bool]$ResumeOutputDirectory
+if ($resuming) {
+    $outputDir = [IO.Path]::GetFullPath($ResumeOutputDirectory)
+    if (-not (Test-Path -LiteralPath $outputDir -PathType Container)) {
+        throw "Resume output directory does not exist: $outputDir"
+    }
+    $runName = Split-Path -Leaf $outputDir
+    $expectedPrefix = "OUT__${idStem}__RUN-"
+    if (-not $runName.StartsWith($expectedPrefix, [StringComparison]::OrdinalIgnoreCase)) {
+        throw "Resume output '$runName' does not match study '$idStem'."
+    }
+    $timestamp = $runName.Substring($expectedPrefix.Length)
+    if (-not $timestamp) { throw "Cannot recover run timestamp from $runName" }
+} else {
+    $timestamp = Get-Date -Format 'yyyyMMdd-HHmmss'
+    $runName = "OUT__${idStem}__RUN-${timestamp}"
+    $outputDir = Join-Path $outputRoot $runName
+}
 
 $boards = @(Get-Content -LiteralPath $boardsPathAbs -Encoding UTF8 | ForEach-Object {
     $line = $_.Trim()
@@ -88,6 +104,7 @@ if ($DecisionId) { Write-Host "DECISION: $DecisionId ($DecisionNode)" } else { W
 Write-Host "PLAYERS : $OopPosition OOP / $IpPosition IP"
 Write-Host "BOARDS  : $BoardSetId ($($boards.Count))"
 Write-Host "OUTPUT  : $outputDir"
+if ($resuming) { Write-Host 'MODE    : RESUME FAILED/MISSING BOARDS' }
 Write-Host '============================================================'
 Write-Host ''
 
@@ -99,6 +116,7 @@ $batchArgs = @{
     ExpectedRaiseAmount = $ExpectedRaiseAmount
     DecisionNode = $DecisionNode
 }
+if ($resuming) { $batchArgs['Resume'] = $true }
 & (Join-Path $root 'tsgpu-batch.ps1') @batchArgs
 
 Write-Host ''
@@ -124,7 +142,7 @@ if (-not (Test-Path -LiteralPath $datasetSource -PathType Leaf)) {
     throw 'dataset.csv was not created.'
 }
 
-$datasetName = "DS__${idStem}__RUN-${timestamp}.csv"
+$datasetName = (($runName -replace '^OUT__', 'DS__') + '.csv')
 $datasetPath = Join-Path $datasetsRoot $datasetName
 Copy-Item -LiteralPath $datasetSource -Destination $datasetPath -Force
 
@@ -145,6 +163,7 @@ $manifest = [ordered]@{
     schema_version = 3
     run_id = $runName
     created_at = (Get-Date).ToString('o')
+    resumed = $resuming
     range_id = $RangeId
     config_id = $ConfigId
     decision_id = $DecisionId
