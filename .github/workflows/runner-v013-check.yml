@@ -7,7 +7,12 @@ on:
       - 'tsgpu-worker.ps1'
       - 'tsgpu-batch.ps1'
       - 'scripts/Run-Study.ps1'
+      - 'scripts/Range-Utils.ps1'
+      - 'scripts/Run-CFG003-NOD003-BRD001.ps1'
       - 'scripts/RUN__CFG001__NOD002__BRD001.cmd'
+      - 'scripts/RUN__CFG003__NOD003__BRD001.cmd'
+      - 'ranges/RNG002__TSGPU020_6M100_UTG-O2p5_BTN-C__V1*'
+      - 'configs/CFG003__*.derived.json'
       - 'tools/collect_dataset.ps1'
       - '.github/workflows/runner-v013-check.yml'
   workflow_dispatch:
@@ -22,7 +27,14 @@ jobs:
         shell: pwsh
         run: |
           $failed = $false
-          foreach ($path in @('tsgpu-worker.ps1', 'tsgpu-batch.ps1', 'scripts/Run-Study.ps1', 'tools/collect_dataset.ps1')) {
+          foreach ($path in @(
+            'tsgpu-worker.ps1',
+            'tsgpu-batch.ps1',
+            'scripts/Run-Study.ps1',
+            'scripts/Range-Utils.ps1',
+            'scripts/Run-CFG003-NOD003-BRD001.ps1',
+            'tools/collect_dataset.ps1'
+          )) {
             $tokens = $null
             $errors = $null
             [void][System.Management.Automation.Language.Parser]::ParseFile((Resolve-Path $path), [ref]$tokens, [ref]$errors)
@@ -34,18 +46,40 @@ jobs:
           }
           if ($failed) { exit 1 }
 
-      - name: Test UTG native wager aliases
+      - name: Test UTG decision node wiring
         shell: pwsh
         run: |
           $worker = Get-Content -LiteralPath ./tsgpu-worker.ps1 -Raw
-          if ($worker -notmatch '\(\?:Bet\|Raise\)') {
-            throw 'UTG_CBET must accept both native Bet and Raise labels for the first IP wager.'
+          $batch = Get-Content -LiteralPath ./tsgpu-batch.ps1 -Raw
+          $study = Get-Content -LiteralPath ./scripts/Run-Study.ps1 -Raw
+          foreach ($text in @($worker, $batch, $study)) {
+            if ($text -notmatch 'UTG_OOP_CBET') { throw 'UTG_OOP_CBET is missing from runner wiring.' }
           }
-          if ($worker -match "\$betSlot = Get-ActionSlot \$validActions 'Bet'") {
-            throw 'UTG_CBET still hardcodes a Bet-only exported action slot.'
+          if ($worker -notmatch "DecisionNode -eq 'UTG_OOP_CBET'") {
+            throw 'Worker does not select the flop root for UTG_OOP_CBET.'
+          }
+          if ($worker -notmatch '\(\?:Bet\|Raise\)') {
+            throw 'UTG check/bet nodes must accept native Bet/Raise wager aliases.'
           }
 
-      - name: Test UTG dataset collector schema
+      - name: Test TexasSolver range expansion
+        shell: pwsh
+        run: |
+          . ./scripts/Range-Utils.ps1
+          $cfg = Get-Content -LiteralPath './configs/CFG001__6M100_UTG-O2p5_BB-C__F_BB-X_UTG-B33_BB-XR60__T-B100-R100__R-B100-R100__V1.json' -Raw | ConvertFrom-Json
+          $utg = @(Convert-TexasSolverRangeTo1326 -Path './ranges/RNG001__TSGPU020_6M100_UTG-O2p5_BB-C__V1__UTG.txt')
+          if ($utg.Count -ne 1326) { throw "Expected 1326 UTG combos, got $($utg.Count)." }
+          for ($i = 0; $i -lt 1326; $i++) {
+            if ([math]::Abs([double]$utg[$i] - [double]$cfg.config.ipRange[$i]) -gt 0.000000001) {
+              throw "Range expansion order differs from CFG001 at combo index $i."
+            }
+          }
+          $newUtg = Get-TexasSolverWeightedComboCount -Path './ranges/RNG002__TSGPU020_6M100_UTG-O2p5_BTN-C__V1__UTG.txt'
+          $btn = Get-TexasSolverWeightedComboCount -Path './ranges/RNG002__TSGPU020_6M100_UTG-O2p5_BTN-C__V1__BTN.txt'
+          if ([math]::Abs($newUtg - 233.916) -gt 0.000001) { throw "Unexpected RNG002 UTG combo weight: $newUtg" }
+          if ([math]::Abs($btn - 113.604) -gt 0.000001) { throw "Unexpected RNG002 BTN combo weight: $btn" }
+
+      - name: Test UTG OOP dataset collector schema
         shell: pwsh
         run: |
           $root = Join-Path $PWD '_collector_test'
@@ -54,7 +88,7 @@ jobs:
           @'
           {
             "schema_version": 2,
-            "decision_node": "UTG_CBET",
+            "decision_node": "UTG_OOP_CBET",
             "board": "As Kh Qd",
             "final_status": {"iteration": 1000, "exploitability": 0.5}
           }
