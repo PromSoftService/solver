@@ -42,7 +42,7 @@ Use the approved order as the initial display order: Two pair+, Overpair, Top pa
 ## Experiments completed
 ### EXP-001 — dataset and taxonomy audit
 Script: `tools/universal_strategy/audit.py`.
-GHA run: 34159509345; code commit: fd417e513bd9b586896b264b6a7c06cbd4484cc9.
+GHA run: 34160422762; code commit: a0fb378588501718aefecfbcd49785d6aa0fad92.
 Results: `experiments/EXP-001.json` and `experiments/EXP-001.md`.
 KEEP: all seven dataset hashes, schemas, coverage and EV identities pass.
 Legacy 13-label examples cover only 127 boards. All 6/8/13 operational partitions cover 286.

@@ -1,7 +1,7 @@
 {
   "experiment": "EXP-001",
-  "run_id": "34159509345",
-  "input_commit": "fd417e513bd9b586896b264b6a7c06cbd4484cc9",
+  "run_id": "34160422762",
+  "input_commit": "a0fb378588501718aefecfbcd49785d6aa0fad92",
   "loss_definition": "best pure action EV - forced action EV; not mixed EV - action EV",
   "weighting": "normalize reach_probability within each study; do not pool unnormalized weights across studies",
   "board_scope": "BRD001 only; 286 unpaired rainbow rank triples",
