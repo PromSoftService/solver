@@ -1,0 +1,21 @@
+{
+  "studies": [
+    "BB_DEF33",
+    "BTN_DEF33"
+  ],
+  "grid": "eight",
+  "mixed_allowed": false,
+  "relaxation": {
+    "status": 0,
+    "feasible": true,
+    "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+    "interpretation": "LP infeasible proves only incompatibility with stated screening budgets; never adaptive exploitability."
+  },
+  "integer_solve": {
+    "status": 2,
+    "message": "The problem is infeasible. (HiGHS Status 8: model_status is Infeasible; primal_status is None)"
+  },
+  "code_sha256": "370146a744cdaaa6e525a891b366e919c7e65c11f028e5463d5845b18235b7bd",
+  "run_id": "34160712982",
+  "input_commit": "dc66bcb055d26dd68572d91e08458a6a430fe379"
+}

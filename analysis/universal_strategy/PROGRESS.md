@@ -49,6 +49,12 @@ Legacy 13-label examples cover only 127 boards. All 6/8/13 operational partition
 The approved vocabulary is frozen; classifier definitions/precedence are documented in EXP-001.
 No strategy architecture has yet been accepted.
 
+### EXP-002 — verified bounded comparison
+
+Script: `tools/universal_strategy/experiments.py --stage architectures`. GHA 34160712982, commit dc66bcb055d26dd68572d91e08458a6a430fe379. Reports: `experiments/EXP-002.json`, `.md`, `maps/`.
+
+All 2/4 shared-action architectures were tested, plus alternative groupings. See report for actual statuses. One shared UTG BET policy has an unavoidable target-frequency error of at least 16.61pp in one spot. Shared taxonomy remains possible. No selected final candidate yet.
+
 ## Current best candidate
 None. Do not overwrite the user's postflop document with an untested map.
 
@@ -58,4 +64,4 @@ None. Do not overwrite the user's postflop document with an untested map.
 - Assuming earlier screenshot-only comparisons are reproducible: invalid until rerun by committed code.
 
 ## Next step
-Implement EXP-002: compare literal shared 2/4 action maps and spot-specific maps on fixed 6/8/13 grids, with explicit error/complexity safeguards.
+Run EXP-003: fit individual maps, select the smallest feasible fixed grid and the simplest feasible cover of the seven studies. Review actual maps and tails before publishing.
