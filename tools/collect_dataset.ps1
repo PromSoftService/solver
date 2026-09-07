@@ -18,7 +18,7 @@ Get-ChildItem -LiteralPath $OutputDir -Directory | Sort-Object Name | ForEach-Ob
     if ($datasetDecisionNode -ne $decisionNode) { throw "Mixed decision nodes in one output directory: $datasetDecisionNode and $decisionNode." }
 
     foreach ($x in $combos) {
-        if ($decisionNode -eq 'UTG_CBET') {
+        if ($decisionNode -in @('UTG_CBET', 'UTG_OOP_CBET')) {
             $check = [double]$x.check_frequency
             $bet = [double]$x.bet_frequency
             $evCheck = [double]$x.ev_check / $MoneyScale
