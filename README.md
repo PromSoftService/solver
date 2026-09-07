@@ -34,20 +34,23 @@ You can also pass `-SolverExe` to `tsgpu-batch.ps1` or set `TSGPU_SOLVER_EXE`.
 
 ## Registered study runs
 
-The permanent baseline is:
+Registered range families:
 
-- `RNG001`: 6-max, 100bb, UTG open 2.5bb, BB call baseline ranges from the TexasSolverGPU v0.2.0 bundled range library;
+- `RNG001`: 6-max, 100bb, UTG open 2.5bb, BB call; weighted ranges from the TexasSolverGPU v0.2.0 bundled 6-max range library;
+- `RNG002`: 6-max, 100bb, UTG open 2.5bb, BTN call; matched weighted UTG/BTN ranges from `ranges/6max_range/UTG/2.5bb/BTN/Call` in the same bundled library;
 - `BRD001`: 286 canonical unpaired rainbow flops, one for every three-distinct-rank combination.
 
-Two flop trees are registered:
+Three flop trees are registered:
 
 - `CFG001`: BB check -> UTG Check or Bet 33%; after Bet BB Fold/Call/XR60;
-- `CFG002`: identical spot/tree, but UTG flop bet is 75%.
+- `CFG002`: identical spot/tree, but UTG flop bet is 75%;
+- `CFG003`: UTG vs BTN, UTG OOP at the flop root with Check/Bet 33%; after UTG checks BTN has Check/Bet 33%. Flop raise settings are OOP 60% and IP 100%.
 
 Decision-node extraction is separate from the tree:
 
 - `NOD001 / BB_RESPONSE`: export the BB Fold/Call/Raise decision after the configured UTG bet;
-- `NOD002 / UTG_CBET`: export the UTG Check/Bet decision immediately after BB checks.
+- `NOD002 / UTG_CBET`: export the UTG IP Check/Bet decision immediately after BB checks;
+- `NOD003 / UTG_OOP_CBET`: export the UTG OOP Check/Bet decision at the flop root before any flop action.
 
 Run from the repository root:
 
@@ -55,13 +58,16 @@ Run from the repository root:
 .\scripts\RUN__CFG001__BRD001.cmd
 .\scripts\RUN__CFG002__BRD001.cmd
 .\scripts\RUN__CFG001__NOD002__BRD001.cmd
+.\scripts\RUN__CFG003__NOD003__BRD001.cmd
 ```
 
-The first two commands preserve the existing BB-response studies. The third command is the new UTG flop c-bet study with the **same RNG001 ranges and CFG001 tree**: BB checks, then UTG has only `Check` or `Bet 33%` (`Bet 18` at the native x10 money scale).
+The fourth command is the UTG-vs-BTN flop study. It uses `RNG002`, reuses `BRD001`, materializes the native 1326-combo ranges from the TexasSolver shorthand files, solves all 286 boards, and exports UTG's root `Check / Bet 33%` decision. The x10 native flop pot is 65, effective stack is 975, and the expected UTG root wager is 21.
 
 `CFG001` validates native actions `Bet 18` and `Raise 73` for the legacy BB-response node.
 
 `CFG002` is derived from CFG001 at runtime, changing only `ipFlopBet` from `33` to `75`. It validates native actions `Bet 41` and `Raise 123`. The full effective CFG002 native config is copied into the raw run directory, so the result remains reproducible without duplicating the two 1326-entry range arrays in Git.
+
+`CFG003` is also materialized at runtime. It replaces the ranges with the matched `RNG002` UTG/BTN weighted ranges, sets the 6.5bb flop pot, makes UTG the OOP player, and validates the root B33 wager. `scripts/Range-Utils.ps1` expands shorthand hand weights into native 1326-combo order; CI verifies that this expansion exactly reproduces the existing CFG001 UTG array.
 
 All wrappers call the production GPU batch runner, build a single analysis CSV, copy all input definitions into the run directory, and write a manifest with SHA-256 hashes.
 
@@ -76,11 +82,14 @@ output\OUT__RNG001__<CFGID>__BRD001__RUN-YYYYMMDD-HHMMSS\
 datasets\DS__RNG001__<CFGID>__BRD001__RUN-YYYYMMDD-HHMMSS.csv
 ```
 
-Runs with an explicit decision ID include it in the name. The UTG c-bet study writes:
+Runs with an explicit decision ID include it in the name. Examples:
 
 ```text
 output\OUT__RNG001__CFG001__NOD002__BRD001__RUN-YYYYMMDD-HHMMSS\
 datasets\DS__RNG001__CFG001__NOD002__BRD001__RUN-YYYYMMDD-HHMMSS.csv
+
+output\OUT__RNG002__CFG003__NOD003__BRD001__RUN-YYYYMMDD-HHMMSS\
+datasets\DS__RNG002__CFG003__NOD003__BRD001__RUN-YYYYMMDD-HHMMSS.csv
 ```
 
 Each raw study directory contains:
@@ -95,11 +104,14 @@ dataset.csv
 INPUT_CONFIG.json
 INPUT_BOARDS.txt
 INPUT_RANGE_PROFILE.json
-INPUT_RANGE_UTG.txt
-INPUT_RANGE_BB.txt
+INPUT_RANGE_OOP.txt
+INPUT_RANGE_IP.txt
+INPUT_RANGE_<POSITION>.txt
 RUNNER_VERSION.txt
 RUN_MANIFEST.json
 ```
+
+Legacy RNG001 runs also retain the familiar `INPUT_RANGE_UTG.txt` and `INPUT_RANGE_BB.txt` position-named copies.
 
 Every board directory contains:
 
@@ -126,9 +138,9 @@ The existing schema is unchanged:
 - EV loss from forcing each pure action;
 - iteration and final exploitability.
 
-### UTG c-bet (`UTG_CBET`)
+### UTG check/bet (`UTG_CBET`, `UTG_OOP_CBET`)
 
-The new UTG schema contains:
+Both UTG decision modes use the same analysis schema:
 
 - board and combo;
 - reach probability;
@@ -138,6 +150,8 @@ The new UTG schema contains:
 - highest-frequency action and frequency;
 - `loss_if_check_utg`, `loss_if_bet_utg`;
 - iteration and final exploitability.
+
+`UTG_CBET` exports UTG after an OOP check. `UTG_OOP_CBET` exports UTG at the flop root before any action.
 
 ## Low-level runner
 
@@ -155,7 +169,7 @@ or:
 
 The default decision node remains `BB_RESPONSE`, so existing calls keep their old behavior.
 
-To export the UTG c-bet node directly:
+To export the UTG IP c-bet node directly:
 
 ```powershell
 .\tsgpu-batch.ps1 .\configs\CFG001__6M100_UTG-O2p5_BB-C__F_BB-X_UTG-B33_BB-XR60__T-B100-R100__R-B100-R100__V1.json `
@@ -163,6 +177,8 @@ To export the UTG c-bet node directly:
   .\output\utg-cbet-test `
   -DecisionNode UTG_CBET -ExpectedBetAmount 18
 ```
+
+For registered CFG003 use its launcher rather than constructing the effective config manually.
 
 There is no artificial board-count limit. Blank lines and lines beginning with `#` in a board file are ignored.
 
@@ -181,7 +197,7 @@ When omitted, those same defaults are used.
 
 - Windows and Microsoft Edge WebView2 Runtime are required.
 - The original TexasSolverGPU v0.2.0 installation and a compatible NVIDIA/CUDA setup are required.
-- `UTG_CBET` expects exactly two actions at the target node: Check and the configured IP flop bet. The launcher validates `Bet 18` for CFG001.
+- `UTG_CBET` and `UTG_OOP_CBET` expect exactly two actions at the selected node: Check and one configured wager. Native first-wager labels `Bet` and `Raise` are accepted as equivalent when selecting that wager.
 - `BB_RESPONSE` targets the single-raise BB decision after BB check and the configured IP flop bet. Multiple IP bet sizes are ambiguous unless `-ExpectedBetAmount` is supplied.
 - One native process per board is intentionally used for isolation. A crash on one board does not prevent later boards from running.
-- `RNG001` is sourced from the bundled TexasSolverGPU range library. Its public upstream provenance is not documented, so it must not be described as a GTO Wizard range without separate evidence.
+- `RNG001` and `RNG002` are sourced from the bundled TexasSolverGPU range library. Their public upstream provider is not documented, so they must not be described as GTO Wizard/GTOBase ranges without separate evidence.
