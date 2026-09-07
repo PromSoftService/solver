@@ -120,23 +120,47 @@ for ($i = 0; $i -lt $boardList.Count; $i++) {
     $started = [DateTime]::UtcNow
     Write-Host "[$index/$($boardList.Count)] $board"
     try {
-        $oneArguments = @{
-            SolverExe = $solverPath
-            Config = $configPath
-            Board = $board
-            OutputDirectory = $jobOutput
-            MaxIterations = $effectiveMaxIterations
-            TargetExploitability = $effectiveTargetExploitability
-            ExpectedBetAmount = $ExpectedBetAmount
-            ExpectedRaiseAmount = $ExpectedRaiseAmount
-            DecisionNode = $DecisionNode
-            SolveTimeoutMinutes = $SolveTimeoutMinutes
-            ShowHostWindow = $ShowHostWindow
-        }
-        & (Join-Path $PSScriptRoot 'tsgpu-worker.ps1') @oneArguments
+        $run = $null
+        $maxStartupAttempts = 2
+        for ($attempt = 1; $attempt -le $maxStartupAttempts; $attempt++) {
+            try {
+                if ($attempt -gt 1) {
+                    if (Test-Path -LiteralPath $jobOutput) {
+                        Remove-Item -LiteralPath $jobOutput -Recurse -Force
+                    }
+                    Write-Warning "Retrying $board after transient WebView2 startup failure (attempt $attempt/$maxStartupAttempts)."
+                    Start-Sleep -Seconds 1
+                }
 
-        if (-not (Test-Path -LiteralPath $runPath)) { throw 'run.json was not created.' }
-        $run = Get-Content -LiteralPath $runPath -Raw -Encoding UTF8 | ConvertFrom-Json
+                $oneArguments = @{
+                    SolverExe = $solverPath
+                    Config = $configPath
+                    Board = $board
+                    OutputDirectory = $jobOutput
+                    MaxIterations = $effectiveMaxIterations
+                    TargetExploitability = $effectiveTargetExploitability
+                    ExpectedBetAmount = $ExpectedBetAmount
+                    ExpectedRaiseAmount = $ExpectedRaiseAmount
+                    DecisionNode = $DecisionNode
+                    SolveTimeoutMinutes = $SolveTimeoutMinutes
+                    ShowHostWindow = $ShowHostWindow
+                }
+                & (Join-Path $PSScriptRoot 'tsgpu-worker.ps1') @oneArguments
+
+                if (-not (Test-Path -LiteralPath $runPath)) { throw 'run.json was not created.' }
+                $run = Get-Content -LiteralPath $runPath -Raw -Encoding UTF8 | ConvertFrom-Json
+                break
+            } catch {
+                $message = $_.Exception.Message
+                $transientStartup = $message -like '*WebView2 DevTools endpoint did not expose an application page*'
+                if ($transientStartup -and $attempt -lt $maxStartupAttempts) {
+                    continue
+                }
+                throw
+            }
+        }
+        if ($null -eq $run) { throw 'Board run did not produce run.json.' }
+
         $summary.Add([pscustomobject][ordered]@{
             index = $index
             board = $board
