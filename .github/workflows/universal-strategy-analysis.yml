@@ -1,0 +1,58 @@
+name: Universal strategy analysis
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'tools/universal_strategy/**'
+      - 'analysis/universal_strategy/**'
+      - 'datasets/**'
+      - '.github/workflows/universal-strategy-analysis.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: universal-strategy-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  analyze:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Audit registered datasets
+        run: |
+          python3 - <<'PY'
+          import csv, glob, hashlib, json
+          from pathlib import Path
+          for p in sorted(glob.glob('datasets/*.csv')):
+              with open(p, encoding='utf-8-sig', newline='') as f:
+                  r = csv.DictReader(f)
+                  fields = r.fieldnames
+                  rows = list(r)
+              print(json.dumps({'file': p, 'sha256': hashlib.sha256(Path(p).read_bytes()).hexdigest(), 'rows': len(rows), 'boards': len({r['board'] for r in rows}), 'fields': fields, 'first': rows[0]}, ensure_ascii=False))
+          PY
+      - name: Run universal strategy analysis when available
+        run: |
+          if [ -f tools/universal_strategy/analyze.py ]; then
+            python3 tools/universal_strategy/analyze.py
+          fi
+      - name: Preserve inputs and generated reports for independent verification
+        uses: actions/upload-artifact@v4
+        with:
+          name: universal-strategy-analysis
+          retention-days: 14
+          path: |
+            AGENTS.md
+            README.md
+            datasets/
+            configs/
+            ranges/
+            boards/
+            tools/
+            analysis/
+            docs/
+            tsgpu-worker.ps1
