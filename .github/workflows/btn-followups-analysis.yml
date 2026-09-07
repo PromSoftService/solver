@@ -10,6 +10,7 @@ on:
       - 'tools/evaluate_btn_final_candidates.py'
       - 'tools/evaluate_btn_noraise_3class.py'
       - 'tools/analyze_rng002_utg_response.py'
+      - 'tools/evaluate_utg_response_candidates.py'
       - 'datasets/DS__RNG002__CFG003__NOD004__BRD001__RUN-*.csv'
       - 'datasets/DS__RNG002__CFG003__NOD005__BRD001__RUN-*.csv'
       - 'datasets/DS__RNG002__CFG003__NOD006__BRD001__RUN-*.csv'
@@ -33,3 +34,5 @@ jobs:
         run: python3 tools/evaluate_btn_noraise_3class.py
       - name: Analyze NOD006 UTG response
         run: python3 tools/analyze_rng002_utg_response.py
+      - name: Evaluate NOD006 human candidates
+        run: python3 tools/evaluate_utg_response_candidates.py
