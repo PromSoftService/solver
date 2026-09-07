@@ -55,8 +55,14 @@ Script: `tools/universal_strategy/experiments.py --stage architectures`. GHA 341
 
 All 2/4 shared-action architectures were tested, plus alternative groupings. See report for actual statuses. One shared UTG BET policy has an unavoidable target-frequency error of at least 16.61pp in one spot. Shared taxonomy remains possible. No selected final candidate yet.
 
+### EXP-003 — verified bounded comparison
+
+Script: `experiments.py --stage candidates`. GHA 34160712982, code dc66bcb055d26dd68572d91e08458a6a430fe379. Reports: `experiments/EXP-003.json`, `.md`, `maps/`.
+
+Current bounded candidate: six, 6 flop classes, 6 actual maps, 10 mixed cells. All numeric screening gates pass. Manual semantic review and Markdown replacement remain pending; do not call the strategy finalized.
+
 ## Current best candidate
-None. Do not overwrite the user's postflop document with an untested map.
+EXP-003 provisional: six; 6 flop classes, 6 actual maps, 10 mixed cells. See EXP-003.json for exact maps and per-study metrics. Not final and not BR-validated.
 
 ## Rejected ideas
 - Unbounded category search for tiny EV gains: rejected by user constraint, not by experiment.
@@ -64,4 +70,4 @@ None. Do not overwrite the user's postflop document with an untested map.
 - Assuming earlier screenshot-only comparisons are reproducible: invalid until rerun by committed code.
 
 ## Next step
-Run EXP-003: fit individual maps, select the smallest feasible fixed grid and the simplest feasible cover of the seven studies. Review actual maps and tails before publishing.
+Read EXP-003 matrices and tail/composition metrics, simplify remaining conspicuous exceptions only within the same limits, then build and verify strategy_structured.md with original personal preflop/reference sections preserved.
