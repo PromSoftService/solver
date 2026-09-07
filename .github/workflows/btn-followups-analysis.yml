@@ -1,0 +1,19 @@
+name: BTN follow-up analysis
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'tools/analyze_rng002_btn_followups.py'
+      - 'datasets/DS__RNG002__CFG003__NOD004__BRD001__RUN-*.csv'
+      - 'datasets/DS__RNG002__CFG003__NOD005__BRD001__RUN-*.csv'
+      - '.github/workflows/btn-followups-analysis.yml'
+  workflow_dispatch:
+
+jobs:
+  analyze:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Analyze BTN follow-up studies
+        run: python3 tools/analyze_rng002_btn_followups.py
