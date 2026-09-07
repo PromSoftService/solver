@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-import csv, glob
+import csv, glob, copy
 from collections import defaultdict
 from analyze_cfg002_compare import features
 
@@ -29,30 +29,50 @@ def cat(fx):
     return 'Air'
 
 B='BET'; X='CHECK'; M='MIX'
-RULE={
-'A[K-J]x':{
- 'Two pair+':B,'Underpair':M,'Top pair':B,'Second pair':B,'Third pair':B,'Weak pocket pair':M,'OESD':B,'Gutshot':B,'BDFD':B,'Air':B},
-'A[T-2]x':{
- 'Two pair+':B,'Underpair':M,'Top pair':M,'Second pair':B,'Third pair':M,'Weak pocket pair':M,'OESD':B,'Gutshot':B,'BDFD':X,'Air':M},
-'BBx':{
- 'Two pair+':B,'Overpair':B,'Underpair':B,'Top pair':B,'Second pair':M,'Third pair':M,'Weak pocket pair':M,'OESD':B,'Gutshot':B,'BDFD':B,'Air':B},
-'K[9-2]x':{
- 'Two pair+':B,'Overpair':B,'Underpair':M,'Top pair':B,'Second pair':B,'Third pair':B,'Weak pocket pair':B,'OESD':B,'Gutshot':B,'BDFD':M,'Air':M},
-'[Q-8]x':{
- 'Two pair+':B,'Overpair':M,'Underpair':M,'Top pair':M,'Second pair':B,'Third pair':M,'Weak pocket pair':M,'OESD':B,'Gutshot':B,'BDFD':M,'2 overcards':M,'Air':M},
-'[7-4]x':{
- 'Two pair+':M,'Overpair':M,'Underpair':X,'Top pair':M,'Second pair':M,'Third pair':M,'Weak pocket pair':X,'OESD':M,'Gutshot':X,'BDFD':X,'2 overcards':X,'Air':X},
+BASE={
+'A[K-J]x':{'Two pair+':B,'Underpair':M,'Top pair':B,'Second pair':B,'Third pair':B,'Weak pocket pair':M,'OESD':B,'Gutshot':B,'BDFD':B,'Air':B},
+'A[T-2]x':{'Two pair+':B,'Underpair':M,'Top pair':M,'Second pair':B,'Third pair':M,'Weak pocket pair':M,'OESD':B,'Gutshot':B,'BDFD':X,'Air':M},
+'BBx':{'Two pair+':B,'Overpair':B,'Underpair':B,'Top pair':B,'Second pair':M,'Third pair':M,'Weak pocket pair':M,'OESD':B,'Gutshot':B,'BDFD':B,'Air':B},
+'K[9-2]x':{'Two pair+':B,'Overpair':B,'Underpair':M,'Top pair':B,'Second pair':B,'Third pair':B,'Weak pocket pair':B,'OESD':B,'Gutshot':B,'BDFD':M,'Air':M},
+'[Q-8]x':{'Two pair+':B,'Overpair':M,'Underpair':M,'Top pair':M,'Second pair':B,'Third pair':M,'Weak pocket pair':M,'OESD':B,'Gutshot':B,'BDFD':M,'2 overcards':M,'Air':M},
+'[7-4]x':{'Two pair+':M,'Overpair':M,'Underpair':X,'Top pair':M,'Second pair':M,'Third pair':M,'Weak pocket pair':X,'OESD':M,'Gutshot':X,'BDFD':X,'2 overcards':X,'Air':X},
 }
+CLEAN=copy.deepcopy(BASE)
+# Make the four problematic rows monotonic in the already-sorted board columns:
+# A[K-J]x, BBx, K[9-2]x, [Q-8]x, A[T-2]x, [7-4]x.
+CLEAN['A[K-J]x']['Underpair']=B
+CLEAN['A[K-J]x']['Weak pocket pair']=B
+CLEAN['BBx']['Second pair']=B
+CLEAN['BBx']['Third pair']=B
+CLEAN['BBx']['Weak pocket pair']=B
+
+USER=copy.deepcopy(BASE)
+# Literal requested direction: downgrade anomalous BET cells to MIX and upgrade the two BBx pair cells to BET.
+USER['BBx']['Underpair']=M
+USER['BBx']['Second pair']=B
+USER['BBx']['Third pair']=B
+USER['K[9-2]x']['Weak pocket pair']=M
+
 QP={B:1.,M:.5,X:0.}
 p=sorted(glob.glob('datasets/DS__RNG001__CFG001__NOD002__BRD001__RUN-*.csv'))[-1]
-a=defaultdict(lambda:[0.,0.,0.,0.]); TW=TB=TA=TL=0.
+rows=[]
 with open(p,encoding='utf-8-sig',newline='') as fh:
     for x in csv.DictReader(fh):
         fx=features(x['board'],x['combo']); k=bc(fx); c=cat(fx); w=f(x['reach_probability'])
-        q=QP[RULE[k][c]]; bf=f(x['bet_frequency']); lb=f(x['loss_if_bet_utg']); lx=f(x['loss_if_check_utg'])
+        rows.append((k,c,w,f(x['bet_frequency']),f(x['loss_if_bet_utg']),f(x['loss_if_check_utg'])))
+
+def run(name,rule):
+    a=defaultdict(lambda:[0.,0.,0.,0.]); TW=TB=TA=TL=0.
+    for k,c,w,bf,lb,lx in rows:
+        q=QP[rule[k][c]]
         z=a[k]; z[0]+=w; z[1]+=w*bf; z[2]+=w*q; z[3]+=w*(q*lb+(1-q)*lx)
         TW+=w; TB+=w*bf; TA+=w*q; TL+=w*(q*lb+(1-q)*lx)
+    print(name)
+    for k in BCS:
+        w,t,q,l=a[k]; print(k,'solver',round(100*t/w,2),'human',round(100*q/w,2),'delta',round(100*(q-t)/w,2),'loss',round(l/w,5))
+    print('ALL solver',round(100*TB/TW,2),'human',round(100*TA/TW,2),'delta',round(100*(TA-TB)/TW,2),'loss',round(TL/TW,5))
+
 print('HUMAN_CANDIDATE',p)
-for k in BCS:
-    w,t,q,l=a[k]; print(k,'solver',round(100*t/w,2),'human',round(100*q/w,2),'delta',round(100*(q-t)/w,2),'loss',round(l/w,5))
-print('ALL solver',round(100*TB/TW,2),'human',round(100*TA/TW,2),'delta',round(100*(TA-TB)/TW,2),'loss',round(TL/TW,5))
+run('BASE',BASE)
+run('USER_LITERAL',USER)
+run('CLEAN_MONOTONIC',CLEAN)
