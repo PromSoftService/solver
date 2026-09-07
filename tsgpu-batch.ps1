@@ -88,10 +88,10 @@ for ($i = 0; $i -lt $boardList.Count; $i++) {
     $previous = if ($previousByIndex.ContainsKey($index)) { $previousByIndex[$index] } else { $null }
     if ($Resume -and $null -ne $previous) {
         if ([string]$previous.board -ne $board) {
-            throw "Resume summary board mismatch at index $index: expected '$board', found '$($previous.board)'."
+            throw "Resume summary board mismatch at index ${index}: expected '$board', found '$($previous.board)'."
         }
         if ([string]$previous.decision_node -ne $DecisionNode) {
-            throw "Resume decision-node mismatch at index $index: expected '$DecisionNode', found '$($previous.decision_node)'."
+            throw "Resume decision-node mismatch at index ${index}: expected '$DecisionNode', found '$($previous.decision_node)'."
         }
         if ([string]$previous.status -eq 'done' -and
             (Test-Path -LiteralPath $runPath -PathType Leaf) -and
