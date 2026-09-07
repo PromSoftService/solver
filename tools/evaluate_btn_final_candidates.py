@@ -23,9 +23,14 @@ def stab_same6_rule(x):
     return rates[x['b6']]
 
 def stab_same6_tens_rule(x):
-    # Same familiar six classes + same hand pool, with only 70/80/90% randomizers.
     if x['hb'] not in STAB_FAMILIAR_POOL:return 0.
     rates={'A[K-J]x':.70,'A[T-2]x':.90,'BBx':.70,'K[9-2]x':.80,'[Q-8]x':.90,'[7-4]x':.90}
+    return rates[x['b6']]
+
+def stab_same6_ladder_rule(x):
+    # Very simple paired ladder: 70 / 80 / 90 using the same familiar pool.
+    if x['hb'] not in STAB_FAMILIAR_POOL:return 0.
+    rates={'A[K-J]x':.70,'BBx':.70,'A[T-2]x':.80,'K[9-2]x':.80,'[Q-8]x':.90,'[7-4]x':.90}
     return rates[x['b6']]
 
 def eval_stab(rows, rule=stab_rule, class_key='b4', classes=None):
@@ -113,6 +118,7 @@ def main():
       'NOD005_final':eval_stab(x5),
       'NOD005_same6_familiar_pool':eval_stab(x5,stab_same6_rule,'b6',a.B6),
       'NOD005_same6_tens':eval_stab(x5,stab_same6_tens_rule,'b6',a.B6),
+      'NOD005_same6_ladder':eval_stab(x5,stab_same6_ladder_rule,'b6',a.B6),
     }
     print('BTN_FINAL_CANDIDATES_BEGIN');print(json.dumps(a.rnd(result),ensure_ascii=False,separators=(',',':')));print('BTN_FINAL_CANDIDATES_END')
 if __name__=='__main__':main()
