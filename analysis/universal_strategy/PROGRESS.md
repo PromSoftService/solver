@@ -40,7 +40,14 @@ Not selected. Allowed starting templates: ABB; A[K/Q]x; BBB; BBx dis; K/Qx dis; 
 Use the approved order as the initial display order: Two pair+, Overpair, Top pair, Second pair, Third pair, Underpair, Weak pair | Combo draw, OESD, Gutshot, BDFD, 2 overcards + draw, 2 overcards, A-high, Air / Nothing. Freeze one consistent order for every output. Definitions and classification precedence are pending validation; any clarification must be recorded explicitly, not silently inferred from old tables. In particular, broad pair/draw labels do not admit an exact universal ranking by showdown strength or clean outs.
 
 ## Experiments completed
-None under the current bounded specification. Previous NOD006 work remains historical input only.
+### EXP-001 — dataset and taxonomy audit
+Script: `tools/universal_strategy/audit.py`.
+GHA run: 34159509345; code commit: fd417e513bd9b586896b264b6a7c06cbd4484cc9.
+Results: `experiments/EXP-001.json` and `experiments/EXP-001.md`.
+KEEP: all seven dataset hashes, schemas, coverage and EV identities pass.
+Legacy 13-label examples cover only 127 boards. All 6/8/13 operational partitions cover 286.
+The approved vocabulary is frozen; classifier definitions/precedence are documented in EXP-001.
+No strategy architecture has yet been accepted.
 
 ## Current best candidate
 None. Do not overwrite the user's postflop document with an untested map.
@@ -51,4 +58,4 @@ None. Do not overwrite the user's postflop document with an untested map.
 - Assuming earlier screenshot-only comparisons are reproducible: invalid until rerun by committed code.
 
 ## Next step
-Implement and run EXP-001: verify dataset hashes, board coverage, numeric/EV-loss semantics, manifests and a fixed mutually exclusive hand/flop classifier; commit the script and its results before strategy search.
+Implement EXP-002: compare literal shared 2/4 action maps and spot-specific maps on fixed 6/8/13 grids, with explicit error/complexity safeguards.
