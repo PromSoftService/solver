@@ -13,10 +13,25 @@ def stab_rule(x):
     if c=='AKx':return .75
     return 1.
 
-def eval_stab(rows):
-    by={c:{'w':0.,'sb':0.,'cb':0.,'reg':0.} for c in a.B4}
+def stab_same6_rule(x):
+    # Reuse exactly the familiar UTG-vs-BB c-bet hand pool and familiar six flop classes.
+    pool={'Two pair+','Overpair','Top pair','Second pair','OESD','Gutshot','BDFD','X-high'}
+    if x['hb'] not in pool:return 0.
+    rates={
+      'A[K-J]x':.70,
+      'A[T-2]x':.85,
+      'BBx':.75,
+      'K[9-2]x':.80,
+      '[Q-8]x':.90,
+      '[7-4]x':.85,
+    }
+    return rates[x['b6']]
+
+def eval_stab(rows, rule=stab_rule, class_key='b4', classes=None):
+    if classes is None: classes=a.B4
+    by={c:{'w':0.,'sb':0.,'cb':0.,'reg':0.} for c in classes}
     for x in rows:
-        z=by[x['b4']];w=x['w'];p=stab_rule(x);z['w']+=w;z['sb']+=w*x['bet'];z['cb']+=w*p;z['reg']+=w*(p*x['lb']+(1-p)*x['lx'])
+        z=by[x[class_key]];w=x['w'];p=rule(x);z['w']+=w;z['sb']+=w*x['bet'];z['cb']+=w*p;z['reg']+=w*(p*x['lb']+(1-p)*x['lx'])
     out={};tot={'w':0.,'sb':0.,'cb':0.,'reg':0.}
     for c,z in by.items():
         w=z['w'];out[c]={'solver':z['sb']/w,'cand':z['cb']/w,'diff':(z['cb']-z['sb'])/w,'reg':z['reg']/w}
@@ -44,6 +59,10 @@ def response_rule(x):
 def main():
     p4=a.latest('datasets/DS__RNG002__CFG003__NOD004__BRD001__RUN-*.csv');p5=a.latest('datasets/DS__RNG002__CFG003__NOD005__BRD001__RUN-*.csv')
     x4=a.load4(p4,'NOD004');x5=a.load4(p5,'NOD005')
-    result={'NOD004_final':r.eval_response(x4,response_rule),'NOD005_final':eval_stab(x5)}
+    result={
+      'NOD004_final':r.eval_response(x4,response_rule),
+      'NOD005_final':eval_stab(x5),
+      'NOD005_same6_familiar_pool':eval_stab(x5,stab_same6_rule,'b6',a.B6),
+    }
     print('BTN_FINAL_CANDIDATES_BEGIN');print(json.dumps(a.rnd(result),ensure_ascii=False,separators=(',',':')));print('BTN_FINAL_CANDIDATES_END')
 if __name__=='__main__':main()
