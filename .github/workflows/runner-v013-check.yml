@@ -79,6 +79,53 @@ jobs:
           if ([math]::Abs($newUtg - 233.916) -gt 0.000001) { throw "Unexpected RNG002 UTG combo weight: $newUtg" }
           if ([math]::Abs($btn - 113.604) -gt 0.000001) { throw "Unexpected RNG002 BTN combo weight: $btn" }
 
+      - name: Test batch resume skips completed boards
+        shell: pwsh
+        run: |
+          $root = Join-Path $PWD '_resume_test'
+          $out = Join-Path $root 'out'
+          $job = Join-Path $out '0001_As_Kh_Qd'
+          New-Item -ItemType Directory -Path $job -Force | Out-Null
+          '{"runner":{"maxIterations":1000,"targetExploitability":0.5},"config":{}}' | Set-Content -LiteralPath (Join-Path $root 'config.json') -Encoding UTF8
+          'As Kh Qd' | Set-Content -LiteralPath (Join-Path $root 'boards.txt') -Encoding UTF8
+          '' | Set-Content -LiteralPath (Join-Path $root 'TexasSolverGpu_131.exe') -Encoding UTF8
+          '{}' | Set-Content -LiteralPath (Join-Path $job 'run.json') -Encoding UTF8
+          '[]' | Set-Content -LiteralPath (Join-Path $job 'combos.json') -Encoding UTF8
+          [pscustomobject][ordered]@{
+            index = 1
+            board = 'As Kh Qd'
+            decision_node = 'UTG_OOP_CBET'
+            status = 'done'
+            output_directory = '0001_As_Kh_Qd'
+            combos = 1
+            iteration = 1000
+            exploitability = 0.5
+            elapsed_ms = 1234
+            error = ''
+          } | Export-Csv -LiteralPath (Join-Path $out 'batch-summary.csv') -NoTypeInformation -Encoding UTF8
+          & ./tsgpu-batch.ps1 `
+            (Join-Path $root 'config.json') `
+            (Join-Path $root 'boards.txt') `
+            $out `
+            -SolverExe (Join-Path $root 'TexasSolverGpu_131.exe') `
+            -DecisionNode UTG_OOP_CBET `
+            -Resume
+          $row = Import-Csv -LiteralPath (Join-Path $out 'batch-summary.csv') | Select-Object -First 1
+          if ($row.status -ne 'done') { throw 'Resume did not preserve completed board.' }
+          if ([int]$row.elapsed_ms -ne 1234) { throw 'Resume unexpectedly recalculated completed board.' }
+
+      - name: Test CFG003 resume wiring
+        shell: pwsh
+        run: |
+          $batch = Get-Content -LiteralPath ./tsgpu-batch.ps1 -Raw
+          $study = Get-Content -LiteralPath ./scripts/Run-Study.ps1 -Raw
+          $cfg = Get-Content -LiteralPath ./scripts/Run-CFG003-NOD003-BRD001.ps1 -Raw
+          $cmd = Get-Content -LiteralPath ./scripts/RUN__CFG003__NOD003__BRD001.cmd -Raw
+          if ($batch -notmatch '\[switch\]\$Resume') { throw 'Batch runner is missing -Resume.' }
+          if ($study -notmatch 'ResumeOutputDirectory') { throw 'Run-Study is missing resume output support.' }
+          if ($cfg -notmatch 'ResumeLatestFailed') { throw 'CFG003 launcher is missing latest-failed resume detection.' }
+          if ($cmd -notmatch 'resume') { throw 'CFG003 CMD does not expose resume mode.' }
+
       - name: Test UTG OOP dataset collector schema
         shell: pwsh
         run: |
