@@ -10,7 +10,8 @@ param(
     [int]$ExpectedRaiseAmount = 0,
     [ValidateSet('BB_RESPONSE', 'UTG_CBET', 'UTG_OOP_CBET')][string]$DecisionNode = 'BB_RESPONSE',
     [int]$SolveTimeoutMinutes = 180,
-    [switch]$ShowHostWindow
+    [switch]$ShowHostWindow,
+    [switch]$Resume
 )
 
 $ErrorActionPreference = 'Stop'
@@ -61,15 +62,63 @@ $boardList = @(Get-Content -LiteralPath $boardsPath -Encoding UTF8 | ForEach-Obj
 })
 if ($boardList.Count -eq 0) { throw "No boards found in $boardsPath." }
 
+$previousByIndex = @{}
+if ($Resume) {
+    $previousSummaryPath = Join-Path $outputPath 'batch-summary.csv'
+    if (-not (Test-Path -LiteralPath $previousSummaryPath -PathType Leaf)) {
+        throw "Resume requested but batch-summary.csv was not found in $outputPath"
+    }
+    foreach ($row in (Import-Csv -LiteralPath $previousSummaryPath)) {
+        $previousByIndex[[int]$row.index] = $row
+    }
+    Write-Host "Resume mode: preserving completed boards and retrying failed/missing boards."
+}
+
 $summary = [System.Collections.Generic.List[object]]::new()
 $failed = 0
 for ($i = 0; $i -lt $boardList.Count; $i++) {
     $board = $boardList[$i]
+    $index = $i + 1
     $slug = ($board -replace '[^0-9A-Za-z]+', '_').Trim('_')
-    $jobName = ('{0:D4}_{1}' -f ($i + 1), $slug)
+    $jobName = ('{0:D4}_{1}' -f $index, $slug)
     $jobOutput = Join-Path $outputPath $jobName
+    $runPath = Join-Path $jobOutput 'run.json'
+    $comboPath = Join-Path $jobOutput 'combos.json'
+
+    $previous = if ($previousByIndex.ContainsKey($index)) { $previousByIndex[$index] } else { $null }
+    if ($Resume -and $null -ne $previous) {
+        if ([string]$previous.board -ne $board) {
+            throw "Resume summary board mismatch at index $index: expected '$board', found '$($previous.board)'."
+        }
+        if ([string]$previous.decision_node -ne $DecisionNode) {
+            throw "Resume decision-node mismatch at index $index: expected '$DecisionNode', found '$($previous.decision_node)'."
+        }
+        if ([string]$previous.status -eq 'done' -and
+            (Test-Path -LiteralPath $runPath -PathType Leaf) -and
+            (Test-Path -LiteralPath $comboPath -PathType Leaf)) {
+            Write-Host "[$index/$($boardList.Count)] $board (already done)"
+            $summary.Add([pscustomobject][ordered]@{
+                index = $index
+                board = $board
+                decision_node = $DecisionNode
+                status = 'done'
+                output_directory = $jobName
+                combos = [int]$previous.combos
+                iteration = [int]$previous.iteration
+                exploitability = [double]$previous.exploitability
+                elapsed_ms = [int]$previous.elapsed_ms
+                error = ''
+            })
+            continue
+        }
+    }
+
+    if ($Resume -and (Test-Path -LiteralPath $jobOutput)) {
+        Remove-Item -LiteralPath $jobOutput -Recurse -Force
+    }
+
     $started = [DateTime]::UtcNow
-    Write-Host "[$($i + 1)/$($boardList.Count)] $board"
+    Write-Host "[$index/$($boardList.Count)] $board"
     try {
         $oneArguments = @{
             SolverExe = $solverPath
@@ -86,11 +135,10 @@ for ($i = 0; $i -lt $boardList.Count; $i++) {
         }
         & (Join-Path $PSScriptRoot 'tsgpu-worker.ps1') @oneArguments
 
-        $runPath = Join-Path $jobOutput 'run.json'
         if (-not (Test-Path -LiteralPath $runPath)) { throw 'run.json was not created.' }
         $run = Get-Content -LiteralPath $runPath -Raw -Encoding UTF8 | ConvertFrom-Json
         $summary.Add([pscustomobject][ordered]@{
-            index = $i + 1
+            index = $index
             board = $board
             decision_node = $DecisionNode
             status = 'done'
@@ -104,7 +152,7 @@ for ($i = 0; $i -lt $boardList.Count; $i++) {
     } catch {
         $failed++
         $summary.Add([pscustomobject][ordered]@{
-            index = $i + 1
+            index = $index
             board = $board
             decision_node = $DecisionNode
             status = 'error'
