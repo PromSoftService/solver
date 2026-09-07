@@ -7,59 +7,63 @@ Datasets:
 
 Spot: 6-max, 100bb, UTG open 2.5bb, BTN call, 6.5bb flop pot, 286 unpaired rainbow flops (`BRD001`). `NOD004` is BTN response after UTG bets 33%. `NOD005` is BTN stab after UTG checks. All aggregate frequencies and losses are weighted by `reach_probability`.
 
-`local regret` below is the weighted EV loss from the simplified action mixture against the opponent strategy in the solved equilibrium tree. It is useful for screening simplifications but is **not** exploitability after the opponent adapts.
+`local regret` is the weighted EV loss from the simplified action mixture against the opponent strategy in the solved equilibrium tree. It is useful for screening simplifications but is **not** exploitability after the opponent adapts.
 
 ## NOD005 — BTN stab after UTG CHECK
 
-### Solver aggregate
+### Main conclusion
 
-| Flop class | Solver BET |
-|---|---:|
-| **[T-4]x** | **74.9%** |
-| **[A/Q/J]xx** | **51.8%** |
-| **Kxx** | **45.8%** |
-| **AKx** | **36.2%** |
-| **Overall** | **60.9%** |
+The preferred simplification **can reuse the same six flop classes and the same recognizable MIX hand pool already used for the UTG-vs-BB c-bet study**. A separate BTN-only flop taxonomy gives only a negligible EV improvement, so the shared taxonomy is the better human strategy.
 
-The direction is the reverse of UTG's OOP c-bet strategy: after UTG checks, BTN attacks low boards most aggressively and AKx least aggressively.
+Use the familiar six classes:
 
-### Recommended simplification
+- `A[K-J]x`
+- `A[T-2]x`
+- `BBx`
+- `K[9-2]x`
+- `[Q-8]x`
+- `[7-4]x`
 
-Define the normal BTN stab pool as:
+Use the familiar MIX pool:
 
-- Two pair+
+- Straight / Set / Two pair
 - Overpair
 - Top pair
 - Second pair
 - OESD
 - Gutshot
 - BDFD
+- X-high
 
-Hands outside that pool are:
+Always CHECK outside the MIX pool:
 
 - Third pair
 - Underpair
-- X-high without a direct draw/BDFD
 - Air / Nothing
 
-Rules:
+Precedence: made hand first, then OESD, then Gutshot, then BDFD, then X-high, then Air.
 
-- **AKx:** use the pool **without BDFD**; BET 75% of that pool, CHECK everything else.
-- **Kxx:** BET 100% of the normal pool, CHECK everything else.
-- **[A/Q/J]xx:** BET 100% of the normal pool, CHECK everything else.
-- **[T-4]x:** BET 75% of the **entire range**.
+### Simple 70 / 80 / 90 randomizer ladder
 
-Result:
+- `A[K-J]x` and `BBx` -> BET **70% MIX**.
+- `A[T-2]x` and `K[9-2]x` -> BET **80% MIX**.
+- `[Q-8]x` and `[7-4]x` -> BET **90% MIX**.
+
+Result, sorted by solver BET frequency:
 
 | Flop class | Solver BET | Simplified BET | Diff | Local regret |
 |---|---:|---:|---:|---:|
-| **[T-4]x** | 74.9% | 75.0% | +0.1 pp | 0.0037 bb |
-| **[A/Q/J]xx** | 51.8% | 53.1% | +1.3 pp | 0.0020 bb |
-| **Kxx** | 45.8% | 49.2% | +3.3 pp | 0.0037 bb |
-| **AKx** | 36.2% | 34.2% | -1.9 pp | 0.0087 bb |
-| **Overall** | 60.9% | 61.9% | +1.0 pp | **0.0030 bb** |
+| **[7-4]x** | 79.8% | 83.5% | +3.8 pp | 0.0019 bb |
+| **[Q-8]x** | 67.2% | 65.1% | -2.1 pp | 0.0027 bb |
+| **K[9-2]x** | 49.1% | 48.1% | -1.0 pp | 0.0030 bb |
+| **A[T-2]x** | 46.4% | 42.6% | -3.9 pp | 0.0024 bb |
+| **BBx** | 44.9% | 43.0% | -1.9 pp | 0.0068 bb |
+| **A[K-J]x** | 39.3% | 38.7% | -0.5 pp | 0.0059 bb |
+| **Overall** | **60.9%** | **59.4%** | **-1.5 pp** | **0.0032 bb** |
 
-This is a strong same-complexity simplification: every broad flop class is within 3.4 percentage points of solver frequency and the weighted local regret is about 0.003bb.
+Every broad class is within 4 percentage points of the solver, overall frequency is within 1.5 points, and weighted local regret is about 0.0032bb.
+
+A separately optimized four-class BTN taxonomy reaches about 0.0030bb local regret. The gain versus the shared six-class strategy is only about **0.0002bb**, which is not worth learning a second flop taxonomy. The shared six-class 70/80/90 ladder is therefore the preferred simplification.
 
 ## NOD004 — BTN defense versus UTG B33
 
@@ -73,42 +77,62 @@ This is a strong same-complexity simplification: every broad flop class is withi
 | **[T-4]x** | **4.8%** | 85.7% | 9.5% |
 | **Overall** | **19.0%** | **73.9%** | **7.1%** |
 
-The main structural point is very clear: BTN folds much more on AKx and almost never folds low boards. A single board-independent defense rule loses too much information.
+### Can the existing BB-vs-UTG-B33 defense be copied?
 
-### Extra definitions needed for the simplified defense
+No. The literal existing BB-defense taxonomy/action matrix was evaluated on the BTN dataset and materially distorts the strategy:
+
+| | Solver | Copied BB rule | Diff |
+|---|---:|---:|---:|
+| **FOLD** | 19.0% | 27.1% | +8.1 pp |
+| **CALL** | 73.9% | 60.3% | -13.6 pp |
+| **RAISE** | 7.1% | 12.6% | +5.5 pp |
+
+Weighted local regret rises to **0.0264bb**. The distortion is not just an overall-frequency issue: for example, on `A[K-J]x` the copied rule folds 50.8% versus solver 31.4%, and on `K[9-2]x` it folds 36.9% versus solver 12.9%. BTN's preflop call range is too different from BB's range for a literal transfer to work.
+
+Therefore forcing the old BB defense here is rejected.
+
+### Recommended BTN defense
+
+For this node the compact four broad classes work better:
+
+- `AKx`
+- `Kxx`
+- `[A/Q/J]xx`
+- `[T-4]x`
+
+Definitions used below:
 
 - `1OC` = exactly one hole card is an overcard to the flop.
 - `2OC` = both hole cards are overcards to the flop.
 - `BDFD 0OC` = backdoor flush draw with no overcard to the flop.
 - `BDFD 1OC` = backdoor flush draw with exactly one overcard.
 - `Underpair 9-` = pocket 99 or lower below the top flop card.
+- Direct straight draws take precedence over BDFD / overcard labels.
 
-Direct straight draws take precedence over BDFD/overcard labels.
+#### FOLD layer
 
-### FOLD layer
+Apply first:
 
-Apply these first:
+- Air / Nothing -> FOLD 100% on every class.
+- X-high with exactly 1OC -> FOLD 100%.
+- BDFD 0OC -> FOLD 100% on `AKx / Kxx / [A/Q/J]xx`; continue on `[T-4]x`.
+- `[A/Q/J]xx + BDFD 1OC` -> FOLD 50% / continue 50%.
+- `AKx + Underpair 9-` -> FOLD 75% / continue 25%.
 
-- **Air / Nothing:** FOLD 100% on every flop class.
-- **X-high with exactly 1OC:** FOLD 100%.
-- **BDFD 0OC:** FOLD 100% on **AKx / Kxx / [A/Q/J]xx**; continue on `[T-4]x`.
-- **[A/Q/J]xx + BDFD 1OC:** FOLD 50% / continue 50%.
-- **AKx + Underpair 9-:** FOLD 75% / continue 25%.
+Everything else continues.
 
-Everything not folded goes to the continue layer.
+#### RAISE layer
 
-### RAISE layer
+Among continuers:
 
-Among hands that continue:
-
-- **AKx / Kxx:** Two pair+ → RAISE 100%.
-- **[A/Q/J]xx:** Two pair+ / OESD / Gutshot → RAISE 40%, CALL 60%.
-- **[T-4]x:** OESD / Gutshot → RAISE 100%.
-- Everything else → CALL.
+- `AKx / Kxx`: Two pair+ -> RAISE 100%.
+- `[A/Q/J]xx`: Two pair+ / OESD / Gutshot -> RAISE 40%, CALL 60%.
+- `[T-4]x`: OESD / Gutshot -> RAISE 100%.
+- Everything else -> CALL.
 
 Result:
 
-| Flop class | Solver F/C/R | Simplified F/C/R | Largest frequency error | Local regret |
+| Flop class | Solver F/C/R | Simplified F/C/R | Largest error | Local regret |
 |---|---|---|---:|---:|
 | **AKx** | 34.1 / 59.0 / 6.9 | 33.8 / 59.8 / 6.4 | 0.8 pp | 0.0073 bb |
 | **Kxx** | 19.0 / 74.4 / 6.6 | 17.0 / 76.8 / 6.1 | 2.4 pp | 0.0090 bb |
@@ -116,10 +140,14 @@ Result:
 | **[T-4]x** | 4.8 / 85.7 / 9.5 | 2.2 / 88.8 / 9.0 | 3.1 pp | 0.0411 bb |
 | **Overall** | 19.0 / 73.9 / 7.1 | 16.9 / 76.4 / 6.8 | 2.5 pp | **0.0139 bb** |
 
-The `[T-4]x` local-regret number is noticeably higher than the other classes because this very broad class contains substantial combo-level mixing that is not captured by a small set of hand labels. Its reach weight at this node is small because UTG rarely arrives here through B33 on low boards. Splitting low boards or individual hand ranks can reduce this number, but that would materially increase strategy complexity. For the requested human simplification the broad rule above is the better trade-off.
+The `[T-4]x` local-regret number is above the usual 0.02bb target because this broad low-board class contains heterogeneous combo-level mixing. Its reach weight at this node is small because UTG rarely reaches this node by betting low boards. Splitting low boards or individual hand ranks reduces that local number but materially increases complexity; the broad version is retained as the better human trade-off.
 
-## Practical conclusions
+## What this says about reusable strategy modules
 
-For BTN stab after UTG checks, the four existing flop classes work extremely well and the final strategy is very compact. For BTN defense versus UTG B33, the same four classes are still usable, but defense needs two extra hand-quality distinctions: number of overcards and whether a BDFD has an overcard. Those distinctions recover the solver's fold structure without forcing strong made hands or direct draws into bad folds.
+For **betting/stabbing**, reuse works extremely well: BTN after UTG checks can use the same six flop classes and essentially the same hand pool as the established UTG-vs-BB c-bet module, with different randomizer frequencies.
 
-The strategy is validated by equilibrium frequencies and local EV/regret only. It has not been strategy-locked and re-solved against an adapting opponent, so the numbers above must not be described as exploitability or proof of near-GTO play.
+For **defense**, literal reuse is not automatically valid. BTN defense versus UTG B33 is a clear counterexample: copying the BB-vs-UTG-B33 matrix overfolds, undercalls, and overraises. The tailored BTN defense above is required.
+
+The next still-unsolved branch is `UTG CHECK -> BTN BET33 -> UTG Fold / Call / Raise`. That is the correct place to test the user's desired second reuse: whether UTG's defense versus BTN stab can share the existing BB-defense flop/hand taxonomy. No conclusion about that node should be claimed from NOD004 because the acting range is different.
+
+The strategies above are validated by equilibrium frequencies and local EV/regret only. They have not been strategy-locked and re-solved against an adapting opponent, so these local-regret values are not exploitability measurements.
