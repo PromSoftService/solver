@@ -8,7 +8,7 @@ param(
     [Nullable[double]]$TargetExploitability = $null,
     [int]$ExpectedBetAmount = 0,
     [int]$ExpectedRaiseAmount = 0,
-    [ValidateSet('BB_RESPONSE', 'UTG_CBET')][string]$DecisionNode = 'BB_RESPONSE',
+    [ValidateSet('BB_RESPONSE', 'UTG_CBET', 'UTG_OOP_CBET')][string]$DecisionNode = 'BB_RESPONSE',
     [int]$SolveTimeoutMinutes = 180,
     [switch]$ShowHostWindow
 )
