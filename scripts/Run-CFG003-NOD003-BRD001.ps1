@@ -1,11 +1,35 @@
 [CmdletBinding()]
-param()
+param(
+    [string]$ResumeOutputDirectory = '',
+    [switch]$ResumeLatestFailed
+)
 
 $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version Latest
 
 $root = (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot '..')).Path
 . (Join-Path $PSScriptRoot 'Range-Utils.ps1')
+
+if ($ResumeOutputDirectory -and $ResumeLatestFailed) {
+    throw 'Use either -ResumeOutputDirectory or -ResumeLatestFailed, not both.'
+}
+
+if ($ResumeLatestFailed) {
+    $outputRoot = Join-Path $root 'output'
+    $candidate = Get-ChildItem -LiteralPath $outputRoot -Directory -Filter 'OUT__RNG002__CFG003__NOD003__BRD001__RUN-*' -ErrorAction SilentlyContinue |
+        Sort-Object LastWriteTime -Descending |
+        Where-Object {
+            $summaryPath = Join-Path $_.FullName 'batch-summary.csv'
+            if (-not (Test-Path -LiteralPath $summaryPath -PathType Leaf)) { return $false }
+            return (@(Import-Csv -LiteralPath $summaryPath | Where-Object { $_.status -ne 'done' }).Count -gt 0)
+        } |
+        Select-Object -First 1
+    if ($null -eq $candidate) {
+        throw 'No incomplete RNG002/CFG003/NOD003/BRD001 output run was found.'
+    }
+    $ResumeOutputDirectory = $candidate.FullName
+    Write-Host "Resuming latest incomplete run: $ResumeOutputDirectory"
+}
 
 $specRel = 'configs\CFG003__6M100_UTG-O2p5_BTN-C__F_OOP-B33-XR60_IP-B33-R100__T-B100-R100__R-B100-R100__V1.derived.json'
 $specPath = Join-Path $root $specRel
@@ -46,22 +70,28 @@ try {
     Write-Host "NOD003: export UTG root decision; expected native Bet $($spec.expected_native_actions.utg_root_bet)"
     Write-Host ''
 
-    & (Join-Path $PSScriptRoot 'Run-Study.ps1') `
-        -RangeId 'RNG002' `
-        -ConfigId 'CFG003' `
-        -DecisionId 'NOD003' `
-        -DecisionNode 'UTG_OOP_CBET' `
-        -BoardSetId 'BRD001' `
-        -ConfigPath $effectiveConfigPath `
-        -BoardsPath 'boards\BRD001__FLOP_UNPAIRED_RAINBOW__ISO286__V1.txt' `
-        -RangeProfilePath $rangeProfileRel `
-        -OopRangePath $utgRangeRel `
-        -IpRangePath $btnRangeRel `
-        -OopPosition 'UTG' `
-        -IpPosition 'BTN' `
-        -ExpectedBetAmount ([int]$spec.expected_native_actions.utg_root_bet) `
-        -ExpectedRaiseAmount 0 `
-        -MoneyScale ([double]$spec.money_scale)
+    $studyArgs = @{
+        RangeId = 'RNG002'
+        ConfigId = 'CFG003'
+        DecisionId = 'NOD003'
+        DecisionNode = 'UTG_OOP_CBET'
+        BoardSetId = 'BRD001'
+        ConfigPath = $effectiveConfigPath
+        BoardsPath = 'boards\BRD001__FLOP_UNPAIRED_RAINBOW__ISO286__V1.txt'
+        RangeProfilePath = $rangeProfileRel
+        OopRangePath = $utgRangeRel
+        IpRangePath = $btnRangeRel
+        OopPosition = 'UTG'
+        IpPosition = 'BTN'
+        ExpectedBetAmount = [int]$spec.expected_native_actions.utg_root_bet
+        ExpectedRaiseAmount = 0
+        MoneyScale = [double]$spec.money_scale
+    }
+    if ($ResumeOutputDirectory) {
+        $studyArgs['ResumeOutputDirectory'] = $ResumeOutputDirectory
+    }
+
+    & (Join-Path $PSScriptRoot 'Run-Study.ps1') @studyArgs
 }
 finally {
     if (Test-Path -LiteralPath $tempDir) {
