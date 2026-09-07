@@ -6,6 +6,7 @@ on:
     paths:
       - 'tools/analyze_rng002_btn_followups.py'
       - 'tools/analyze_rng002_btn_refine.py'
+      - 'tools/evaluate_btn_final_candidates.py'
       - 'datasets/DS__RNG002__CFG003__NOD004__BRD001__RUN-*.csv'
       - 'datasets/DS__RNG002__CFG003__NOD005__BRD001__RUN-*.csv'
       - '.github/workflows/btn-followups-analysis.yml'
@@ -20,3 +21,5 @@ jobs:
         run: python3 tools/analyze_rng002_btn_followups.py
       - name: Refine human simplifications
         run: python3 tools/analyze_rng002_btn_refine.py
+      - name: Evaluate final candidates
+        run: python3 tools/evaluate_btn_final_candidates.py
