@@ -16,7 +16,8 @@
   "expected_native_actions": {
     "utg_root_bet": 21,
     "btn_stab_bet": 21,
-    "btn_response_raise": 128
+    "btn_response_raise": 128,
+    "utg_response_raise": 85
   },
   "money_scale": 10,
   "notes": "UTG is OOP versus BTN. Root actions are Check / Bet 33%. If UTG checks, BTN has Check / Bet 33%. If UTG bets 33%, BTN has Fold / Call / Raise 100%. Future turn/river sizings, all-in settings and rake settings are inherited from CFG001."

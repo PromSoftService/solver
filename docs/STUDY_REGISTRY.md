@@ -55,6 +55,7 @@ Decision-node IDs identify **which solved node is exported**. They do not change
 | `NOD003` | `UTG_OOP_CBET` | UTG | flop root in UTG-vs-BTN SRP, before any flop action; `Check / configured OOP Bet` |
 | `NOD004` | `BTN_RESPONSE` | BTN | after `UTG Bet 33%` at the CFG003 flop root; `Fold / Call / Raise 100%` |
 | `NOD005` | `BTN_STAB` | BTN | after `UTG Check` at the CFG003 flop root; `Check / Bet 33%` |
+| `NOD006` | `UTG_RESPONSE` | UTG | after `UTG Check -> BTN Bet 33%`; `Fold / Call / Raise 60%` |
 
 `NOD001` is the semantics used by the original CFG001/CFG002 datasets. Older launchers keep their historical output names and therefore omit the node ID, but they still run with the default `BB_RESPONSE` extraction.
 
@@ -66,6 +67,8 @@ Decision-node IDs identify **which solved node is exported**. They do not change
 
 `NOD005` exports BTN's stab decision after `UTG Check`. BTN actions are `Check / Bet 33%`; the expected native wager is 21. The dataset uses BTN-specific `ev_check_btn`, `ev_bet_btn`, `mixed_ev_btn`, and `loss_if_*_btn` fields.
 
+`NOD006` exports UTG's response after `UTG Check -> BTN Bet 33%`. UTG actions are `Fold / Call / Raise 60%`; expected native amounts are BTN Bet 21 and UTG Raise 85. The dataset uses UTG-specific `ev_fold_utg`, `ev_call_utg`, `ev_raise_utg`, `mixed_ev_utg`, and `loss_if_*_utg` fields.
+
 Launchers:
 
 ```powershell
@@ -75,6 +78,8 @@ Launchers:
 .\scripts\RUN__CFG003__NOD003__BRD001.cmd
 .\scripts\RUN__CFG003__NOD004__BRD001.cmd
 .\scripts\RUN__CFG003__NOD005__BRD001.cmd
+.\scripts\RUN__CFG003__NOD006__BRD001.cmd
+.\scripts\RUN__CFG003__NOD006__BRD001__AND_PUSH.cmd
 .\scripts\RUN__CFG003__NOD004_NOD005__BRD001__AND_PUSH.cmd
 ```
 

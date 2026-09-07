@@ -393,3 +393,5 @@ The authoritative current registry is `docs/STUDY_REGISTRY.md`. For `RNG002 / CF
 - `NOD005 / BTN_STAB`: BTN Check/Bet 33% after UTG root Check; expected native BTN wager 21.
 
 BTN datasets use `*_btn` EV/loss field suffixes. Do not relabel these nodes as UTG or BB decisions.
+
+- `NOD006 / UTG_RESPONSE`: UTG Fold/Call/Raise after `UTG Check -> BTN Bet 33%`; expected native BTN wager 21 and UTG Raise 85; F/C/R dataset fields use the `*_utg` suffix.

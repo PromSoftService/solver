@@ -53,6 +53,7 @@ Decision-node extraction is separate from the tree:
 - `NOD003 / UTG_OOP_CBET`: export the UTG OOP Check/Bet decision at the flop root before any flop action.
 - `NOD004 / BTN_RESPONSE`: export BTN Fold/Call/Raise after UTG bets 33% at the CFG003 flop root.
 - `NOD005 / BTN_STAB`: export BTN Check/Bet 33% after UTG checks the CFG003 flop root.
+- `NOD006 / UTG_RESPONSE`: export UTG Fold/Call/Raise 60% after UTG checks and BTN bets 33%.
 
 Run from the repository root:
 
@@ -63,6 +64,8 @@ Run from the repository root:
 .\scripts\RUN__CFG003__NOD003__BRD001.cmd
 .\scripts\RUN__CFG003__NOD004__BRD001.cmd
 .\scripts\RUN__CFG003__NOD005__BRD001.cmd
+.\scripts\RUN__CFG003__NOD006__BRD001.cmd
+.\scripts\RUN__CFG003__NOD006__BRD001__AND_PUSH.cmd
 .\scripts\RUN__CFG003__NOD004_NOD005__BRD001__AND_PUSH.cmd
 ```
 
@@ -210,3 +213,7 @@ When omitted, those same defaults are used.
 ### BTN follow-up studies on CFG003
 
 `NOD004` studies BTN defense versus UTG B33. `NOD005` studies BTN stab after UTG checks. The combined `AND_PUSH` launcher runs NOD004, then NOD005, retries an incomplete run once if necessary, stages generated datasets/manifests with `git add .`, commits them only after both studies complete, and pushes the commit.
+
+### UTG defense versus BTN stab on CFG003
+
+`NOD006` studies `UTG Check -> BTN Bet 33% -> UTG Fold/Call/Raise 60%`. It reuses `RNG002`, `CFG003`, and `BRD001`. Expected native amounts are BTN Bet 21 and UTG Raise 85. The `AND_PUSH` launcher retries one incomplete run once, then commits and pushes only the generated NOD006 dataset and manifest.

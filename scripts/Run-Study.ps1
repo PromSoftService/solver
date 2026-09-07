@@ -12,7 +12,7 @@ param(
     [string]$IpRangePath = '',
     [string]$OopPosition = '',
     [string]$IpPosition = '',
-    [ValidateSet('BB_RESPONSE', 'UTG_CBET', 'UTG_OOP_CBET', 'BTN_RESPONSE', 'BTN_STAB')][string]$DecisionNode = 'BB_RESPONSE',
+    [ValidateSet('BB_RESPONSE', 'UTG_CBET', 'UTG_OOP_CBET', 'BTN_RESPONSE', 'BTN_STAB', 'UTG_RESPONSE')][string]$DecisionNode = 'BB_RESPONSE',
     [string]$DecisionId = '',
     [int]$ExpectedBetAmount = 0,
     [int]$ExpectedRaiseAmount = 0,

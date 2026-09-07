@@ -19,7 +19,7 @@ Get-ChildItem -LiteralPath $OutputDir -Directory | Sort-Object Name | ForEach-Ob
         ([string]$actingProperty.Value).ToUpperInvariant()
     } elseif ($decisionNode -in @('BTN_RESPONSE', 'BTN_STAB')) {
         'BTN'
-    } elseif ($decisionNode -in @('UTG_CBET', 'UTG_OOP_CBET')) {
+    } elseif ($decisionNode -in @('UTG_CBET', 'UTG_OOP_CBET', 'UTG_RESPONSE')) {
         'UTG'
     } else {
         'BB'
@@ -72,7 +72,7 @@ Get-ChildItem -LiteralPath $OutputDir -Directory | Sort-Object Name | ForEach-Ob
             $freqAction='F'; $freq=$f
             if ($c -gt $freq) { $freqAction='C'; $freq=$c }
             if ($r -gt $freq) { $freqAction='R'; $freq=$r }
-            $suffix = if ($actingPlayer -eq 'BTN') { 'btn' } else { 'bb' }
+            $suffix = if ($actingPlayer -eq 'BTN') { 'btn' } elseif ($actingPlayer -eq 'UTG') { 'utg' } else { 'bb' }
             $row = [ordered]@{
                 board = $run.board
                 combo = $x.combo

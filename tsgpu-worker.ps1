@@ -8,7 +8,7 @@ param(
     [double]$TargetExploitability = 0.5,
     [int]$ExpectedBetAmount = 0,
     [int]$ExpectedRaiseAmount = 0,
-    [ValidateSet('BB_RESPONSE', 'UTG_CBET', 'UTG_OOP_CBET', 'BTN_RESPONSE', 'BTN_STAB')][string]$DecisionNode = 'BB_RESPONSE',
+    [ValidateSet('BB_RESPONSE', 'UTG_CBET', 'UTG_OOP_CBET', 'BTN_RESPONSE', 'BTN_STAB', 'UTG_RESPONSE')][string]$DecisionNode = 'BB_RESPONSE',
     [int]$ExportMaxNodes = 5000,
     [int]$SolveTimeoutMinutes = 180,
     [switch]$ShowHostWindow,
@@ -17,7 +17,7 @@ param(
 
 $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version Latest
-$ScriptVersion = 'v014-production'
+$ScriptVersion = 'v015-production'
 $StatusRetryLimit = 3
 
 # The host can call ShowWindow after ProcessStartInfo has requested Hidden.
@@ -618,6 +618,20 @@ try {
             $exportHistory = @($history)
             $selectedActions = @($check.Label)
             $actingPlayer = 'BTN'
+        } elseif ($DecisionNode -eq 'UTG_RESPONSE') {
+            # Export UTG's Fold/Call/Raise response after UTG checks and BTN bets 33%.
+            # Native APIs may label the first IP wager Bet or Raise, so accept either.
+            $bet = $null
+            try {
+                $bet = Find-ActionIndex $ipActions 'Bet' ([Nullable[int]]$ExpectedBetAmount)
+            } catch {
+                $bet = Find-ActionIndex $ipActions 'Raise' ([Nullable[int]]$ExpectedBetAmount)
+            }
+            $history = @($history + [int]$bet.Index)
+            Invoke-Bridge $socket 'solver.history.apply' '/api/apply-history' 'POST' ([ordered]@{ history = $history }) 10000 $transcript | Out-Null
+            $exportHistory = @($history)
+            $selectedActions = @($check.Label, $bet.Label)
+            $actingPlayer = 'UTG'
         } else {
             $bet = Find-ActionIndex $ipActions 'Bet' ([Nullable[int]]$ExpectedBetAmount)
             $history = @($history + [int]$bet.Index)
