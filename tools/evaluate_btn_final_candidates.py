@@ -5,6 +5,9 @@ import analyze_rng002_btn_followups as a
 import analyze_rng002_btn_refine as r
 
 
+STAB_FAMILIAR_POOL={'Two pair+','Overpair','Top pair','Second pair','OESD','Gutshot','BDFD','X-high'}
+
+
 def stab_rule(x):
     c=x['b4'];h=x['hb']
     if c=='[T-4]x': return .75
@@ -15,17 +18,14 @@ def stab_rule(x):
     return 1.
 
 def stab_same6_rule(x):
-    # Reuse the familiar UTG-vs-BB c-bet flop classes and familiar MIX hand pool.
-    pool={'Two pair+','Overpair','Top pair','Second pair','OESD','Gutshot','BDFD','X-high'}
-    if x['hb'] not in pool:return 0.
-    rates={
-      'A[K-J]x':.70,
-      'A[T-2]x':.85,
-      'BBx':.75,
-      'K[9-2]x':.80,
-      '[Q-8]x':.90,
-      '[7-4]x':.85,
-    }
+    if x['hb'] not in STAB_FAMILIAR_POOL:return 0.
+    rates={'A[K-J]x':.70,'A[T-2]x':.85,'BBx':.75,'K[9-2]x':.80,'[Q-8]x':.90,'[7-4]x':.85}
+    return rates[x['b6']]
+
+def stab_same6_tens_rule(x):
+    # Same familiar six classes + same hand pool, with only 70/80/90% randomizers.
+    if x['hb'] not in STAB_FAMILIAR_POOL:return 0.
+    rates={'A[K-J]x':.70,'A[T-2]x':.90,'BBx':.70,'K[9-2]x':.80,'[Q-8]x':.90,'[7-4]x':.90}
     return rates[x['b6']]
 
 def eval_stab(rows, rule=stab_rule, class_key='b4', classes=None):
@@ -42,7 +42,6 @@ def eval_stab(rows, rule=stab_rule, class_key='b4', classes=None):
 
 def response_rule(x):
     c=x['b4'];hb=x['hb'];d=r.detail_bucket(x)
-    # Fold layer.
     pf=0.
     if hb=='Air':pf=1.
     elif c in ('AKx','Kxx','[A/Q/J]xx') and d=='BDFD 0OC':pf=1.
@@ -50,7 +49,6 @@ def response_rule(x):
     elif d=='X-high 1OC':pf=1.
     elif c=='AKx' and d=='Underpair 9-':pf=.75
     if pf>0:return {'F':pf,'C':1-pf,'R':0.}
-    # Raise layer among hands that continue.
     pr=0.
     if c in ('AKx','Kxx') and hb=='Two pair+':pr=1.
     elif c=='[A/Q/J]xx' and hb in ('Two pair+','OESD','Gutshot'):pr=.40
@@ -66,45 +64,26 @@ def bdsd_paths(br,hr):
     return n
 
 def response_same_as_bb33(x):
-    # Apply the existing BB-vs-UTG-B33 six-class defense taxonomy literally to BTN.
     b=a.bc(x['board']);h=a.hc(x['combo']);br=a.ranks(b);hr=a.ranks(h)
     top,mid,low=sorted(br,reverse=True)
     cnt=defaultdict(int)
     for v in br+hr:cnt[v]+=1
-    isstraight=a.straight(br+hr)
-    if isstraight:return {'F':0.,'C':0.,'R':1.}
+    if a.straight(br+hr):return {'F':0.,'C':0.,'R':1.}
     if max(cnt.values())>=3 or sum(v>=2 for v in cnt.values())>=2:return {'F':0.,'C':0.,'R':1.}
-
     if hr[0]==hr[1]:
-        pr=hr[0]
-        if pr<mid: # weak pocket pair in the established BB table
-            act='F' if x['b6']=='A[K-J]x' else 'C'
-        else:
-            act='C'
+        act='F' if hr[0]<mid and x['b6']=='A[K-J]x' else 'C'
         return {q:1. if q==act else 0. for q in 'FCR'}
-
-    matched=[v for v in hr if v in br]
-    if matched:return {'F':0.,'C':1.,'R':0.}
-
-    sd=a.sd_kind(br,hr)
-    bd=a.bdfd(b,h)
-    bdstraight=bdsd_paths(br,hr)>0
-    two_over=min(hr)>top
+    if any(v in br for v in hr):return {'F':0.,'C':1.,'R':0.}
+    sd=a.sd_kind(br,hr);bd=a.bdfd(b,h);bdstraight=bdsd_paths(br,hr)>0;two_over=min(hr)>top
     hole=''.join(sorted((h[0][0],h[1][0]),key=lambda z:a.RANK[z],reverse=True))
-
-    # Existing precedence: 2 overcards + any useful draw -> call.
     if two_over and (sd is not None or bd or bdstraight):return {'F':0.,'C':1.,'R':0.}
     if sd=='OESD':return {'F':0.,'C':0.,'R':1.}
     if sd=='Gutshot' and bd:return {'F':0.,'C':0.,'R':1.}
     if sd=='Gutshot':return {'F':0.,'C':1.,'R':0.}
-
-    # Bare strong ace-high row from the established table.
     if hole in ('AK','AQ','AJ') and not bd and not bdstraight:return {'F':0.,'C':1.,'R':0.}
     if two_over and not bd and not bdstraight:
         act='F' if x['b6']=='[7-4]x' else 'C'
         return {q:1. if q==act else 0. for q in 'FCR'}
-
-    # BDFD/BDSD-only and residual air are folds in the BB template.
     return {'F':1.,'C':0.,'R':0.}
 
 
@@ -133,6 +112,7 @@ def main():
       'NOD004_same_as_BB33':eval_response_by6(x4,response_same_as_bb33),
       'NOD005_final':eval_stab(x5),
       'NOD005_same6_familiar_pool':eval_stab(x5,stab_same6_rule,'b6',a.B6),
+      'NOD005_same6_tens':eval_stab(x5,stab_same6_tens_rule,'b6',a.B6),
     }
     print('BTN_FINAL_CANDIDATES_BEGIN');print(json.dumps(a.rnd(result),ensure_ascii=False,separators=(',',':')));print('BTN_FINAL_CANDIDATES_END')
 if __name__=='__main__':main()
