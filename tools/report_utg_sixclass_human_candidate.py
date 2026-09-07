@@ -38,8 +38,6 @@ BASE={
 '[7-4]x':{'Two pair+':M,'Overpair':M,'Underpair':X,'Top pair':M,'Second pair':M,'Third pair':M,'Weak pocket pair':X,'OESD':M,'Gutshot':X,'BDFD':X,'2 overcards':X,'Air':X},
 }
 CLEAN=copy.deepcopy(BASE)
-# Make the four problematic rows monotonic in the already-sorted board columns:
-# A[K-J]x, BBx, K[9-2]x, [Q-8]x, A[T-2]x, [7-4]x.
 CLEAN['A[K-J]x']['Underpair']=B
 CLEAN['A[K-J]x']['Weak pocket pair']=B
 CLEAN['BBx']['Second pair']=B
@@ -47,11 +45,13 @@ CLEAN['BBx']['Third pair']=B
 CLEAN['BBx']['Weak pocket pair']=B
 
 USER=copy.deepcopy(BASE)
-# Literal requested direction: downgrade anomalous BET cells to MIX and upgrade the two BBx pair cells to BET.
 USER['BBx']['Underpair']=M
 USER['BBx']['Second pair']=B
 USER['BBx']['Third pair']=B
 USER['K[9-2]x']['Weak pocket pair']=M
+
+LOW_GUT_MIX=copy.deepcopy(USER)
+LOW_GUT_MIX['[7-4]x']['Gutshot']=M
 
 QP={B:1.,M:.5,X:0.}
 p=sorted(glob.glob('datasets/DS__RNG001__CFG001__NOD002__BRD001__RUN-*.csv'))[-1]
@@ -75,4 +75,5 @@ def run(name,rule):
 print('HUMAN_CANDIDATE',p)
 run('BASE',BASE)
 run('USER_LITERAL',USER)
+run('LOW_GUT_MIX',LOW_GUT_MIX)
 run('CLEAN_MONOTONIC',CLEAN)
