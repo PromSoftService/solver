@@ -6,6 +6,7 @@ on:
     paths:
       - 'tools/evaluate_utg_response_compact.py'
       - 'tools/evaluate_utg_response_group_search.py'
+      - 'tools/evaluate_utg_response_4class_search.py'
       - 'tools/analyze_rng002_utg_response.py'
       - 'datasets/DS__RNG002__CFG003__NOD006__BRD001__RUN-*.csv'
       - '.github/workflows/nod006-compact-analysis.yml'
@@ -20,3 +21,5 @@ jobs:
         run: python3 tools/evaluate_utg_response_compact.py
       - name: Search constrained NOD006 hand rules
         run: python3 tools/evaluate_utg_response_group_search.py
+      - name: Compare four-class NOD006 defense
+        run: python3 tools/evaluate_utg_response_4class_search.py
