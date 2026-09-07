@@ -8,7 +8,7 @@ param(
     [double]$TargetExploitability = 0.5,
     [int]$ExpectedBetAmount = 0,
     [int]$ExpectedRaiseAmount = 0,
-    [ValidateSet('BB_RESPONSE', 'UTG_CBET')][string]$DecisionNode = 'BB_RESPONSE',
+    [ValidateSet('BB_RESPONSE', 'UTG_CBET', 'UTG_OOP_CBET')][string]$DecisionNode = 'BB_RESPONSE',
     [int]$ExportMaxNodes = 5000,
     [int]$SolveTimeoutMinutes = 180,
     [switch]$ShowHostWindow,
@@ -578,37 +578,45 @@ try {
 
     Invoke-Bridge $socket 'solver.history.apply' '/api/apply-history' 'POST' ([ordered]@{ history = @() }) 10000 $transcript | Out-Null
     $rootActions = Split-Actions (Invoke-Bridge $socket 'solver.node.actionsAfter' '/api/actions-after' 'POST' ([ordered]@{ append = @() }) 10000 $transcript)
-    $check = Find-ActionIndex $rootActions 'Check' $null
-    $history = @([int]$check.Index)
 
-    Invoke-Bridge $socket 'solver.history.apply' '/api/apply-history' 'POST' ([ordered]@{ history = $history }) 10000 $transcript | Out-Null
-    $ipActions = Split-Actions (Invoke-Bridge $socket 'solver.node.actionsAfter' '/api/actions-after' 'POST' ([ordered]@{ append = @() }) 10000 $transcript)
-
-    if ($DecisionNode -eq 'UTG_CBET') {
-        # We export the node immediately after BB checks, so no UTG action is
-        # applied here. Native APIs are inconsistent about naming the first IP
-        # wager after a check (Bet vs Raise), therefore do not preselect it.
-        $exportHistory = @($history)
-        $selectedActions = @($check.Label)
+    if ($DecisionNode -eq 'UTG_OOP_CBET') {
+        # Export the flop root before UTG acts. This is the OOP UTG decision in
+        # UTG-open / BTN-call single-raised pots.
+        $exportHistory = @()
+        $selectedActions = @()
         $actingPlayer = 'UTG'
     } else {
-        $bet = Find-ActionIndex $ipActions 'Bet' ([Nullable[int]]$ExpectedBetAmount)
-        $history = @($history + [int]$bet.Index)
+        $check = Find-ActionIndex $rootActions 'Check' $null
+        $history = @([int]$check.Index)
+
         Invoke-Bridge $socket 'solver.history.apply' '/api/apply-history' 'POST' ([ordered]@{ history = $history }) 10000 $transcript | Out-Null
-        $exportHistory = @($history)
-        $selectedActions = @($check.Label, $bet.Label)
-        $actingPlayer = 'BB'
+        $ipActions = Split-Actions (Invoke-Bridge $socket 'solver.node.actionsAfter' '/api/actions-after' 'POST' ([ordered]@{ append = @() }) 10000 $transcript)
+
+        if ($DecisionNode -eq 'UTG_CBET') {
+            # We export the node immediately after BB checks, so no UTG action is
+            # applied here. Native APIs are inconsistent about naming the first IP
+            # wager after a check (Bet vs Raise), therefore do not preselect it.
+            $exportHistory = @($history)
+            $selectedActions = @($check.Label)
+            $actingPlayer = 'UTG'
+        } else {
+            $bet = Find-ActionIndex $ipActions 'Bet' ([Nullable[int]]$ExpectedBetAmount)
+            $history = @($history + [int]$bet.Index)
+            Invoke-Bridge $socket 'solver.history.apply' '/api/apply-history' 'POST' ([ordered]@{ history = $history }) 10000 $transcript | Out-Null
+            $exportHistory = @($history)
+            $selectedActions = @($check.Label, $bet.Label)
+            $actingPlayer = 'BB'
+        }
     }
 
     $export = Invoke-Bridge $socket 'solver.export.currentStreet' '/api/export/current-street' 'POST' ([ordered]@{ history = $exportHistory; max_nodes = $ExportMaxNodes }) 120000 $transcript
     $node = Read-Property $export 'payload' $export
     $validActions = @($node.valid_actions)
 
-    if ($DecisionNode -eq 'UTG_CBET') {
+    if ($DecisionNode -in @('UTG_CBET', 'UTG_OOP_CBET')) {
         $checkSlot = Get-ActionSlot $validActions 'Check'
-        # TexasSolverGPU v0.2.0 may expose the first IP wager after an OOP
-        # check as either `Bet 18` or `Raise 18` depending on the native API.
-        # Semantically both are the UTG c-bet at this node.
+        # TexasSolverGPU v0.2.0 may expose a first wager as either Bet or Raise
+        # depending on the native API. Treat both labels as the semantic UTG bet.
         $betSlot = $null
         for ($i = 0; $i -lt $validActions.Count; $i++) {
             if ($validActions[$i] -match '(?i)^(?:Bet|Raise)(?:(?:\s+|:)|$)') {
@@ -620,7 +628,7 @@ try {
             throw "Required UTG wager action is missing: $($validActions -join ' / ')"
         }
         if ($validActions.Count -ne 2) {
-            throw "UTG_CBET expects exactly Check plus one wager at the target node; got: $($validActions -join ' / ')"
+            throw "$DecisionNode expects exactly Check plus one wager at the target node; got: $($validActions -join ' / ')"
         }
         if ($ExpectedBetAmount -gt 0 -and $validActions[$betSlot] -notmatch "(?i)^(?:Bet|Raise)(?:\s+|:)\s*$ExpectedBetAmount(?:\.0+)?$") {
             throw "Expected UTG wager $ExpectedBetAmount, got: $($validActions -join ' / ')"
@@ -647,7 +655,7 @@ try {
     $combos = for ($i = 0; $i -lt $cards.Count; $i++) {
         $p = @($probs[$i]); $e = @($actionEvs[$i])
         if ($p.Count -ne $validActions.Count -or $e.Count -ne $validActions.Count) { throw "Action vector mismatch at combo $($cards[$i])." }
-        if ($DecisionNode -eq 'UTG_CBET') {
+        if ($DecisionNode -in @('UTG_CBET', 'UTG_OOP_CBET')) {
             [ordered]@{
                 combo = [string]$cards[$i]
                 reach_probability = [double]$reach[$i]
