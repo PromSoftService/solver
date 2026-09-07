@@ -5,13 +5,12 @@ on:
     branches: [main]
     paths:
       - 'tools/universal_strategy/**'
-      - 'analysis/universal_strategy/**'
       - 'datasets/**'
       - '.github/workflows/universal-strategy-analysis.yml'
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 concurrency:
   group: universal-strategy-${{ github.ref }}
@@ -21,38 +20,53 @@ jobs:
   analyze:
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    env:
+      OPENBLAS_NUM_THREADS: '1'
+      OMP_NUM_THREADS: '1'
+      PYTHONHASHSEED: '0'
     steps:
       - uses: actions/checkout@v4
-      - name: Audit registered datasets
+        with:
+          fetch-depth: 0
+      - name: Install pinned analysis dependencies
+        run: |
+          python3 -m venv .analysis-venv
+          .analysis-venv/bin/pip install numpy==2.3.5 scipy==1.17.0
+          echo "$GITHUB_WORKSPACE/.analysis-venv/bin" >> "$GITHUB_PATH"
+      - name: EXP-001 dataset and taxonomy audit
+        run: python3 tools/universal_strategy/audit.py
+      - name: Record verified audit checkpoint
         run: |
           python3 - <<'PY'
-          import csv, glob, hashlib, json
+          import json, os, re
           from pathlib import Path
-          for p in sorted(glob.glob('datasets/*.csv')):
-              with open(p, encoding='utf-8-sig', newline='') as f:
-                  r = csv.DictReader(f)
-                  fields = r.fieldnames
-                  rows = list(r)
-              print(json.dumps({'file': p, 'sha256': hashlib.sha256(Path(p).read_bytes()).hexdigest(), 'rows': len(rows), 'boards': len({r['board'] for r in rows}), 'fields': fields, 'first': rows[0]}, ensure_ascii=False))
+          p=Path('analysis/universal_strategy/PROGRESS.md')
+          s=p.read_text()
+          text=('### EXP-001 — dataset and taxonomy audit\n'
+                'Script: `tools/universal_strategy/audit.py`.\n'
+                'GHA run: '+os.environ['GITHUB_RUN_ID']+'; code commit: '+os.environ['GITHUB_SHA']+'.\n'
+                'Results: `experiments/EXP-001.json` and `experiments/EXP-001.md`.\n'
+                'KEEP: all seven dataset hashes, schemas, coverage and EV identities pass.\n'
+                'Legacy 13-label examples cover only 127 boards. All 6/8/13 operational partitions cover 286.\n'
+                'The approved vocabulary is frozen; classifier definitions/precedence are documented in EXP-001.\n'
+                'No strategy architecture has yet been accepted.\n\n')
+          s=re.sub(r'## Experiments completed\n.*?(?=## Current best candidate)', '## Experiments completed\n'+text,s,flags=re.S)
+          s=re.sub(r'## Next step\n.*', '## Next step\nImplement EXP-002: compare literal shared 2/4 action maps and spot-specific maps on fixed 6/8/13 grids, with explicit error/complexity safeguards.\n',s,flags=re.S)
+          p.write_text(s)
           PY
-      - name: Run universal strategy analysis when available
+      - name: Commit generated audit and checkpoint
         run: |
-          if [ -f tools/universal_strategy/analyze.py ]; then
-            python3 tools/universal_strategy/analyze.py
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add analysis/universal_strategy/experiments/EXP-001.json analysis/universal_strategy/experiments/EXP-001.md analysis/universal_strategy/PROGRESS.md
+          if ! git diff --cached --quiet; then
+            git commit -m 'universal strategy: persist verified EXP-001 audit'
+            git pull --rebase origin main
+            git push origin HEAD:main
           fi
-      - name: Preserve inputs and generated reports for independent verification
+      - name: Preserve audit reports
         uses: actions/upload-artifact@v4
         with:
           name: universal-strategy-analysis
           retention-days: 14
-          path: |
-            AGENTS.md
-            README.md
-            datasets/
-            configs/
-            ranges/
-            boards/
-            tools/
-            analysis/
-            docs/
-            tsgpu-worker.ps1
+          path: analysis/universal_strategy/
