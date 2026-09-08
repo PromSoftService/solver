@@ -32,6 +32,12 @@ Only after the whole study passes validation does its launcher move the run into
 
 This is a **postflop** solve. Preflop is not solved: ranges, 5.5bb flop pot and 97.5bb effective stack are fixed inputs.
 
+## Full-tree export discovery
+
+The proven v015 automation already solves the complete configured native tree. GPU v0.2.0 does not publicly document the bridge method that returns its viewer-compatible complete nested strategy dump, so v020 probes the known/current and plausible native export endpoints **after the solve** and accepts a board only if the returned JSON actually contains strategy/action/chance structure through both turn and river.
+
+If the installed runtime exposes a different full-tree endpoint, the first board fails with `FULL_TREE_EXPORT_UNRESOLVED`. The batch then stops immediately, preserving `export-probes.json` and `bridge-transcript.jsonl`; it does **not** waste time solving the remaining 285 boards and does not commit/push a partial study. After the exporter is corrected, the same study is resumed rather than restarted from scratch.
+
 ## User command
 
 After synchronizing the local checkout to remote `main`, run from the repository root:

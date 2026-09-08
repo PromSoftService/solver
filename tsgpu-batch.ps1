@@ -13,10 +13,12 @@ param(
 )
 $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version Latest
+
 $configPath = (Resolve-Path -LiteralPath $Config).Path
 $boardsPath = (Resolve-Path -LiteralPath $Boards).Path
 $outputPath = [IO.Path]::GetFullPath($OutputDirectory)
 [IO.Directory]::CreateDirectory($outputPath) | Out-Null
+
 if (-not $SolverExe) {
     $solverCandidates = @(
         $env:TSGPU_SOLVER_EXE,
@@ -26,8 +28,11 @@ if (-not $SolverExe) {
     ) | Where-Object { $_ -and (Test-Path -LiteralPath $_ -PathType Leaf) }
     $SolverExe = $solverCandidates | Select-Object -First 1
 }
-if (-not $SolverExe) { throw 'TexasSolverGpu_131.exe not found. Set TSGPU_SOLVER_EXE or keep solver directory next to repo.' }
+if (-not $SolverExe) {
+    throw 'TexasSolverGpu_131.exe not found. Set TSGPU_SOLVER_EXE or keep solver directory next to repo.'
+}
 $solverPath = (Resolve-Path -LiteralPath $SolverExe).Path
+
 $doc = Get-Content -LiteralPath $configPath -Raw -Encoding UTF8 | ConvertFrom-Json
 function Read-Setting([string]$Name,[object]$Default) {
     foreach ($containerName in @('runner','solve')) {
@@ -39,10 +44,21 @@ function Read-Setting([string]$Name,[object]$Default) {
     }
     return $Default
 }
+
+function Write-BatchSummary {
+    param([Collections.Generic.List[object]]$Rows,[string]$Directory)
+    $Rows | ConvertTo-Json -Depth 10 | Set-Content -LiteralPath (Join-Path $Directory 'batch-summary.json') -Encoding UTF8
+    $Rows | Export-Csv -LiteralPath (Join-Path $Directory 'batch-summary.csv') -NoTypeInformation -Encoding UTF8
+}
+
 $effectiveIterations = if ($null -ne $MaxIterations) { [int]$MaxIterations } else { [int](Read-Setting 'maxIterations' 1000) }
 $effectiveTarget = if ($null -ne $TargetExploitability) { [double]$TargetExploitability } else { [double](Read-Setting 'targetExploitability' 0.5) }
-$boardList = @(Get-Content -LiteralPath $boardsPath -Encoding UTF8 | ForEach-Object { $line=$_.Trim(); if ($line -and -not $line.StartsWith('#')) { $line } })
+$boardList = @(Get-Content -LiteralPath $boardsPath -Encoding UTF8 | ForEach-Object {
+    $line = $_.Trim()
+    if ($line -and -not $line.StartsWith('#')) { $line }
+})
 if ($boardList.Count -eq 0) { throw 'No boards found.' }
+
 $summary = [Collections.Generic.List[object]]::new()
 $failed = 0
 for ($i=0; $i -lt $boardList.Count; $i++) {
@@ -53,33 +69,68 @@ for ($i=0; $i -lt $boardList.Count; $i++) {
     $jobOutput = Join-Path $outputPath $jobName
     $runPath = Join-Path $jobOutput 'run.json'
     $metaPath = Join-Path $jobOutput 'tree.meta.json'
+
     if ($Resume -and (Test-Path $runPath) -and (Test-Path $metaPath)) {
         try {
             $meta = Get-Content $metaPath -Raw | ConvertFrom-Json
             if ($meta.full_tree_validated) {
                 $run = Get-Content $runPath -Raw | ConvertFrom-Json
                 Write-Host "[$index/$($boardList.Count)] $board (already done)"
-                $summary.Add([pscustomobject]@{index=$index;board=$board;status='done';iteration=$run.final_status.iteration;exploitability=$run.final_status.exploitability;elapsed_ms=$run.elapsed_ms;error=''})
+                $summary.Add([pscustomobject]@{
+                    index=$index; board=$board; status='done';
+                    iteration=$run.final_status.iteration;
+                    exploitability=$run.final_status.exploitability;
+                    elapsed_ms=$run.elapsed_ms; error=''
+                })
                 continue
             }
         } catch {}
     }
+
     if (Test-Path $jobOutput) { Remove-Item $jobOutput -Recurse -Force }
     Write-Host "[$index/$($boardList.Count)] $board"
     try {
-        & (Join-Path $PSScriptRoot 'tsgpu-worker.ps1') -SolverExe $solverPath -Config $configPath -Board $board -OutputDirectory $jobOutput -MaxIterations $effectiveIterations -TargetExploitability $effectiveTarget -ExportMaxNodes $ExportMaxNodes -SolveTimeoutMinutes $SolveTimeoutMinutes -ShowHostWindow:$ShowHostWindow
-        if (-not (Test-Path $runPath) -or -not (Test-Path $metaPath)) { throw 'Full-tree artifacts missing.' }
+        & (Join-Path $PSScriptRoot 'tsgpu-worker.ps1') `
+            -SolverExe $solverPath `
+            -Config $configPath `
+            -Board $board `
+            -OutputDirectory $jobOutput `
+            -MaxIterations $effectiveIterations `
+            -TargetExploitability $effectiveTarget `
+            -ExportMaxNodes $ExportMaxNodes `
+            -SolveTimeoutMinutes $SolveTimeoutMinutes `
+            -ShowHostWindow:$ShowHostWindow
+
+        if (-not (Test-Path $runPath) -or -not (Test-Path $metaPath)) {
+            throw 'Full-tree artifacts missing.'
+        }
         $run = Get-Content $runPath -Raw | ConvertFrom-Json
         $meta = Get-Content $metaPath -Raw | ConvertFrom-Json
         if (-not $meta.full_tree_validated) { throw 'Full-tree validation is false.' }
-        $summary.Add([pscustomobject]@{index=$index;board=$board;status='done';iteration=$run.final_status.iteration;exploitability=$run.final_status.exploitability;elapsed_ms=$run.elapsed_ms;error=''})
+        $summary.Add([pscustomobject]@{
+            index=$index; board=$board; status='done';
+            iteration=$run.final_status.iteration;
+            exploitability=$run.final_status.exploitability;
+            elapsed_ms=$run.elapsed_ms; error=''
+        })
     } catch {
         $failed++
-        $summary.Add([pscustomobject]@{index=$index;board=$board;status='error';iteration=0;exploitability=$null;elapsed_ms=0;error=$_.Exception.Message})
-        Write-Error -ErrorAction Continue "Board $board failed: $($_.Exception.Message)"
+        $message = $_.Exception.Message
+        $summary.Add([pscustomobject]@{
+            index=$index; board=$board; status='error';
+            iteration=0; exploitability=$null; elapsed_ms=0; error=$message
+        })
+        Write-Error -ErrorAction Continue "Board $board failed: $message"
+
+        if ($message -like '*FULL_TREE_EXPORT_UNRESOLVED*') {
+            Write-BatchSummary -Rows $summary -Directory $outputPath
+            throw "Full-tree export discovery failed on $board. Stopping immediately instead of wasting the remaining GPU solves. Inspect $jobOutput\export-probes.json and bridge-transcript.jsonl, fix the exporter, then resume this study."
+        }
     }
 }
-$summary | ConvertTo-Json -Depth 10 | Set-Content -LiteralPath (Join-Path $outputPath 'batch-summary.json') -Encoding UTF8
-$summary | Export-Csv -LiteralPath (Join-Path $outputPath 'batch-summary.csv') -NoTypeInformation -Encoding UTF8
+
+Write-BatchSummary -Rows $summary -Directory $outputPath
 Write-Host "Batch complete: $($boardList.Count-$failed) done, $failed failed."
-if ($failed -gt 0) { throw "$failed board(s) failed; study MUST NOT be committed or pushed." }
+if ($failed -gt 0) {
+    throw "$failed board(s) failed; study MUST NOT be committed or pushed."
+}
