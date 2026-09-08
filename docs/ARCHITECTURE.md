@@ -1,82 +1,70 @@
-# Architecture findings
+# Full-tree runner architecture
 
-## Boundary found
+## Objective
 
-`TexasSolverGpu_131.exe` is both the WebView2 desktop host and the native GPU
-solver. `WebView2Loader.dll` is the only adjacent native DLL. The executable
-contains CUDA Driver API calls and embedded frontend assets.
+For each registered flop board, TexasSolverGPU must perform exactly one equilibrium solve of the complete configured postflop abstraction. The result must preserve enough native strategy-tree information to analyze arbitrary flop, turn and river nodes later without another GPU solve.
 
-The application page communicates with native code using:
+## Tree versus report
 
-```text
-window.chrome.webview.postMessage(JSON.stringify(request))
-```
+A solver tree and an analytical report are different objects.
 
-Native responses return through the WebView2 `message` event. Requests and
-responses correlate by `id`.
+The tree contains all actions available to both players and all chance runouts. A report is a later projection of that tree, such as:
 
-The frontend maps familiar `/api/...` paths to native method names. This map is
-an internal compatibility adapter, not proof of a TCP HTTP service. The default
-transport selected by the embedded frontend is `bridge`. An HTTP transport is
-only a fallback/frontend development path.
+- UTG root c-bet frequencies;
+- BB response after UTG B33;
+- turn probe after a specific flop line and turn card;
+- river defense after a specific runout.
 
-## Production integration
+Reports must never define the tree. A report may filter to B33, but B75 remains present in the solved tree if B75 was an allowed action.
 
-The runner launches the unmodified host with a child-process-only WebView2 remote
-debugging port. Chrome DevTools Protocol evaluates a small bridge client inside
-the application page. That client sends the same WebView2 messages as the
-shipped frontend.
+## Full-tree export contract
 
-This retains:
+Per board, a successful worker creates:
 
-- the exact `_131.exe` GPU/CUDA engine;
-- the native tree builder, allocator, solve loop and exporter;
-- the original executable and frontend bytes;
-- semantic API calls rather than pixels, coordinates or timing-dependent UI
-  clicks.
+- `run.json` — solver/runtime/status/export metadata;
+- `tree.json.gz` or chunked `tree.json.gz.partNNN` — complete native strategy dump;
+- `tree.meta.json` — compression/chunking/hash/validation metadata;
+- `bridge-transcript.jsonl` — compact API audit trail;
+- optional `frontend-export-hints.json` only when full export discovery fails.
 
-## Solve sequence
+A full-tree export is accepted only if validation finds strategy/action nodes on flop, turn and river in the exported JSON. If only the current street is present, the board run fails.
 
-1. `bridge.ping` obtains `bridge_token`.
-2. `solver.init` builds the tree from native snake_case configuration.
-3. `solver.allocate` allocates the uncompressed GPU tree.
-4. `solver.solve.start` starts the asynchronous GPU solve.
-5. `solver.solve.status` is polled until `running` becomes false.
-6. `solver.history.apply([])` moves to the root.
-7. `solver.node.actionsAfter` finds the BB `Check` action by label.
-8. `solver.node.actionsAfter` selects the configured UTG bet (a single bet is
-   unambiguous; multiple sizes require `-ExpectedBetAmount`).
-9. `solver.history.apply(history)` moves to the BB decision.
-10. `solver.export.currentStreet` returns the engine's structured node JSON.
-11. The runner maps `Fold`, `Call`, and `Raise` by labels and writes compact
-    records.
+The GPU v0.2.0 public repository ships a Python strategy viewer that expects a nested JSON game tree with `childrens`, chance nodes and strategy payloads. The older open-source TexasSolver line also exposes full strategy dumps. The production worker probes the GPU bridge for the corresponding full export and keeps the known `export.currentStreet` endpoint only as a diagnostic fallback; a current-street-only payload cannot satisfy the full-tree contract.
 
-## Evidence from the supplied artifacts
+## Storage
 
-- The public source archive identifies itself as a distribution repository and
-  excludes the private `gpu_solver` source tree.
-- `TexasSolverGpu_131.exe` imports WebView2 and Winsock and contains embedded
-  frontend/native method strings.
-- The frontend source embedded in the executable defaults to bridge transport.
-- The supplied reference node is board `6sAs8c`, pot `73`, player `0`, with
-  actions `Fold`, `Call`, `Raise 73` and 373 combos.
+Transient solves live under ignored `output/`. Only a completely validated study is promoted to `results/`.
 
-## Risks and limitations
+Large gzip exports are split into Git-safe chunks below the GitHub single-file limit. `tree.meta.json` records ordered parts and SHA-256 of the complete gzip stream so analysis code can reconstruct it deterministically.
 
-- WebView2 remote debugging must not be disabled by machine policy.
-- The DevTools port is bound to loopback and exists only while the child solver
-  is running. The runner chooses a free ephemeral port.
-- A host update can change bridge method names, auth rules or frontend origin.
-  The runner records the solver executable SHA-256 in every `run.json`.
-- A solve is iterative. Exact floating-point arrays can vary when convergence
-  stops on a nearby iteration; structural and tolerance-based comparison is
-  required.
-- All five Stage E boards completed successfully on the target machine. The
-  reference board matched the GUI export with zero deltas in strategy, action
-  EV, mixed EV and reach probability.
-- The production runner supports an arbitrary number of flop lines and isolates
-  failures by starting one native host per board. It has no Parquet writer or
-  disk-space quota.
-- Window suppression is implemented outside the solver with an exact-path
-  WinEvent hook plus continuous top-level-window enumeration. No solver or
-  frontend bytes are patched.
+## Study transaction
+
+A study launcher behaves like a transaction:
+
+1. fetch remote and require local HEAD == `origin/main`;
+2. require clean tracked/untracked working state (ignored output is allowed);
+3. materialize the effective native config;
+4. run all boards under `output/`;
+5. verify zero failed boards and all full-tree artifacts;
+6. add exact inputs + run manifest;
+7. atomically move run directory to `results/`;
+8. `git add` only that result directory;
+9. commit;
+10. `git pull --rebase origin main`;
+11. push `main`.
+
+No result commit is created on partial failure.
+
+## STU001 abstraction
+
+STU001 intentionally starts with a compact but expressive tree:
+
+- open bets, flop: 33%, 75%, all-in;
+- open bets, turn: 33%, 75%, all-in;
+- open bets, river: 33%, 75%, 150%, all-in;
+- normal raise: native TexasSolver `60% pot-raise` parameter;
+- all-in raise is also enabled;
+- one normal raise maximum per street;
+- OOP turn/river donk: 33%, 75% (plus 150% river), all-in.
+
+Why no 50% or 100% normal bet in the baseline: the project goal is ultimately a small human strategy. B33 and B75 cover small/large normal betting; B150 preserves a genuinely different river overbet regime. Additional sizes can be introduced later only as a new study version if evidence shows they are necessary.

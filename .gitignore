@@ -1,15 +1,8 @@
-# Generated solver outputs
-output/*
-!output/.gitkeep
-
-# Analysis datasets are versioned in Git
-
-# Python cache
+output/
+.tmp/
+*.tmp
+*.log
 __pycache__/
 *.pyc
-
-# Local/editor noise
-.vscode/
-.idea/
+.DS_Store
 Thumbs.db
-Desktop.ini
