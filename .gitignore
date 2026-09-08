@@ -1,4 +1,5 @@
 output/
+_diagnostics/
 .tmp/
 *.tmp
 *.log

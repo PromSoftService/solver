@@ -12,7 +12,7 @@ jobs:
       - name: Parse PowerShell baseline
         shell: pwsh
         run: |
-          $files = @('tsgpu-worker.ps1','tsgpu-batch.ps1','scripts/Range-Utils.ps1')
+          $files = @('tsgpu-worker.ps1','tsgpu-batch.ps1','scripts/Range-Utils.ps1','scripts/diagnose-full-tree.ps1')
           foreach ($f in $files) {
             $tokens=$null; $errors=$null
             [System.Management.Automation.Language.Parser]::ParseFile((Resolve-Path $f),[ref]$tokens,[ref]$errors) | Out-Null
