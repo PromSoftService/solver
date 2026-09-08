@@ -1,0 +1,364 @@
+name: Build full-tree runner from proven v015 once
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/build-fulltree-runner-once.yml'
+permissions:
+  contents: write
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Build worker from proven v015 base
+        shell: pwsh
+        run: |
+          $legacy = (git show 'bec0b758fe7957a45d028f1adaa2a5252ff0598a:tsgpu-worker.ps1' | Out-String)
+          if (-not $legacy.Contains("`$ScriptVersion = 'v015-production'")) { throw 'Historical v015 worker not found' }
+          $legacy = $legacy.Replace("`$ScriptVersion = 'v015-production'", "`$ScriptVersion = 'v020-fulltree'")
+          $legacy = $legacy.Replace('[int]$ExportMaxNodes = 5000','[int]$ExportMaxNodes = 2000000')
+          $helpers = @'
+          function Test-FullTreeJson([string]$Json) {
+              $hasChildren = $Json -match '"childrens"'
+              $hasStrategy = $Json -match '"strategy"'
+              $hasTurn = ($Json -match '"betting round"\s*:\s*2') -or ($Json -match '"betting_round"\s*:\s*2')
+              $hasRiver = ($Json -match '"betting round"\s*:\s*3') -or ($Json -match '"betting_round"\s*:\s*3')
+              return [pscustomobject]@{
+                  valid = ($hasChildren -and $hasStrategy -and $hasTurn -and $hasRiver)
+                  has_children = $hasChildren
+                  has_strategy = $hasStrategy
+                  has_turn = $hasTurn
+                  has_river = $hasRiver
+              }
+          }
+
+          function Write-GzipUtf8([string]$Text, [string]$Path) {
+              $stream = [IO.File]::Open($Path, [IO.FileMode]::Create, [IO.FileAccess]::Write, [IO.FileShare]::None)
+              try {
+                  $gzip = [IO.Compression.GZipStream]::new($stream, [IO.Compression.CompressionLevel]::Optimal, $false)
+                  try {
+                      $writer = [IO.StreamWriter]::new($gzip, [Text.UTF8Encoding]::new($false))
+                      try { $writer.Write($Text) } finally { $writer.Dispose() }
+                  } finally { $gzip.Dispose() }
+              } finally { $stream.Dispose() }
+          }
+
+          function Split-GitSafe([string]$Path, [int64]$MaxBytes = 90000000) {
+              $file = Get-Item -LiteralPath $Path
+              if ($file.Length -le $MaxBytes) { return @($file.Name) }
+              $parts = [Collections.Generic.List[string]]::new()
+              $source = [IO.File]::OpenRead($Path)
+              try {
+                  $index = 1
+                  while ($source.Position -lt $source.Length) {
+                      $name = ([IO.Path]::GetFileName($Path) + ('.part{0:D3}' -f $index))
+                      $destinationPath = Join-Path ([IO.Path]::GetDirectoryName($Path)) $name
+                      $destination = [IO.File]::Create($destinationPath)
+                      try {
+                          $remaining = [Math]::Min($MaxBytes, $source.Length - $source.Position)
+                          $buffer = New-Object byte[] 1048576
+                          while ($remaining -gt 0) {
+                              $count = $source.Read($buffer, 0, [int][Math]::Min($buffer.Length, $remaining))
+                              if ($count -le 0) { break }
+                              $destination.Write($buffer, 0, $count)
+                              $remaining -= $count
+                          }
+                      } finally { $destination.Dispose() }
+                      $parts.Add($name)
+                      $index++
+                  }
+              } finally { $source.Dispose() }
+              Remove-Item -LiteralPath $Path -Force
+              return $parts.ToArray()
+          }
+          '@ -replace '^          ',''
+          $mainMarker = '$solverPath = (Resolve-Path -LiteralPath $SolverExe).Path'
+          if (-not $legacy.Contains($mainMarker)) { throw 'Worker main marker not found' }
+          $legacy = $legacy.Replace($mainMarker, $helpers + "`r`n" + $mainMarker)
+          $startMarker = "    Invoke-Bridge `$socket 'solver.history.apply' '/api/apply-history' 'POST' ([ordered]@{ history = @() }) 10000 `$transcript | Out-Null"
+          $endMarker = '    Write-Host "Output: $outputPath"'
+          $start = $legacy.IndexOf($startMarker)
+          $end = $legacy.IndexOf($endMarker, $start)
+          if ($start -lt 0 -or $end -lt 0) { throw 'Could not locate v015 export block' }
+          $end = $end + $endMarker.Length
+          $fullExport = @'
+              Invoke-Bridge $socket 'solver.history.apply' '/api/apply-history' 'POST' ([ordered]@{ history = @() }) 10000 $transcript | Out-Null
+
+              $commonBody = [ordered]@{ history = @(); max_nodes = $ExportMaxNodes; dump_rounds = 2 }
+              $currentStreetBody = [ordered]@{ history = @(); max_nodes = $ExportMaxNodes }
+              $candidates = @(
+                  [ordered]@{ method = 'solver.export.currentStreet'; path = '/api/export/current-street'; body = $currentStreetBody },
+                  [ordered]@{ method = 'solver.export.fullTree'; path = '/api/export/full-tree'; body = $commonBody },
+                  [ordered]@{ method = 'solver.export.allStreets'; path = '/api/export/all-streets'; body = $commonBody },
+                  [ordered]@{ method = 'solver.export.fullStrategy'; path = '/api/export/full-strategy'; body = $commonBody },
+                  [ordered]@{ method = 'solver.export.strategy'; path = '/api/export/strategy'; body = $commonBody },
+                  [ordered]@{ method = 'solver.export.tree'; path = '/api/export/tree'; body = $commonBody },
+                  [ordered]@{ method = 'solver.dump.strategy'; path = '/api/dump-strategy'; body = ([ordered]@{ dump_rounds = 2 }) },
+                  [ordered]@{ method = 'solver.dump.result'; path = '/api/dump-result'; body = ([ordered]@{ dump_rounds = 2 }) }
+              )
+              $chosen = $null
+              $treeText = $null
+              $validation = $null
+              $probeResults = [Collections.Generic.List[object]]::new()
+              foreach ($candidate in $candidates) {
+                  try {
+                      $response = Invoke-Bridge $socket $candidate.method $candidate.path 'POST' $candidate.body 30000 $transcript
+                      $payload = Read-Property $response 'payload' $response
+                      if ($payload -is [string] -and $payload.TrimStart().StartsWith('{')) {
+                          $text = [string]$payload
+                      } else {
+                          $text = ConvertTo-Json -InputObject $payload -Depth 100 -Compress
+                      }
+                      $test = Test-FullTreeJson $text
+                      $probeResults.Add([ordered]@{ method = $candidate.method; path = $candidate.path; validation = $test })
+                      if ($test.valid) {
+                          $chosen = $candidate
+                          $treeText = $text
+                          $validation = $test
+                          break
+                      }
+                  } catch {
+                      $probeResults.Add([ordered]@{ method = $candidate.method; path = $candidate.path; error = $_.Exception.Message })
+                  }
+              }
+              $probeResults | ConvertTo-Json -Depth 20 | Set-Content -LiteralPath (Join-Path $outputPath 'export-probes.json') -Encoding UTF8
+              if ($null -eq $chosen) {
+                  throw 'FULL_TREE_EXPORT_UNRESOLVED: the solved board is NOT accepted because no probed export contained both turn and river strategy nodes. Inspect export-probes.json and bridge-transcript.jsonl.'
+              }
+
+              $gzipPath = Join-Path $outputPath 'tree.json.gz'
+              Write-GzipUtf8 $treeText $gzipPath
+              $gzipSha = (Get-FileHash -LiteralPath $gzipPath -Algorithm SHA256).Hash.ToLowerInvariant()
+              $gzipBytes = (Get-Item -LiteralPath $gzipPath).Length
+              $parts = @(Split-GitSafe $gzipPath)
+              $treeMeta = [ordered]@{
+                  schema_version = 1
+                  format = 'texassolver-full-tree-json-gzip'
+                  board = $Board
+                  full_tree_validated = $true
+                  validation = $validation
+                  export_method = $chosen.method
+                  export_path = $chosen.path
+                  gzip_sha256 = $gzipSha
+                  gzip_bytes = $gzipBytes
+                  parts = $parts
+              }
+              $treeMeta | ConvertTo-Json -Depth 20 | Set-Content -LiteralPath (Join-Path $outputPath 'tree.meta.json') -Encoding UTF8
+
+              $run = [ordered]@{
+                  schema_version = 3
+                  runner_version = $ScriptVersion
+                  solver_exe = $solverPath
+                  solver_sha256 = (Get-FileHash -LiteralPath $solverPath -Algorithm SHA256).Hash.ToLowerInvariant()
+                  board = $Board
+                  board_ids = $boardIds
+                  max_iterations = $MaxIterations
+                  target_exploitability = $TargetExploitability
+                  final_status = $status
+                  full_tree_export = $treeMeta
+                  elapsed_ms = [int]([DateTime]::UtcNow - $runStarted).TotalMilliseconds
+              }
+              $run | ConvertTo-Json -Depth 30 | Set-Content -LiteralPath (Join-Path $outputPath 'run.json') -Encoding UTF8
+              Write-Host "OK FULL TREE: $Board -> $($chosen.method), gzip=$gzipBytes bytes"
+              Write-Host "Output: $outputPath"
+          '@ -replace '^              ',''
+          $legacy = $legacy.Substring(0,$start) + $fullExport + $legacy.Substring($end)
+          Set-Content tsgpu-worker.ps1 -Value $legacy -Encoding utf8NoBOM
+      - name: Write readable batch and study launcher
+        shell: pwsh
+        run: |
+          $batch = @'
+          [CmdletBinding()]
+          param(
+              [Parameter(Mandatory=$true,Position=0)][string]$Config,
+              [Parameter(Mandatory=$true,Position=1)][string]$Boards,
+              [Parameter(Mandatory=$true,Position=2)][string]$OutputDirectory,
+              [string]$SolverExe = '',
+              [Nullable[int]]$MaxIterations = $null,
+              [Nullable[double]]$TargetExploitability = $null,
+              [int]$ExportMaxNodes = 2000000,
+              [int]$SolveTimeoutMinutes = 240,
+              [switch]$Resume,
+              [switch]$ShowHostWindow
+          )
+          $ErrorActionPreference = 'Stop'
+          Set-StrictMode -Version Latest
+          $configPath = (Resolve-Path -LiteralPath $Config).Path
+          $boardsPath = (Resolve-Path -LiteralPath $Boards).Path
+          $outputPath = [IO.Path]::GetFullPath($OutputDirectory)
+          [IO.Directory]::CreateDirectory($outputPath) | Out-Null
+          if (-not $SolverExe) {
+              $solverCandidates = @(
+                  $env:TSGPU_SOLVER_EXE,
+                  (Join-Path $PSScriptRoot '..\TexasSolverGpu-v0.2.0-windows-x64\TexasSolverGpu_131.exe'),
+                  (Join-Path $PSScriptRoot 'TexasSolverGpu-v0.2.0-windows-x64\TexasSolverGpu_131.exe'),
+                  (Join-Path $PSScriptRoot '..\TexasSolverGpu_131.exe')
+              ) | Where-Object { $_ -and (Test-Path -LiteralPath $_ -PathType Leaf) }
+              $SolverExe = $solverCandidates | Select-Object -First 1
+          }
+          if (-not $SolverExe) { throw 'TexasSolverGpu_131.exe not found. Set TSGPU_SOLVER_EXE or keep solver directory next to repo.' }
+          $solverPath = (Resolve-Path -LiteralPath $SolverExe).Path
+          $doc = Get-Content -LiteralPath $configPath -Raw -Encoding UTF8 | ConvertFrom-Json
+          function Read-Setting([string]$Name,[object]$Default) {
+              foreach ($containerName in @('runner','solve')) {
+                  $container = $doc.PSObject.Properties[$containerName]
+                  if ($null -ne $container) {
+                      $value = $container.Value.PSObject.Properties[$Name]
+                      if ($null -ne $value) { return $value.Value }
+                  }
+              }
+              return $Default
+          }
+          $effectiveIterations = if ($null -ne $MaxIterations) { [int]$MaxIterations } else { [int](Read-Setting 'maxIterations' 1000) }
+          $effectiveTarget = if ($null -ne $TargetExploitability) { [double]$TargetExploitability } else { [double](Read-Setting 'targetExploitability' 0.5) }
+          $boardList = @(Get-Content -LiteralPath $boardsPath -Encoding UTF8 | ForEach-Object { $line=$_.Trim(); if ($line -and -not $line.StartsWith('#')) { $line } })
+          if ($boardList.Count -eq 0) { throw 'No boards found.' }
+          $summary = [Collections.Generic.List[object]]::new()
+          $failed = 0
+          for ($i=0; $i -lt $boardList.Count; $i++) {
+              $board = $boardList[$i]
+              $index = $i + 1
+              $slug = ($board -replace '[^0-9A-Za-z]+','_').Trim('_')
+              $jobName = ('{0:D4}_{1}' -f $index,$slug)
+              $jobOutput = Join-Path $outputPath $jobName
+              $runPath = Join-Path $jobOutput 'run.json'
+              $metaPath = Join-Path $jobOutput 'tree.meta.json'
+              if ($Resume -and (Test-Path $runPath) -and (Test-Path $metaPath)) {
+                  try {
+                      $meta = Get-Content $metaPath -Raw | ConvertFrom-Json
+                      if ($meta.full_tree_validated) {
+                          $run = Get-Content $runPath -Raw | ConvertFrom-Json
+                          Write-Host "[$index/$($boardList.Count)] $board (already done)"
+                          $summary.Add([pscustomobject]@{index=$index;board=$board;status='done';iteration=$run.final_status.iteration;exploitability=$run.final_status.exploitability;elapsed_ms=$run.elapsed_ms;error=''})
+                          continue
+                      }
+                  } catch {}
+              }
+              if (Test-Path $jobOutput) { Remove-Item $jobOutput -Recurse -Force }
+              Write-Host "[$index/$($boardList.Count)] $board"
+              try {
+                  & (Join-Path $PSScriptRoot 'tsgpu-worker.ps1') -SolverExe $solverPath -Config $configPath -Board $board -OutputDirectory $jobOutput -MaxIterations $effectiveIterations -TargetExploitability $effectiveTarget -ExportMaxNodes $ExportMaxNodes -SolveTimeoutMinutes $SolveTimeoutMinutes -ShowHostWindow:$ShowHostWindow
+                  if (-not (Test-Path $runPath) -or -not (Test-Path $metaPath)) { throw 'Full-tree artifacts missing.' }
+                  $run = Get-Content $runPath -Raw | ConvertFrom-Json
+                  $meta = Get-Content $metaPath -Raw | ConvertFrom-Json
+                  if (-not $meta.full_tree_validated) { throw 'Full-tree validation is false.' }
+                  $summary.Add([pscustomobject]@{index=$index;board=$board;status='done';iteration=$run.final_status.iteration;exploitability=$run.final_status.exploitability;elapsed_ms=$run.elapsed_ms;error=''})
+              } catch {
+                  $failed++
+                  $summary.Add([pscustomobject]@{index=$index;board=$board;status='error';iteration=0;exploitability=$null;elapsed_ms=0;error=$_.Exception.Message})
+                  Write-Error -ErrorAction Continue "Board $board failed: $($_.Exception.Message)"
+              }
+          }
+          $summary | ConvertTo-Json -Depth 10 | Set-Content -LiteralPath (Join-Path $outputPath 'batch-summary.json') -Encoding UTF8
+          $summary | Export-Csv -LiteralPath (Join-Path $outputPath 'batch-summary.csv') -NoTypeInformation -Encoding UTF8
+          Write-Host "Batch complete: $($boardList.Count-$failed) done, $failed failed."
+          if ($failed -gt 0) { throw "$failed board(s) failed; study MUST NOT be committed or pushed." }
+          '@ -replace '^          ',''
+          Set-Content tsgpu-batch.ps1 -Value $batch -Encoding utf8NoBOM
+
+          $launcher = @'
+          [CmdletBinding()]
+          param([switch]$Resume,[switch]$ShowHostWindow)
+          $ErrorActionPreference = 'Stop'
+          Set-StrictMode -Version Latest
+          $root = (Resolve-Path (Join-Path $PSScriptRoot '..')).Path
+          Set-Location $root
+          & git fetch origin
+          if ($LASTEXITCODE -ne 0) { throw 'git fetch failed' }
+          $head = (& git rev-parse HEAD).Trim()
+          $remote = (& git rev-parse origin/main).Trim()
+          if ($head -ne $remote) { throw "Local HEAD $head != origin/main $remote. Synchronize before study." }
+          $dirty = @(& git status --porcelain --untracked-files=all)
+          if ($dirty.Count -gt 0) { throw "Working tree is not clean.`n$($dirty -join "`n")" }
+          . (Join-Path $PSScriptRoot 'Range-Utils.ps1')
+          $studyPath = Join-Path $root 'studies\STU001__UTG-BB__FULLTREE__V1.json'
+          $study = Get-Content $studyPath -Raw -Encoding UTF8 | ConvertFrom-Json
+          $boardsPath = Join-Path $root $study.board_file
+          $oopRangePath = Join-Path $root $study.ranges.oop_file
+          $ipRangePath = Join-Path $root $study.ranges.ip_file
+          $oopRange = @(Convert-TexasSolverRangeTo1326 -Path $oopRangePath)
+          $ipRange = @(Convert-TexasSolverRangeTo1326 -Path $ipRangePath)
+          $effective = [ordered]@{
+              runner = [ordered]@{ maxIterations=[int]$study.solve.max_iterations; targetExploitability=[double]$study.solve.target_exploitability }
+              config = [ordered]@{
+                  oopRange=$oopRange; ipRange=$ipRange; startingPot=[double]$study.game.flop_pot_native; effectiveStack=[double]$study.game.effective_stack_native; rakeRate=0; rakeCap=0
+                  oopFlopBet=$study.tree.flop.bet; ipFlopBet=$study.tree.flop.bet; oopFlopRaise=$study.tree.flop.raise; ipFlopRaise=$study.tree.flop.raise
+                  oopTurnBet=$study.tree.turn.bet; ipTurnBet=$study.tree.turn.bet; oopTurnRaise=$study.tree.turn.raise; ipTurnRaise=$study.tree.turn.raise; oopTurnDonk=$study.tree.turn.donk
+                  oopRiverBet=$study.tree.river.bet; ipRiverBet=$study.tree.river.bet; oopRiverRaise=$study.tree.river.raise; ipRiverRaise=$study.tree.river.raise; oopRiverDonk=$study.tree.river.donk
+                  maxRaiseNumber=[int]$study.tree.max_normal_raises; addAllinThreshold=[int]$study.tree.add_allin_threshold_percent
+                  addAllinFlopIp=$true; addAllinTurnIp=$true; addAllinRiverIp=$true; addAllinFlopOop=$true; addAllinTurnOop=$true; addAllinRiverOop=$true
+              }
+          }
+          [IO.Directory]::CreateDirectory((Join-Path $root '.tmp')) | Out-Null
+          $tmpConfig = Join-Path $root '.tmp\STU001-effective.json'
+          $effective | ConvertTo-Json -Depth 100 | Set-Content $tmpConfig -Encoding UTF8
+          $stamp = Get-Date -Format 'yyyyMMdd-HHmmss'
+          $runName = "STU001__BRD001__RUN-$stamp"
+          $workDir = Join-Path $root "output\$runName"
+          if ($Resume) {
+              $latest = Get-ChildItem (Join-Path $root 'output') -Directory -Filter 'STU001__BRD001__RUN-*' -ErrorAction SilentlyContinue | Sort-Object Name -Descending | Select-Object -First 1
+              if ($null -eq $latest) { throw 'No incomplete STU001 output found for resume.' }
+              $workDir=$latest.FullName; $runName=$latest.Name
+          }
+          & (Join-Path $root 'tsgpu-batch.ps1') -Config $tmpConfig -Boards $boardsPath -OutputDirectory $workDir -Resume:$Resume -ShowHostWindow:$ShowHostWindow
+          $summary = @(Import-Csv (Join-Path $workDir 'batch-summary.csv'))
+          if ($summary.Count -ne 286 -or @($summary | Where-Object {$_.status -ne 'done'}).Count -ne 0) { throw 'Study validation failed: expected 286 completed boards.' }
+          foreach ($row in $summary) {
+              $slug = (($row.board -replace '[^0-9A-Za-z]+','_').Trim('_'))
+              $boardDir = Join-Path $workDir ('{0:D4}_{1}' -f [int]$row.index,$slug)
+              $meta = Get-Content (Join-Path $boardDir 'tree.meta.json') -Raw | ConvertFrom-Json
+              if (-not $meta.full_tree_validated) { throw "Invalid tree export at $($row.board)" }
+          }
+          function Get-Sha([string]$Path) { return (Get-FileHash -LiteralPath $Path -Algorithm SHA256).Hash.ToLowerInvariant() }
+          Copy-Item $studyPath (Join-Path $workDir 'INPUT_STUDY.json')
+          Copy-Item $boardsPath (Join-Path $workDir 'INPUT_BOARDS.txt')
+          Copy-Item $oopRangePath (Join-Path $workDir 'INPUT_RANGE_OOP.txt')
+          Copy-Item $ipRangePath (Join-Path $workDir 'INPUT_RANGE_IP.txt')
+          Copy-Item $tmpConfig (Join-Path $workDir 'INPUT_EFFECTIVE_CONFIG.json')
+          $manifest = [ordered]@{
+              schema_version=1; study_id='STU001'; run_id=$runName; created_at=(Get-Date).ToString('o'); board_count=286
+              result_contract='one complete validated postflop tree per flop'; git_source_commit=$head
+              inputs=[ordered]@{study_sha256=Get-Sha $studyPath;boards_sha256=Get-Sha $boardsPath;oop_range_sha256=Get-Sha $oopRangePath;ip_range_sha256=Get-Sha $ipRangePath;effective_config_sha256=Get-Sha $tmpConfig}
+          }
+          $manifest | ConvertTo-Json -Depth 20 | Set-Content (Join-Path $workDir 'RUN_MANIFEST.json') -Encoding UTF8
+          $finalDir = Join-Path (Join-Path $root 'results') $runName
+          if (Test-Path $finalDir) { throw "Result already exists: $finalDir" }
+          Move-Item $workDir $finalDir
+          & git add -- "results/$runName"
+          if ($LASTEXITCODE -ne 0) { throw 'git add result failed' }
+          & git commit -m "study STU001: full-tree BRD001 $stamp"
+          if ($LASTEXITCODE -ne 0) { throw 'git commit result failed' }
+          & git pull --rebase origin main
+          if ($LASTEXITCODE -ne 0) { throw 'git pull --rebase failed; result remains committed locally' }
+          & git push origin HEAD:main
+          if ($LASTEXITCODE -ne 0) { throw 'git push failed; result remains committed locally' }
+          Write-Host ''
+          Write-Host 'STUDY COMPLETE AND PUSHED'
+          Write-Host "Result: results/$runName"
+          '@ -replace '^          ',''
+          Set-Content scripts/Run-STU001.ps1 -Value $launcher -Encoding utf8NoBOM
+      - name: Parse all production PowerShell
+        shell: pwsh
+        run: |
+          $files = @('tsgpu-worker.ps1','tsgpu-batch.ps1','scripts/Range-Utils.ps1','scripts/Run-STU001.ps1')
+          foreach ($f in $files) {
+            $tokens=$null; $errors=$null
+            [System.Management.Automation.Language.Parser]::ParseFile((Resolve-Path $f),[ref]$tokens,[ref]$errors) | Out-Null
+            if ($errors.Count) {
+              Write-Host "PARSER ERRORS IN $f"
+              $errors | ForEach-Object { Write-Host ("line {0}: {1} :: {2}" -f $_.Extent.StartLineNumber,$_.ErrorId,$_.Message) }
+              exit 1
+            }
+          }
+      - name: Commit generated production runner
+        shell: pwsh
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add tsgpu-worker.ps1 tsgpu-batch.ps1 scripts/Run-STU001.ps1
+          git commit -m 'rebuild full-tree runner from proven v015 base'
+          git pull --rebase origin main
+          git push origin HEAD:main
