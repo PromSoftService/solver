@@ -51,7 +51,8 @@ if (-not (Test-Path -LiteralPath $summaryJsonPath -PathType Leaf)) {
     throw "Missing batch summary: $summaryJsonPath"
 }
 
-$summary = @(Get-Content -LiteralPath $summaryJsonPath -Raw -Encoding UTF8 | ConvertFrom-Json)
+$parsedSummary = Get-Content -LiteralPath $summaryJsonPath -Raw -Encoding UTF8 | ConvertFrom-Json
+$summary = @($parsedSummary)
 $done = @($summary | Where-Object { $_.status -eq 'done' })
 $failed = @($summary | Where-Object { $_.status -ne 'done' })
 if ($done.Count -ne 5 -or $failed.Count -ne 0) {
