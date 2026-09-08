@@ -1350,7 +1350,7 @@
     "ipRiverRaise": "60",
     "ipTurnBet": "50",
     "ipTurnRaise": "60",
-    "maxRaiseNumber": 1,
+    "maxRaiseNumber": 2,
     "oopFlopBet": "50",
     "oopFlopRaise": "60",
     "oopRange": [

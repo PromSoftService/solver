@@ -16,7 +16,9 @@ This is the first production performance study after restoring the stock
 - Flop: OOP bet/donk 50%, IP bet 50%, raise 60 native.
 - Turn: OOP bet/donk 50%, IP bet 50%, raise 60 native.
 - River: OOP bet/donk 75%, IP bet 100%, raise 60 native.
-- Maximum one normal raise per street.
+- Maximum one normal raise after the opening bet per street. TexasSolver's
+  native counter includes the opening bet, so this is encoded as
+  `maxRaiseNumber=2`.
 - All-in flags and threshold retain the existing proven v015 semantics.
 
 The exported decision is `BB_RESPONSE`: BB checks, UTG bets 50%, BB acts.

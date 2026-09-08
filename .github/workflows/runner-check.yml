@@ -61,6 +61,6 @@ jobs:
           if ($studyConfig.runner.decisionNode -ne 'BB_RESPONSE' -or [int]$studyConfig.runner.expectedBetAmount -ne 28 -or [int]$studyConfig.runner.expectedRaiseAmount -ne 95) { throw 'STU001 runner guards invalid' }
           if ($studyConfig.config.ipFlopBet -ne '50' -or $studyConfig.config.ipTurnBet -ne '50' -or $studyConfig.config.ipRiverBet -ne '100') { throw 'STU001 IP sizing invalid' }
           if ($studyConfig.config.oopFlopBet -ne '50' -or $studyConfig.config.oopTurnDonk -ne '50' -or $studyConfig.config.oopRiverDonk -ne '75') { throw 'STU001 OOP sizing invalid' }
-          if ([int]$studyConfig.config.maxRaiseNumber -ne 1) { throw 'STU001 maxRaiseNumber invalid' }
+          if ([int]$studyConfig.config.maxRaiseNumber -ne 2) { throw 'STU001 maxRaiseNumber invalid' }
           if (-not (Test-Path datasets/README.md)) { throw 'Tracked dataset policy is missing' }
           Write-Host 'PASS: proven v015 selected current-street production runner.'
