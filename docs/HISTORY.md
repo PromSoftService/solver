@@ -126,3 +126,11 @@ the donk. These presets use only `solver.history.apply`,
 `solver.node.actionsAfter`, and one `solver.export.currentStreet` after a fresh
 solve. Turn and river remain in the solve as continuation abstractions but are
 not exported or analyzed by STU002.
+
+The first 286-board `BB_FIRST` run exposed another transient WebView2 startup
+signature: the injected page helper could briefly be undefined, producing a
+`requestObject` error. Batch retry now treats that exact undefined-helper case
+like the already-known DevTools startup race and allows up to three startup
+attempts. STU002 resume reporting preserves the prior attempt's board-time sum
+and adds only the retried boards, rather than reporting the short resume wall
+time as the duration of the whole study.

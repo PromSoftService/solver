@@ -128,7 +128,7 @@ for ($i = 0; $i -lt $boardList.Count; $i++) {
     Write-Host "[$index/$($boardList.Count)] $board"
     try {
         $run = $null
-        $maxStartupAttempts = 2
+        $maxStartupAttempts = 3
         for ($attempt = 1; $attempt -le $maxStartupAttempts; $attempt++) {
             try {
                 if ($attempt -gt 1) {
@@ -159,7 +159,9 @@ for ($i = 0; $i -lt $boardList.Count; $i++) {
                 break
             } catch {
                 $message = $_.Exception.Message
-                $transientStartup = $message -like '*WebView2 DevTools endpoint did not expose an application page*'
+                $transientStartup =
+                    $message -like '*WebView2 DevTools endpoint did not expose an application page*' -or
+                    ($message -like '*requestObject*' -and $message -like '*undefined*')
                 if ($transientStartup -and $attempt -lt $maxStartupAttempts) {
                     continue
                 }

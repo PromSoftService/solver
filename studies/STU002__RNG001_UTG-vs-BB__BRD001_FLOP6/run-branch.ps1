@@ -43,6 +43,20 @@ try {
     if ($LASTEXITCODE -eq 0 -and $resolvedSha) { $commitSha = [string]$resolvedSha }
 } catch {}
 
+$priorAttemptSummary = @()
+$priorAttemptBoardSumMs = 0.0
+$priorFailedIndexes = @()
+if ($Resume) {
+    $priorSummaryPath = Join-Path $outputPath 'batch-summary.json'
+    if (-not (Test-Path -LiteralPath $priorSummaryPath -PathType Leaf)) {
+        throw "Resume requested but batch-summary.json was not found in $outputPath"
+    }
+    $parsedPriorSummary = Get-Content -LiteralPath $priorSummaryPath -Raw -Encoding UTF8 | ConvertFrom-Json
+    $priorAttemptSummary = @($parsedPriorSummary)
+    $priorAttemptBoardSumMs = [double](($priorAttemptSummary | Measure-Object -Property elapsed_ms -Sum).Sum)
+    $priorFailedIndexes = @($priorAttemptSummary | Where-Object { $_.status -ne 'done' } | ForEach-Object { [int]$_.index })
+}
+
 $started = [DateTime]::UtcNow
 $batchArguments = @{
     Config = $configPath
@@ -135,7 +149,11 @@ $sumMs = [double](($elapsedValues | Measure-Object -Sum).Sum)
 $meanMs = $sumMs / $elapsedValues.Count
 $middle = [int][Math]::Floor($elapsedValues.Count / 2)
 $medianMs = ($elapsedValues[$middle - 1] + $elapsedValues[$middle]) / 2
-$wallMs = [double]($ended - $started).TotalMilliseconds
+$currentInvocationWallMs = [double]($ended - $started).TotalMilliseconds
+$retryBoardSumMs = if ($Resume) {
+    [double](($done | Where-Object { $priorFailedIndexes -contains [int]$_.index } | Measure-Object -Property elapsed_ms -Sum).Sum)
+} else { 0.0 }
+$wallMs = if ($Resume) { $priorAttemptBoardSumMs + $retryBoardSumMs } else { $currentInvocationWallMs }
 
 $report = [pscustomobject][ordered]@{
     schema_version = 1
@@ -148,6 +166,7 @@ $report = [pscustomobject][ordered]@{
     source_commit = $commitSha
     started_at_utc = $started.ToString('o')
     ended_at_utc = $ended.ToString('o')
+    resumed = [bool]$Resume
     success = $true
     boards_done = $done.Count
     boards_expected = 286
@@ -155,7 +174,10 @@ $report = [pscustomobject][ordered]@{
     dataset_path = $datasetPath
     timing_ms = [pscustomobject][ordered]@{
         total_wall = [int][Math]::Round($wallMs)
+        current_invocation_wall = [int][Math]::Round($currentInvocationWallMs)
         board_sum = [int][Math]::Round($sumMs)
+        prior_attempt_board_sum = [int][Math]::Round($priorAttemptBoardSumMs)
+        retry_board_sum = [int][Math]::Round($retryBoardSumMs)
         mean = [int][Math]::Round($meanMs)
         median = [int][Math]::Round($medianMs)
         min = [int][Math]::Round($elapsedValues[0])
@@ -185,6 +207,8 @@ $reportText = @"
 - History: $($branch.history)
 - Actions: $($branch.actions)
 - Total wall time: $([Math]::Round($wallMs / 60000, 2)) min
+- Current invocation wall time: $([Math]::Round($currentInvocationWallMs / 60000, 2)) min
+- Resumed: $([bool]$Resume)
 - Mean per board: $([Math]::Round($meanMs / 1000, 3)) s
 - Median per board: $([Math]::Round($medianMs / 1000, 3)) s
 - Minimum: $([Math]::Round($elapsedValues[0] / 1000, 3)) s
