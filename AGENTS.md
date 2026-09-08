@@ -4,78 +4,45 @@ Remote `main` is the source of truth. Read this file before changing the reposit
 
 ## Purpose
 
-This repo is a development workspace around the original `TexasSolverGpu_131.exe` from TexasSolverGPU v0.2.0 Windows x64. Do not replace or reimplement the solver unless the user explicitly asks.
+This repository automates the original `TexasSolverGpu_131.exe` from TexasSolverGPU v0.2.0 Windows x64. Do not replace or reimplement the solver.
 
-The immediate engineering task is to make the runner persist the **complete solved postflop strategy tree** by using the real mechanism exposed by the installed TexasSolverGPU runtime/frontend. Strategy research is intentionally out of scope until that persistence mechanism is proven.
+The accepted production model is intentionally narrow: solve the configured postflop tree with the GPU engine, navigate to one configured decision history, and export that current-street node through the verified stock bridge.
 
-## Baseline status
+## Proven baseline
 
-The clean baseline is intentionally small:
+- `tsgpu-worker.ps1` retains the proven `v015-production` startup/solve/export core from historical commit `bec0b758fe7957a45d028f1adaa2a5252ff0598a`.
+- `tsgpu-batch.ps1` processes arbitrary board lists and can read solve/decision settings from the JSON `runner` block.
+- `solver.history.apply`, `solver.node.actionsAfter`, and `solver.export.currentStreet` select and export one branch.
+- The original WebView2 host and CUDA solver remain unchanged.
 
-- `tsgpu-worker.ps1` — proven `v015-production` worker from historical commit `bec0b758fe7957a45d028f1adaa2a5252ff0598a`;
-- `tsgpu-batch.ps1` and `tsgpu-batch.cmd` — proven batch shell from the same state;
-- `scripts/Range-Utils.ps1` — source-range expansion utility;
-- `ranges/` — RNG001 and RNG002 source inputs;
-- `boards/BRD001...txt` — 286 canonical unpaired-rainbow flop inputs;
-- `smoke/` — one-board development fixture only;
-- documentation and one static Windows CI workflow.
+Complete solved-tree persistence is not a production feature. Do not describe a current-street export as a reloadable full-tree save.
 
-`v015` reliably starts the solver, hides the host window, connects to the WebView2 bridge, initializes/allocates, solves, polls status, applies history and exports a selected current-street node.
+## Repository policy
 
-**Complete solved-tree persistence is NOT implemented in the baseline.** Do not claim otherwise.
+Keep source inputs and reusable examples in Git. Generated `output/` and `_diagnostics/` data stay ignored. Do not add calculated datasets, analyses, study results, or solver binaries unless the user explicitly requests them.
 
-## Full-tree development rule
+## Full-tree research history
 
-Do not guess API names such as `solver.export.fullTree`, `solver.export.fullStrategy`, `solver.dump.strategy`, etc. A previous experiment did that and was discarded.
+The installed runtime exposes no monolithic full-tree save/load method. A diagnostic proved that the solved tree can be reconstructed by repeatedly combining `solver.history.apply`, `solver.cards.possible`, and `solver.export.currentStreet`. The complete one-board proof required 33,125 fragments, about 18.3 minutes of extraction, and a 589 MB archive. It was rejected as a production architecture.
 
-Before implementing full-tree persistence:
+Do not restore exhaustive traversal or guessed APIs (`fullTree`, `fullStrategy`, `dumpStrategy`, and similar names) without a new explicit user decision. The proof remains documented in `docs/HISTORY.md` and Git history.
 
-1. inspect the actual installed runtime/frontend behavior;
-2. identify the real native/bridge/frontend mechanism used to save or dump a complete strategy;
-3. prove it on exactly one smoke board;
-4. verify the saved object contains flop, turn chance/action nodes, river chance/action nodes and strategy payloads;
-5. only then generalize it to batch studies.
+## Git and validation
 
-Do not launch a 286-board batch merely to discover the exporter. One board is enough for runner development.
+Before replacing files, fetch remote `main`. After runner changes:
 
-## What must not return to `main`
+- parse every PowerShell file;
+- validate JSON examples and board syntax;
+- run the smallest relevant smoke on the user's Windows/NVIDIA machine;
+- inspect output files and batch summaries;
+- inspect GitHub Actions logs after pushing.
 
-Until the user explicitly starts a new research cycle, do not add:
+GitHub-hosted CI cannot prove a CUDA solve. Never claim a runtime result that was not produced on the Windows/NVIDIA host.
 
-- `datasets/`;
-- `analysis/`;
-- `results/`;
-- `studies/`;
-- old strategy reports/EXP artifacts;
-- node-specific dataset collectors;
-- guessed full-tree export probes.
-
-Old files remain recoverable from Git history. They are not active evidence.
-
-## Git and CI
-
-The user authorizes direct commits/pushes to `main` for normal repository work.
-
-Before replacing a file, fetch current remote `main`. After runner changes:
-
-- run/update static CI;
-- inspect the actual GitHub Actions job logs, not only the status badge;
-- keep the baseline documentation synchronized with proven behavior.
-
-GPU/runtime tests execute on the user's Windows/NVIDIA machine. Do not pretend GitHub-hosted CI can perform the real solver solve.
-
-## Connected facts
-
-TexasSolverGPU workflow here starts postflop. Preflop ranges/pot/stack are inputs; preflop is not solved.
-
-The current baseline supports node-specific/current-street export only. The architectural requirement for future runner work is: **solve the configured tree once, persist the complete solved tree, analyze arbitrary nodes later without another GPU solve.**
-
-## First files to read in a new chat
+## First files to read
 
 1. `AGENTS.md`
 2. `README.md`
 3. `docs/BASELINE.md`
 4. `docs/BRIDGE_SCHEMA.md`
 5. `docs/HISTORY.md`
-
-Do not reconstruct current behavior from old conversation memory when `main` can be read.

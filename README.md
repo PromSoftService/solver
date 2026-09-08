@@ -1,46 +1,50 @@
-# TexasSolverGPU runner development baseline
+# TexasSolverGPU batch runner
 
-This repository is a clean engineering baseline for automating **TexasSolverGPU v0.2.0 Windows x64**. It does not contain poker-study results.
+Windows batch automation for **TexasSolverGPU v0.2.0 x64**. It keeps the original CUDA/GPU engine and uses only verified WebView2 bridge methods.
 
-## Current state
+## Production model
 
-The active runner is the last proven `v015-production` implementation. It can reliably:
+For each flop the runner:
 
-- launch `TexasSolverGpu_131.exe` headlessly;
-- connect through the WebView2 bridge;
-- initialize and allocate the configured postflop tree;
-- solve it and poll status;
-- navigate history/actions;
-- export the selected current-street strategy node.
+- launches `TexasSolverGpu_131.exe` with the host window suppressed;
+- initializes the configured ranges, pot, stack and betting tree;
+- performs one GPU solve and waits for convergence;
+- applies the configured action history;
+- exports one selected current-street decision with `solver.export.currentStreet`;
+- writes native JSON, combo JSON/CSV, a bridge transcript and run metadata.
 
-It **does not yet persist the complete solved tree**. That is the next runner-development task.
+This is the supported stock workflow. The runner does **not** claim to save or reload the complete solved postflop tree. To collect another branch later, run a separate job with another `runner.decisionNode`.
 
-A later experimental `v020` generation attempted to discover a full-tree exporter by probing invented/plausible endpoint names. That approach was rejected and is not present in the baseline.
+## Quick start
 
-## Repository contents
-
-- `tsgpu-worker.ps1`, `tsgpu-batch.ps1`, `tsgpu-batch.cmd` — proven v015 runner core;
-- `ranges/` — source RNG001 (UTG vs BB) and RNG002 (UTG vs BTN) ranges;
-- `boards/` — BRD001, 286 canonical unpaired-rainbow flops;
-- `smoke/` — one-board runner-development fixture;
-- `scripts/Range-Utils.ps1` — source-range utility;
-- `docs/` — baseline, verified bridge facts and historical record;
-- `.github/workflows/runner-check.yml` — static Windows validation only.
-
-There are intentionally no `datasets/`, `analysis/`, `results/`, `studies/`, `configs/` or `tools/` directories in active `main`.
-
-## Smoke command
-
-From the repository root, with the solver available through `TSGPU_SOLVER_EXE` or in the known adjacent location:
+Keep this repository beside `TexasSolverGpu-v0.2.0-windows-x64`, then run:
 
 ```powershell
-.\tsgpu-batch.cmd .\smoke\CFG001-one-board.json .\smoke\boards.txt .\output\smoke
+.\tsgpu-batch.cmd .\example\config.json .\example\boards.txt .\output\example-five-flops
 ```
 
-This exercises the proven current-node runner only. It is **not** a full-tree persistence test.
+The example contains five flops and one IP flop bet size, 33%. Its `runner` block selects `BB_RESPONSE` and verifies the expected native amounts: bet 18, raise 73.
 
-## Development objective
+Command-line options override matching `runner` values from JSON. The relevant settings are:
 
-The next implementation must discover and use the real TexasSolverGPU mechanism for saving/exporting the complete solved strategy tree. Prove that mechanism on one smoke board before any large study is created.
+```json
+{
+  "runner": {
+    "maxIterations": 1000,
+    "targetExploitability": 0.5,
+    "decisionNode": "BB_RESPONSE",
+    "expectedBetAmount": 18,
+    "expectedRaiseAmount": 73
+  }
+}
+```
 
-See `AGENTS.md`, `docs/BASELINE.md`, `docs/BRIDGE_SCHEMA.md`, and `docs/HISTORY.md`.
+Supported branch presets: `BB_RESPONSE`, `UTG_CBET`, `UTG_OOP_CBET`, `BTN_RESPONSE`, `BTN_STAB`, and `UTG_RESPONSE`. `expectedBetAmount` and `expectedRaiseAmount` are safety checks; use `0` to disable a check.
+
+## Output
+
+Each numbered board directory contains `run.json`, `node.raw.json`, `combos.json`, `combos.csv`, and `bridge-transcript.jsonl`. The output root contains `batch-summary.json` and `batch-summary.csv`.
+
+`-Resume` reuses only boards with both `run.json` and `combos.json` and verifies that the decision preset matches.
+
+See `example/README.md`, `docs/BASELINE.md`, `docs/BRIDGE_SCHEMA.md`, and `docs/HISTORY.md`.

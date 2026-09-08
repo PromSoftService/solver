@@ -67,4 +67,8 @@ solver.dump.strategy
 solver.dump.result
 ```
 
-The next runner-development task is to discover the actual complete-strategy persistence mechanism, not to add more guessed names.
+A later diagnostic established that no monolithic complete-tree method is exposed by the installed v0.2.0 frontend/native bridge. Repeated stock current-street exports can reconstruct the tree, but that path is intentionally not the production runner because of its extraction cost and output size.
+
+## Production boundary
+
+The supported runner boundary is one selected current-street export after one solve. `tsgpu-batch.ps1` resolves `runner.decisionNode` to an action history, verifies optional expected amounts, applies the history, and calls the exact method above. The JSON config does not contain raw bridge method names.

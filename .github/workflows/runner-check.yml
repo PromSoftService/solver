@@ -1,4 +1,4 @@
-name: Runner baseline check
+name: Runner current-street check
 on:
   push:
     branches: [main]
@@ -12,7 +12,7 @@ jobs:
       - name: Parse PowerShell baseline
         shell: pwsh
         run: |
-          $files = @('tsgpu-worker.ps1','tsgpu-batch.ps1','scripts/Range-Utils.ps1','scripts/diagnose-full-tree.ps1')
+          $files = @('tsgpu-worker.ps1','tsgpu-batch.ps1','scripts/Range-Utils.ps1')
           foreach ($f in $files) {
             $tokens=$null; $errors=$null
             [System.Management.Automation.Language.Parser]::ParseFile((Resolve-Path $f),[ref]$tokens,[ref]$errors) | Out-Null
@@ -38,4 +38,14 @@ jobs:
           $boards = @(Get-Content boards/BRD001__FLOP_UNPAIRED_RAINBOW__ISO286__V1.txt | Where-Object { $_.Trim() })
           if ($boards.Count -ne 286) { throw "Expected 286 BRD001 boards; got $($boards.Count)" }
           if (-not (Test-Path smoke/CFG001-one-board.json) -or -not (Test-Path smoke/boards.txt)) { throw 'Smoke fixture missing' }
-          Write-Host 'PASS: clean v015 runner-development baseline.'
+          $smokeBoards = @(Get-Content smoke/boards.txt | Where-Object { $_.Trim() -and -not $_.Trim().StartsWith('#') })
+          if ($smokeBoards.Count -ne 1) { throw "Expected one smoke board; got $($smokeBoards.Count)" }
+          $example = Get-Content example/config.json -Raw | ConvertFrom-Json
+          $exampleBoards = @(Get-Content example/boards.txt | Where-Object { $_.Trim() -and -not $_.Trim().StartsWith('#') })
+          if ($exampleBoards.Count -ne 5) { throw "Expected five example boards; got $($exampleBoards.Count)" }
+          if ($example.runner.decisionNode -ne 'BB_RESPONSE' -or [int]$example.runner.expectedBetAmount -ne 18 -or [int]$example.runner.expectedRaiseAmount -ne 73) { throw 'Example runner branch settings changed' }
+          $batch = Get-Content tsgpu-batch.ps1 -Raw
+          foreach ($setting in @('decisionNode','expectedBetAmount','expectedRaiseAmount')) {
+            if (-not $batch.Contains($setting)) { throw "Config-driven setting missing: $setting" }
+          }
+          Write-Host 'PASS: proven v015 selected current-street production runner.'

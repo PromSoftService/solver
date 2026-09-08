@@ -6,9 +6,9 @@ param(
     [string]$SolverExe = '',
     [Nullable[int]]$MaxIterations = $null,
     [Nullable[double]]$TargetExploitability = $null,
-    [int]$ExpectedBetAmount = 0,
-    [int]$ExpectedRaiseAmount = 0,
-    [ValidateSet('BB_RESPONSE', 'UTG_CBET', 'UTG_OOP_CBET', 'BTN_RESPONSE', 'BTN_STAB', 'UTG_RESPONSE')][string]$DecisionNode = 'BB_RESPONSE',
+    [Nullable[int]]$ExpectedBetAmount = $null,
+    [Nullable[int]]$ExpectedRaiseAmount = $null,
+    [string]$DecisionNode = '',
     [int]$SolveTimeoutMinutes = 180,
     [switch]$ShowHostWindow,
     [switch]$Resume
@@ -55,6 +55,13 @@ function Read-FirstSetting([string]$Name, [object]$Default) {
 
 $effectiveMaxIterations = if ($null -ne $MaxIterations) { [int]$MaxIterations } else { [int](Read-FirstSetting 'maxIterations' 1000) }
 $effectiveTargetExploitability = if ($null -ne $TargetExploitability) { [double]$TargetExploitability } else { [double](Read-FirstSetting 'targetExploitability' 0.5) }
+$effectiveExpectedBetAmount = if ($null -ne $ExpectedBetAmount) { [int]$ExpectedBetAmount } else { [int](Read-FirstSetting 'expectedBetAmount' 0) }
+$effectiveExpectedRaiseAmount = if ($null -ne $ExpectedRaiseAmount) { [int]$ExpectedRaiseAmount } else { [int](Read-FirstSetting 'expectedRaiseAmount' 0) }
+$effectiveDecisionNode = if ($DecisionNode) { $DecisionNode } else { [string](Read-FirstSetting 'decisionNode' 'BB_RESPONSE') }
+$allowedDecisionNodes = @('BB_RESPONSE', 'UTG_CBET', 'UTG_OOP_CBET', 'BTN_RESPONSE', 'BTN_STAB', 'UTG_RESPONSE')
+if ($allowedDecisionNodes -notcontains $effectiveDecisionNode) {
+    throw "Unsupported decisionNode '$effectiveDecisionNode'. Allowed: $($allowedDecisionNodes -join ', ')."
+}
 
 $boardList = @(Get-Content -LiteralPath $boardsPath -Encoding UTF8 | ForEach-Object {
     $line = $_.Trim()
@@ -90,8 +97,8 @@ for ($i = 0; $i -lt $boardList.Count; $i++) {
         if ([string]$previous.board -ne $board) {
             throw "Resume summary board mismatch at index ${index}: expected '$board', found '$($previous.board)'."
         }
-        if ([string]$previous.decision_node -ne $DecisionNode) {
-            throw "Resume decision-node mismatch at index ${index}: expected '$DecisionNode', found '$($previous.decision_node)'."
+        if ([string]$previous.decision_node -ne $effectiveDecisionNode) {
+            throw "Resume decision-node mismatch at index ${index}: expected '$effectiveDecisionNode', found '$($previous.decision_node)'."
         }
         if ([string]$previous.status -eq 'done' -and
             (Test-Path -LiteralPath $runPath -PathType Leaf) -and
@@ -100,7 +107,7 @@ for ($i = 0; $i -lt $boardList.Count; $i++) {
             $summary.Add([pscustomobject][ordered]@{
                 index = $index
                 board = $board
-                decision_node = $DecisionNode
+                decision_node = $effectiveDecisionNode
                 status = 'done'
                 output_directory = $jobName
                 combos = [int]$previous.combos
@@ -139,9 +146,9 @@ for ($i = 0; $i -lt $boardList.Count; $i++) {
                     OutputDirectory = $jobOutput
                     MaxIterations = $effectiveMaxIterations
                     TargetExploitability = $effectiveTargetExploitability
-                    ExpectedBetAmount = $ExpectedBetAmount
-                    ExpectedRaiseAmount = $ExpectedRaiseAmount
-                    DecisionNode = $DecisionNode
+                    ExpectedBetAmount = $effectiveExpectedBetAmount
+                    ExpectedRaiseAmount = $effectiveExpectedRaiseAmount
+                    DecisionNode = $effectiveDecisionNode
                     SolveTimeoutMinutes = $SolveTimeoutMinutes
                     ShowHostWindow = $ShowHostWindow
                 }
@@ -164,7 +171,7 @@ for ($i = 0; $i -lt $boardList.Count; $i++) {
         $summary.Add([pscustomobject][ordered]@{
             index = $index
             board = $board
-            decision_node = $DecisionNode
+            decision_node = $effectiveDecisionNode
             status = 'done'
             output_directory = $jobName
             combos = [int]$run.combo_count
@@ -178,7 +185,7 @@ for ($i = 0; $i -lt $boardList.Count; $i++) {
         $summary.Add([pscustomobject][ordered]@{
             index = $index
             board = $board
-            decision_node = $DecisionNode
+            decision_node = $effectiveDecisionNode
             status = 'error'
             output_directory = $jobName
             combos = 0
@@ -195,6 +202,6 @@ $summary | ConvertTo-Json -Depth 20 | Set-Content -LiteralPath (Join-Path $outpu
 $summary | Export-Csv -LiteralPath (Join-Path $outputPath 'batch-summary.csv') -NoTypeInformation -Encoding UTF8
 
 Write-Host "Batch complete: $($boardList.Count - $failed) done, $failed failed."
-Write-Host "Decision: $DecisionNode"
+Write-Host "Decision: $effectiveDecisionNode"
 Write-Host "Summary: $outputPath"
 if ($failed -gt 0) { throw "$failed batch job(s) failed." }

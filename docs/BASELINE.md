@@ -1,76 +1,52 @@
-# Clean runner-development baseline
+# Production baseline
 
-## Baseline commit intent
+## Core lineage
 
-This tree is intentionally **not** a poker-research state. It is a clean engineering starting point for the runner.
-
-The active implementation is the proven `v015-production` solve/current-street-export core copied from historical commit:
+The active worker is the proven `v015-production` solve/current-street implementation from historical commit:
 
 `bec0b758fe7957a45d028f1adaa2a5252ff0598a`
 
-That old commit contained many datasets, analyses and study launchers. None of those are part of this baseline.
+The runner controls the original TexasSolverGPU v0.2.0 WebView2 host and CUDA engine. It does not implement poker solving itself.
 
-## Proven behavior
+## Supported workflow
 
-`tsgpu-worker.ps1` has been proven on the user's Windows/NVIDIA machine to:
+For every board the runner performs:
 
-- launch `TexasSolverGpu_131.exe`;
-- suppress the host window;
-- connect to the WebView2 bridge;
-- `solver.init`;
-- `solver.allocate`;
-- start and monitor GPU solves;
-- apply action history;
-- inspect actions;
-- export a selected current-street strategy node;
-- write per-node combo strategy/EV metadata.
+1. `solver.init` with ranges, board, stack, pot and sizings;
+2. `solver.allocate`;
+3. one `solver.solve.start` and status polling;
+4. stock history/action navigation to a configured decision;
+5. one `solver.export.currentStreet`;
+6. JSON/CSV output for that decision node.
 
-`tsgpu-batch.ps1` has been proven as the multi-board wrapper around that worker.
+The selected branch can be supplied through `runner.decisionNode` in the JSON config or overridden by `-DecisionNode`. Expected bet/raise amounts can also live in the config and prevent an accidental action mismatch.
 
-## Explicitly not implemented
+## Explicit limitation
 
-**Complete solved-tree persistence is not implemented.**
+The output is a selected current-street node/subtree. It is not a complete solved tree and cannot be used to inspect arbitrary turn/river branches offline. Another branch requires another runner job and therefore another solve.
 
-The baseline does not contain:
+A full reconstruction was technically proven through repeated stock current-street exports, but its 33,125 round trips, ~18.3-minute extraction time and 589 MB archive made it unsuitable for production. That diagnostic code is not part of the runner.
 
-- a verified full-tree save/export call;
-- viewer-compatible complete-tree persistence;
-- automatic traversal/export of all turn/river nodes;
-- full-tree studies;
-- automatic study-result commits.
+## Fixtures
 
-A previous `v020` experiment guessed possible full-tree endpoint names and validated returned JSON heuristically. That was rejected as a development method and removed.
+- `smoke/CFG001-one-board.json` plus `smoke/boards.txt`: one-board regression fixture.
+- `example/config.json` plus `example/boards.txt`: documented five-board, one-flop-sizing example.
+- `ranges/`: RNG001 and RNG002 source ranges.
+- `boards/BRD001...txt`: 286 canonical source flops; never use it for routine runner smoke tests.
 
-## Source inputs retained
+## Output contract
 
-### Ranges
+Each board directory contains:
 
-- RNG001 — UTG open 2.5bb -> BB call;
-- RNG002 — UTG open 2.5bb -> BTN call.
+- `run.json`: solver/config/decision metadata and final status;
+- `node.raw.json`: native current-street payload;
+- `combos.json` and `combos.csv`: normalized combo frequencies, reach probabilities and EVs;
+- `bridge-transcript.jsonl`: exact methods, paths, bodies, timings and outcomes.
 
-These are source inputs copied from the TexasSolverGPU bundled 6-max range library and are not research results.
+The batch root contains `batch-summary.json` and `batch-summary.csv`. Runtime output belongs under ignored `output/` or `_diagnostics/` directories.
 
-### Boards
+## Operational risks
 
-- BRD001 — 286 canonical unpaired-rainbow flops.
-
-### Smoke fixture
-
-`smoke/CFG001-one-board.json` and `smoke/boards.txt` are retained only to reproduce the proven runner on one small input while developing the exporter. They are not an active study definition.
-
-## Directory policy
-
-Active `main` deliberately has no:
-
-- `datasets/`;
-- `analysis/`;
-- `results/`;
-- `studies/`;
-- `configs/`;
-- `tools/`.
-
-Historical material remains in Git history and can be inspected without restoring it to active `main`.
-
-## Next engineering milestone
-
-Identify the real complete-strategy save/export mechanism used by TexasSolverGPU v0.2.0 and prove it on one smoke board. Only after that should a new study format or batch-output contract be designed.
+- Native schema compatibility is tied to TexasSolverGPU v0.2.0.
+- `-Resume` assumes the config itself has not changed; use a fresh output directory when changing ranges/tree/solve settings.
+- If the host exits before export, the solved in-memory state cannot be restored.

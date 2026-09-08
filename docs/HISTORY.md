@@ -75,3 +75,35 @@ Retained:
 ## 6. Next step
 
 A separate runner-development effort should identify the **real** TexasSolverGPU complete-strategy save/export mechanism from the installed runtime/frontend and prove it on one board before any new large study is created.
+
+## 7. 2026-09-08 exhaustive stock-API proof
+
+The installed application, frontend bundle, bridge behavior, public GPU repository and related viewer/serializer code were inspected. No monolithic native full-tree save/load bridge method was found.
+
+A complete one-board reconstruction was nevertheless proven using only verified stock operations:
+
+- `solver.history.apply`;
+- `solver.cards.possible` at chance boundaries;
+- `solver.export.currentStreet` for every reachable street fragment.
+
+For flop `6s As 8c`, one GPU solve produced a complete graph with 1 flop fragment, 196 turn fragments and 32,928 river fragments (33,125 total). Offline validation found 175,327 action nodes, 690 chance nodes, 250,589 terminal nodes and zero missing links.
+
+The archive was 589,025,997 bytes and extraction took 1,097,838 ms (~18.3 minutes), while the solve itself took about 4.5 seconds. This proved data accessibility but also proved that exhaustive fragment persistence is not production-worthy for a 286-board workload.
+
+A follow-up WIP attempted internal JavaScript traversal, request pipelining, dictionary-based compact JSON and OPFS streaming. Representative reconstructed payloads exactly matched fresh native `currentStreet` responses. Storage and external round trips improved, but native per-fragment exports remained the dominant cost and the design still required tens of thousands of bridge calls.
+
+## 8. Final production decision
+
+The user selected the stock selected-branch workflow as the product boundary. Commit `23fa871` and its uncommitted compact-export follow-up were removed from the active WIP content; revert commit `977b230` restored the proven v015/current-street baseline while retaining the investigation in Git history.
+
+The production runner now intentionally does:
+
+**one board -> one GPU solve -> one configured decision history -> one stock current-street export.**
+
+No guessed method, exhaustive full-tree traversal, custom tree archive or offline full-tree loader is part of the supported path.
+
+One useful usability improvement from the work was retained: `runner.decisionNode`, `runner.expectedBetAmount`, and `runner.expectedRaiseAmount` can be stored in the input JSON, while explicit command-line arguments still override them. This makes `tsgpu-batch.cmd config.json boards.txt output\` a complete reproducible invocation.
+
+The `example/` directory documents and exercises five flops for the UTG 2.5bb open / BB call spot with pot 55, effective stack 975, IP flop bet 33%, OOP flop bet disabled, and OOP raise 60%. The separate `smoke/` fixture remains one board.
+
+The final Windows/NVIDIA verification used the exact three-argument command from `example/README.md`. All five boards completed successfully in 52.6 seconds total. Every board produced the five documented output files, used exactly one `solver.solve.start` and one `solver.export.currentStreet`, selected `BB_RESPONSE`, and returned `Fold / Call / Raise 73`. No guessed/full-tree bridge call appeared in any transcript.
