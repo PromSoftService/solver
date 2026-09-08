@@ -223,9 +223,7 @@ function Find-FirstChanceBoundary([object]$Node, [int[]]$RelativePath = @()) {
     if ([string](Read-Property $Node 'type' '') -eq 'chance') {
         return [pscustomobject]@{ Path = @($RelativePath); Node = $Node }
     }
-    $childrenProperty = $Node.PSObject.Properties['childrens']
-    if ($null -eq $childrenProperty) { return $null }
-    $children = $childrenProperty.Value
+    $children = Read-Property $Node 'childrens' $null
     if ($children -is [System.Array]) {
         for ($i = 0; $i -lt $children.Count; $i++) {
             $found = Find-FirstChanceBoundary $children[$i] @($RelativePath + $i)
@@ -327,15 +325,11 @@ try {
     Invoke-Cdp $socket 'Runtime.enable' @{} 10000 | Out-Null
     Invoke-JavaScript $socket (New-BridgeBootstrap) 10000 | Out-Null
 
-    Invoke-Bridge $socket 'solver.history.apply' '/api/apply-history' 'POST' ([ordered]@{ history = @() }) 10000 $transcript | Out-Null
     $flopExport = Invoke-Bridge $socket 'solver.export.currentStreet' '/api/export/current-street' 'POST' ([ordered]@{
         history = @()
         max_nodes = $ExportMaxNodes
     }) 120000 $transcript
-    Write-Utf8Json $flopExport (Join-Path $outputPath 'flop.response.json')
     $flop = Read-Property $flopExport 'payload' $flopExport
-    Write-Utf8Json $flop (Join-Path $outputPath 'flop.native.json')
-    Write-Host "Flop response: type=$([string](Read-Property $flop 'type' '<missing>')), round=$(Read-Property $flop 'betting round' '<missing>')"
     Assert-StreetFragment $flop 1 'Flop'
     $flopBoundary = Find-FirstChanceBoundary $flop
     if ($null -eq $flopBoundary) { throw 'Flop street export contains no chance boundary.' }
@@ -420,13 +414,6 @@ try {
     Write-Host "Flop export -> turn $($proof.turn.card) -> river $($proof.river.card)"
     Write-Host "Proof: $(Join-Path $outputPath 'proof.json')"
 } finally {
-    if ($transcript.Count -gt 0) {
-        try {
-            $utf8 = New-Object System.Text.UTF8Encoding($false)
-            $transcriptLines = @($transcript | ForEach-Object { ConvertTo-CompactJson $_ })
-            [IO.File]::WriteAllLines((Join-Path $outputPath 'bridge-transcript.jsonl'), $transcriptLines, $utf8)
-        } catch {}
-    }
     if ($null -ne $socket) { try { $socket.Dispose() } catch {} }
     if ($null -ne $solverProcess) {
         try {

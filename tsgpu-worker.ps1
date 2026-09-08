@@ -12,18 +12,13 @@ param(
     [int]$ExportMaxNodes = 5000,
     [int]$SolveTimeoutMinutes = 180,
     [switch]$ShowHostWindow,
-    [switch]$KeepHost,
-    [switch]$FullTreeExport,
-    [int]$FullTreeExportMaxNodes = 100000,
-    [int]$FullTreeDiagnosticFragmentLimit = 0
+    [switch]$KeepHost
 )
 
 $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version Latest
-$CoreScriptVersion = 'v015-production'
-$ScriptVersion = 'v016-production-full-tree'
+$ScriptVersion = 'v015-production'
 $StatusRetryLimit = 3
-. (Join-Path $PSScriptRoot 'scripts\FullTree-Export.ps1')
 
 # The host can call ShowWindow after ProcessStartInfo has requested Hidden.
 # Install an out-of-context WinEvent hook on a dedicated message-pump thread
@@ -718,31 +713,8 @@ try {
         }
     }
 
-    $runnerCommit = 'unknown'
-    try {
-        $commitCandidate = [string](& git -C $PSScriptRoot rev-parse --verify HEAD 2>$null)
-        if ($commitCandidate -match '^[0-9a-fA-F]{40}$') { $runnerCommit = $commitCandidate.ToLowerInvariant() }
-    } catch {}
-
-    $fullTreeResult = $null
-    if ($FullTreeExport) {
-        $fullTreeResult = Export-TsGpuFullTree -Socket $socket -Transcript $transcript `
-            -OutputDirectory $outputPath -ConfigPath $configPath -SolverPath $solverPath `
-            -Board $Board -BoardIds $boardIds -MaxIterations $MaxIterations `
-            -TargetExploitability $TargetExploitability -FinalStatus $status `
-            -RunnerVersion $ScriptVersion -RunnerCommit $runnerCommit `
-            -RunnerSourcePath $PSCommandPath `
-            -ExporterSourcePath (Join-Path $PSScriptRoot 'scripts\FullTree-Export.ps1') `
-            -ExportMaxNodes $FullTreeExportMaxNodes `
-            -DiagnosticFragmentLimit $FullTreeDiagnosticFragmentLimit
-        if ($FullTreeDiagnosticFragmentLimit -eq 0 -and -not $fullTreeResult.complete) {
-            throw 'Full-tree export stopped before every reachable fragment was saved.'
-        }
-        ($fullTreeResult | ConvertTo-Json -Depth 100) | Set-Content -LiteralPath (Join-Path $outputPath 'full-tree.manifest.json') -Encoding UTF8
-    }
-
     $run = [ordered]@{
-        schema_version = 3
+        schema_version = 2
         runner_version = $ScriptVersion
         decision_node = $DecisionNode
         acting_player = $actingPlayer
@@ -757,7 +729,6 @@ try {
         selected_actions = $selectedActions
         node_actions = $validActions
         combo_count = $cards.Count
-        full_tree = $fullTreeResult
         elapsed_ms = [int]([DateTime]::UtcNow - $runStarted).TotalMilliseconds
     }
     ($run | ConvertTo-Json -Depth 100) | Set-Content -LiteralPath (Join-Path $outputPath 'run.json') -Encoding UTF8
@@ -769,9 +740,6 @@ try {
     Write-Host "OK: $Board -> $($cards.Count) combos"
     Write-Host "Decision: $DecisionNode ($actingPlayer)"
     Write-Host "Actions: $($validActions -join ' / ')"
-    if ($null -ne $fullTreeResult) {
-        Write-Host "Full tree: $($fullTreeResult.archive) ($($fullTreeResult.fragment_count) fragments, complete=$($fullTreeResult.complete))"
-    }
     Write-Host "Output: $outputPath"
 } catch {
     if ($null -ne $socket -and $socket.State -eq [Net.WebSockets.WebSocketState]::Open) {

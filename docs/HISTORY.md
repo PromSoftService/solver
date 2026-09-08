@@ -75,17 +75,3 @@ Retained:
 ## 6. Next step
 
 A separate runner-development effort should identify the **real** TexasSolverGPU complete-strategy save/export mechanism from the installed runtime/frontend and prove it on one board before any new large study is created.
-
-## 7. Verified stock full-tree persistence
-
-Inspection of the installed v0.2.0 frontend, native strings, public GPU distribution, bundled viewer and upstream CPU serializer proved that the GPU desktop bridge exposes no monolithic full-tree method. The only native strategy serializer is `solver.export.currentStreet`; it deliberately stops at chance boundaries.
-
-A Windows/NVIDIA diagnostic then proved the supported continuation path after one solve:
-
-- select the exact boundary with `solver.history.apply`;
-- enumerate its legal cards with `solver.cards.possible`;
-- export the resulting turn/river root with `solver.export.currentStreet`.
-
-The production persistence layer exhaustively applies that stock sequence and stores native fragments plus an explicit chance-edge index in `full-tree.tsgpu.zip`. A Python standard-library inspector validates and reads the archive after the solver process exits.
-
-This is not the rejected v020 approach: it probes no invented method and accepts no heuristic “tree-like” response. Completion is a graph invariant: every legal chance edge must resolve to a hashed native fragment on the next street.

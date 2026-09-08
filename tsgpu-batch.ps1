@@ -11,9 +11,7 @@ param(
     [ValidateSet('BB_RESPONSE', 'UTG_CBET', 'UTG_OOP_CBET', 'BTN_RESPONSE', 'BTN_STAB', 'UTG_RESPONSE')][string]$DecisionNode = 'BB_RESPONSE',
     [int]$SolveTimeoutMinutes = 180,
     [switch]$ShowHostWindow,
-    [switch]$Resume,
-    [switch]$SkipFullTreeExport,
-    [int]$FullTreeDiagnosticFragmentLimit = 0
+    [switch]$Resume
 )
 
 $ErrorActionPreference = 'Stop'
@@ -57,7 +55,6 @@ function Read-FirstSetting([string]$Name, [object]$Default) {
 
 $effectiveMaxIterations = if ($null -ne $MaxIterations) { [int]$MaxIterations } else { [int](Read-FirstSetting 'maxIterations' 1000) }
 $effectiveTargetExploitability = if ($null -ne $TargetExploitability) { [double]$TargetExploitability } else { [double](Read-FirstSetting 'targetExploitability' 0.5) }
-$effectiveFullTreeExport = (-not $SkipFullTreeExport) -and [Convert]::ToBoolean((Read-FirstSetting 'fullTreeExport' $true))
 
 $boardList = @(Get-Content -LiteralPath $boardsPath -Encoding UTF8 | ForEach-Object {
     $line = $_.Trim()
@@ -87,7 +84,6 @@ for ($i = 0; $i -lt $boardList.Count; $i++) {
     $jobOutput = Join-Path $outputPath $jobName
     $runPath = Join-Path $jobOutput 'run.json'
     $comboPath = Join-Path $jobOutput 'combos.json'
-    $fullTreePath = Join-Path $jobOutput 'full-tree.tsgpu.zip'
 
     $previous = if ($previousByIndex.ContainsKey($index)) { $previousByIndex[$index] } else { $null }
     if ($Resume -and $null -ne $previous) {
@@ -99,12 +95,8 @@ for ($i = 0; $i -lt $boardList.Count; $i++) {
         }
         if ([string]$previous.status -eq 'done' -and
             (Test-Path -LiteralPath $runPath -PathType Leaf) -and
-            (Test-Path -LiteralPath $comboPath -PathType Leaf) -and
-            ((-not $effectiveFullTreeExport) -or (Test-Path -LiteralPath $fullTreePath -PathType Leaf))) {
+            (Test-Path -LiteralPath $comboPath -PathType Leaf)) {
             Write-Host "[$index/$($boardList.Count)] $board (already done)"
-            $existingRun = Get-Content -LiteralPath $runPath -Raw -Encoding UTF8 | ConvertFrom-Json
-            $existingTreeProperty = $existingRun.PSObject.Properties['full_tree']
-            $existingTree = if ($null -ne $existingTreeProperty) { $existingTreeProperty.Value } else { $null }
             $summary.Add([pscustomobject][ordered]@{
                 index = $index
                 board = $board
@@ -114,9 +106,6 @@ for ($i = 0; $i -lt $boardList.Count; $i++) {
                 combos = [int]$previous.combos
                 iteration = [int]$previous.iteration
                 exploitability = [double]$previous.exploitability
-                full_tree_complete = [bool]($null -ne $existingTree -and $existingTree.complete)
-                full_tree_fragments = if ($null -ne $existingTree) { [int]$existingTree.fragment_count } else { 0 }
-                full_tree_bytes = if ($null -ne $existingTree) { [int64]$existingTree.archive_bytes } else { 0 }
                 elapsed_ms = [int]$previous.elapsed_ms
                 error = ''
             })
@@ -155,8 +144,6 @@ for ($i = 0; $i -lt $boardList.Count; $i++) {
                     DecisionNode = $DecisionNode
                     SolveTimeoutMinutes = $SolveTimeoutMinutes
                     ShowHostWindow = $ShowHostWindow
-                    FullTreeExport = $effectiveFullTreeExport
-                    FullTreeDiagnosticFragmentLimit = $FullTreeDiagnosticFragmentLimit
                 }
                 & (Join-Path $PSScriptRoot 'tsgpu-worker.ps1') @oneArguments
 
@@ -173,7 +160,6 @@ for ($i = 0; $i -lt $boardList.Count; $i++) {
             }
         }
         if ($null -eq $run) { throw 'Board run did not produce run.json.' }
-        $runTree = $run.full_tree
 
         $summary.Add([pscustomobject][ordered]@{
             index = $index
@@ -184,9 +170,6 @@ for ($i = 0; $i -lt $boardList.Count; $i++) {
             combos = [int]$run.combo_count
             iteration = [int]$run.final_status.iteration
             exploitability = [double]$run.final_status.exploitability
-            full_tree_complete = [bool]($null -ne $runTree -and $runTree.complete)
-            full_tree_fragments = if ($null -ne $runTree) { [int]$runTree.fragment_count } else { 0 }
-            full_tree_bytes = if ($null -ne $runTree) { [int64]$runTree.archive_bytes } else { 0 }
             elapsed_ms = [int]([DateTime]::UtcNow - $started).TotalMilliseconds
             error = ''
         })
@@ -201,9 +184,6 @@ for ($i = 0; $i -lt $boardList.Count; $i++) {
             combos = 0
             iteration = 0
             exploitability = $null
-            full_tree_complete = $false
-            full_tree_fragments = 0
-            full_tree_bytes = 0
             elapsed_ms = [int]([DateTime]::UtcNow - $started).TotalMilliseconds
             error = $_.Exception.Message
         })

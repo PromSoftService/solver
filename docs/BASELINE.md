@@ -1,47 +1,76 @@
-# Production runner baseline
+# Clean runner-development baseline
 
-## Core lineage
+## Baseline commit intent
 
-The startup/solve/current-node core remains the proven `v015-production` implementation copied from historical commit:
+This tree is intentionally **not** a poker-research state. It is a clean engineering starting point for the runner.
+
+The active implementation is the proven `v015-production` solve/current-street-export core copied from historical commit:
 
 `bec0b758fe7957a45d028f1adaa2a5252ff0598a`
 
-The full-tree work adds a post-solve persistence layer. It does not replace the GPU solver, change poker abstraction, or alter init/allocate/start/status/window-suppression behavior.
+That old commit contained many datasets, analyses and study launchers. None of those are part of this baseline.
 
 ## Proven behavior
 
-On the user's Windows/NVIDIA host the runner has proven:
+`tsgpu-worker.ps1` has been proven on the user's Windows/NVIDIA machine to:
 
-- headless launch of `TexasSolverGpu_131.exe`;
-- WebView2 bridge connection and token handling;
-- `solver.init`, `solver.allocate`, one GPU solve and status polling;
-- action-history navigation and selected-node combo export;
-- native flop → turn → river export from the same solved process;
-- ZIP persistence and independent offline parsing without a solver process.
+- launch `TexasSolverGpu_131.exe`;
+- suppress the host window;
+- connect to the WebView2 bridge;
+- `solver.init`;
+- `solver.allocate`;
+- start and monitor GPU solves;
+- apply action history;
+- inspect actions;
+- export a selected current-street strategy node;
+- write per-node combo strategy/EV metadata.
 
-Full-tree persistence uses only confirmed `solver.history.apply`, `solver.cards.possible`, and `solver.export.currentStreet` calls. The archive is marked complete only after all indexed chance children are saved.
+`tsgpu-batch.ps1` has been proven as the multi-board wrapper around that worker.
+
+## Explicitly not implemented
+
+**Complete solved-tree persistence is not implemented.**
+
+The baseline does not contain:
+
+- a verified full-tree save/export call;
+- viewer-compatible complete-tree persistence;
+- automatic traversal/export of all turn/river nodes;
+- full-tree studies;
+- automatic study-result commits.
+
+A previous `v020` experiment guessed possible full-tree endpoint names and validated returned JSON heuristically. That was rejected as a development method and removed.
 
 ## Source inputs retained
 
-- RNG001 — UTG open 2.5bb → BB call;
-- RNG002 — UTG open 2.5bb → BTN call;
-- BRD001 — 286 canonical unpaired-rainbow flops;
-- `smoke/CFG001-one-board.json` and `smoke/boards.txt` — one-board development fixture.
+### Ranges
 
-These are inputs, not generated research results.
+- RNG001 — UTG open 2.5bb -> BB call;
+- RNG002 — UTG open 2.5bb -> BTN call.
+
+These are source inputs copied from the TexasSolverGPU bundled 6-max range library and are not research results.
+
+### Boards
+
+- BRD001 — 286 canonical unpaired-rainbow flops.
+
+### Smoke fixture
+
+`smoke/CFG001-one-board.json` and `smoke/boards.txt` are retained only to reproduce the proven runner on one small input while developing the exporter. They are not an active study definition.
 
 ## Directory policy
 
-Active `main` deliberately has no generated `datasets/`, `analysis/`, `results/`, `studies/`, `configs/`, or `tools/` directories. Runtime output goes under the ignored `output/` or `_diagnostics/` directories.
+Active `main` deliberately has no:
 
-## Production contract
+- `datasets/`;
+- `analysis/`;
+- `results/`;
+- `studies/`;
+- `configs/`;
+- `tools/`.
 
-`tsgpu-batch.cmd config.json boards.txt output\` solves each board once and, by default, requires `full-tree.tsgpu.zip` before recording that board as complete. A resume operation does not accept old selected-node-only output as a completed full-tree job.
+Historical material remains in Git history and can be inspected without restoring it to active `main`.
 
-The archive preserves exact config, solver SHA256, runner version/commit/source hashes, solve parameters, native fragment hashes, total size and timestamps. See `FULL_TREE_EXPORT.md`.
+## Next engineering milestone
 
-## Known operational risks
-
-- Complete export is substantially larger and slower than selected-node export.
-- The in-memory solved state cannot be restored after a crash because v0.2.0 exposes no solved-state loader; a failed board must be solved again.
-- Native schema compatibility is tied to TexasSolverGPU v0.2.0 and must be checked through archive metadata and the offline validator.
+Identify the real complete-strategy save/export mechanism used by TexasSolverGPU v0.2.0 and prove it on one smoke board. Only after that should a new study format or batch-output contract be designed.
