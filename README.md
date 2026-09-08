@@ -1,46 +1,54 @@
-# TexasSolverGPU runner development baseline
+# TexasSolverGPU batch runner
 
-This repository is a clean engineering baseline for automating **TexasSolverGPU v0.2.0 Windows x64**. It does not contain poker-study results.
+Windows batch automation for **TexasSolverGPU v0.2.0 x64**. The runner preserves the proven v015 WebView2/GPU solve pipeline and adds complete postflop solved-tree persistence.
 
-## Current state
+## What it does
 
-The active runner is the last proven `v015-production` implementation. It can reliably:
+For every board the runner:
 
-- launch `TexasSolverGpu_131.exe` headlessly;
-- connect through the WebView2 bridge;
-- initialize and allocate the configured postflop tree;
-- solve it and poll status;
-- navigate history/actions;
-- export the selected current-street strategy node.
+- launches `TexasSolverGpu_131.exe` with its window suppressed;
+- initializes and allocates the configured postflop tree;
+- performs one GPU solve and waits for convergence;
+- exports the requested current decision node and combo CSV/JSON;
+- saves every reachable flop/turn/river native strategy fragment into one complete archive;
+- records solver, config, runner and archive hashes for reproducibility.
 
-It **does not yet persist the complete solved tree**. That is the next runner-development task.
+No poker solver is reimplemented. No guessed bridge method is called.
 
-A later experimental `v020` generation attempted to discover a full-tree exporter by probing invented/plausible endpoint names. That approach was rejected and is not present in the baseline.
+## Command
 
-## Repository contents
-
-- `tsgpu-worker.ps1`, `tsgpu-batch.ps1`, `tsgpu-batch.cmd` — proven v015 runner core;
-- `ranges/` — source RNG001 (UTG vs BB) and RNG002 (UTG vs BTN) ranges;
-- `boards/` — BRD001, 286 canonical unpaired-rainbow flops;
-- `smoke/` — one-board runner-development fixture;
-- `scripts/Range-Utils.ps1` — source-range utility;
-- `docs/` — baseline, verified bridge facts and historical record;
-- `.github/workflows/runner-check.yml` — static Windows validation only.
-
-There are intentionally no `datasets/`, `analysis/`, `results/`, `studies/`, `configs/` or `tools/` directories in active `main`.
-
-## Smoke command
-
-From the repository root, with the solver available through `TSGPU_SOLVER_EXE` or in the known adjacent location:
+Place this repository next to `TexasSolverGpu-v0.2.0-windows-x64`, then run:
 
 ```powershell
-.\tsgpu-batch.cmd .\smoke\CFG001-one-board.json .\smoke\boards.txt .\output\smoke
+.\tsgpu-batch.cmd config.json boards.txt output\
 ```
 
-This exercises the proven current-node runner only. It is **not** a full-tree persistence test.
+`config.json` supplies tree/ranges/stack/pot/sizings plus `runner.maxIterations` and `runner.targetExploitability`. `boards.txt` contains one flop per non-comment line and has no runner-imposed 20-board limit.
 
-## Development objective
+Full-tree export is enabled by default. `-SkipFullTreeExport` exists only for legacy selected-node runs. `-Resume` skips a completed board only when its complete archive is present.
 
-The next implementation must discover and use the real TexasSolverGPU mechanism for saving/exporting the complete solved strategy tree. Prove that mechanism on one smoke board before any large study is created.
+## One-board smoke
 
-See `AGENTS.md`, `docs/BASELINE.md`, `docs/BRIDGE_SCHEMA.md`, and `docs/HISTORY.md`.
+```powershell
+.\tsgpu-batch.cmd .\smoke\CFG001-one-board.json .\smoke\boards.txt .\output\smoke -ExpectedBetAmount 18 -ExpectedRaiseAmount 73
+```
+
+Offline deep validation, after the solver process has closed:
+
+```powershell
+python .\scripts\inspect-full-tree.py .\output\smoke\0001_6s_As_8c\full-tree.tsgpu.zip --deep
+```
+
+## Per-board output
+
+- `full-tree.tsgpu.zip` — complete native flop/turn/river archive;
+- `full-tree.manifest.json` — archive hash, size and completion totals;
+- `run.json` — solve/current-node/full-tree metadata;
+- `node.raw.json` — selected native current-street node;
+- `combos.json`, `combos.csv` — selected-node combo report;
+- `bridge-transcript.jsonl` — exact bridge calls;
+- batch root `batch-summary.json` and `batch-summary.csv`.
+
+See `docs/FULL_TREE_EXPORT.md`, `docs/BRIDGE_SCHEMA.md`, `docs/BASELINE.md`, and `docs/HISTORY.md`.
+
+The repository intentionally contains no generated study datasets or solver binaries.

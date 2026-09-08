@@ -1,61 +1,72 @@
 # Verified TexasSolverGPU v0.2.0 bridge facts
 
-This file intentionally contains only behavior that was actually observed/proven in the runner work. It must not list guessed full-tree API names as if they exist.
+Only behavior proven from the installed frontend/runtime and Windows GPU runs is documented here. Guessed full-tree method names are not API.
 
 ## WebView2 envelope
 
-The frontend communicates with the native host through `window.chrome.webview`.
-
-Initial bridge discovery uses:
+The frontend communicates through `window.chrome.webview`. Initial discovery sends:
 
 ```json
 {"id":"rpc_1","method":"bridge.ping","params":{}}
 ```
 
-Authenticated requests carry an API base/path/method plus the returned bridge token.
+Authenticated requests include `apiBase`, `path`, HTTP `method`, and the returned `bridge_token`. A bodyless GET must omit the `body` property rather than send JSON `null`.
 
-A verified compatibility detail: for bodyless GET requests, the `body` property must be **omitted**, not sent as JSON `null`.
+## Verified solver methods
 
-## Verified methods used by v015
-
-| Native method | Compatibility path | Purpose |
+| Native method | Compatibility method/path | Proven purpose |
 |---|---|---|
 | `bridge.ping` | bridge message | obtain bridge token |
-| `solver.init` | `/api/init` | initialize ranges/tree/config |
-| `solver.allocate` | `/api/allocate` | allocate solver memory |
-| `solver.solve.start` | `/api/gpu-solve` | start GPU solve |
-| `solver.solve.status` | `/api/solve/status` | poll solve status |
-| `solver.solve.stop` | `/api/solve/stop` | stop a running solve |
-| `solver.history.apply` | `/api/apply-history` | select a node by action history |
-| `solver.node.actionsAfter` | `/api/actions-after` | inspect legal actions/history navigation |
-| `solver.export.currentStreet` | `/api/export/current-street` | export the selected/current-street subtree/node data |
+| `solver.init` | `POST /api/init` | initialize ranges/tree/config |
+| `solver.allocate` | `POST /api/allocate` | allocate solver memory |
+| `solver.solve.start` | `POST /api/gpu-solve` | start the single GPU solve |
+| `solver.solve.status` | `GET /api/solve/status` | poll solve status |
+| `solver.solve.stop` | `POST /api/solve/stop` | stop a running solve |
+| `solver.history.apply` | `POST /api/apply-history` | select an exact integer history |
+| `solver.node.actionsAfter` | `POST /api/actions-after` | inspect action labels/indexes |
+| `solver.cards.possible` | `GET /api/possible-cards` | return legal cards as a 52-bit mask |
+| `solver.export.currentStreet` | `POST /api/export/current-street` | export the native subtree for one street |
 
-`solver.export.currentStreet` is proven. It is **not evidence that a complete solved-tree exporter has been implemented**.
+The full-tree exporter uses only the last three navigation/export primitives after the solve is complete. It does not call another solve.
 
-## Current-street strategy payload
+## Request/response schemas used for persistence
 
-The proven export exposes action-node information including fields such as:
+Apply history:
 
-- `valid_actions`;
-- `strategy.card_strings`;
-- `strategy.reach_probs`;
-- `strategy.strategy_probs`;
-- `strategy.action_evs`;
-- `strategy.evs`.
+```json
+{"history":[0,0,0]}
+```
 
-The v015 worker validates vector lengths against the action list before producing combo output.
+Possible cards response:
 
-## Native config facts
+```json
+{"possible_cards":2251799813685247}
+```
 
-The runner passes 1326 OOP and IP combo weights, flop board ids, starting pot/effective stack, rake settings and street sizing strings into `solver.init`.
+Bit `n` represents card id `n`, with ranks `23456789TJQKA` and suits `cdhs` (`id = rankIndex * 4 + suitIndex`).
 
-Bare numeric sizing tokens are normalized to percentage strings. Multiple sizing tokens can be represented in the config, but the clean baseline deliberately makes no claim about what future study abstraction should use.
+Current-street export request:
 
-All-in flags/threshold and raise-count settings are passed through from the config.
+```json
+{"history":[0,0,0],"max_nodes":100000}
+```
 
-## Not verified / not baseline API
+The bridge result contains `payload` and `node_count`. Native payload nodes use `type` values `action`, `chance`, and `terminal`. Action `childrens` are aligned with `valid_actions`; current-street chance nodes have empty `childrens` and form the boundary to the next fragment.
 
-The following names appeared only in a discarded experimental probe and must **not** be treated as real methods without new evidence from the installed runtime/frontend:
+Action strategy data includes:
+
+- `card_strings`;
+- `reach_probs`;
+- `strategy_probs`;
+- `action_evs`;
+- `evs`;
+- other native fields such as `node_avg_ev`, when supplied by the solver.
+
+## Full-tree conclusion
+
+There is no exposed monolithic complete-tree save method in the TexasSolverGPU v0.2.0 frontend/native bridge. Complete persistence is implemented by exhaustively exporting every current-street root reachable through the verified history and legal-card APIs. See `FULL_TREE_EXPORT.md` for evidence and archive details.
+
+The following names came only from a discarded experiment and remain forbidden unless a future runtime proves them:
 
 ```text
 solver.export.fullTree
@@ -66,5 +77,3 @@ solver.export.tree
 solver.dump.strategy
 solver.dump.result
 ```
-
-The next runner-development task is to discover the actual complete-strategy persistence mechanism, not to add more guessed names.

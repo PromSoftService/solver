@@ -1,7 +1,8 @@
 {
   "runner": {
     "maxIterations": 1000,
-    "targetExploitability": 0.5
+    "targetExploitability": 0.5,
+    "fullTreeExport": true
   },
   "config": {
     "addAllinFlopIp": true,

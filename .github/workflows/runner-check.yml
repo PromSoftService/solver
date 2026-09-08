@@ -12,7 +12,7 @@ jobs:
       - name: Parse PowerShell baseline
         shell: pwsh
         run: |
-          $files = @('tsgpu-worker.ps1','tsgpu-batch.ps1','scripts/Range-Utils.ps1','scripts/diagnose-full-tree.ps1')
+          $files = @('tsgpu-worker.ps1','tsgpu-batch.ps1','scripts/Range-Utils.ps1','scripts/diagnose-full-tree.ps1','scripts/FullTree-Export.ps1')
           foreach ($f in $files) {
             $tokens=$null; $errors=$null
             [System.Management.Automation.Language.Parser]::ParseFile((Resolve-Path $f),[ref]$tokens,[ref]$errors) | Out-Null
@@ -22,6 +22,9 @@ jobs:
               exit 1
             }
           }
+      - name: Parse Python inspector
+        shell: pwsh
+        run: python -m py_compile scripts/inspect-full-tree.py
       - name: Validate clean baseline
         shell: pwsh
         run: |
@@ -29,13 +32,23 @@ jobs:
             if (Test-Path $forbidden) { throw "Forbidden result/study directory present: $forbidden" }
           }
           $worker = Get-Content tsgpu-worker.ps1 -Raw
-          if ($worker -notmatch "v015-production") { throw 'Worker is not the proven v015 baseline' }
+          $exporter = Get-Content scripts/FullTree-Export.ps1 -Raw
+          if ($worker -notmatch "v015-production") { throw 'Worker lost the proven v015 core lineage' }
+          if ($worker -notmatch "v016-production-full-tree") { throw 'Production full-tree layer is missing' }
           foreach ($bad in @('solver.export.fullTree','solver.export.allStreets','solver.export.fullStrategy','solver.dump.strategy','FULL_TREE_EXPORT_UNRESOLVED','Test-FullTreeJson')) {
-            if ($worker.Contains($bad)) { throw "Experimental full-tree probe leaked into baseline: $bad" }
+            if (($worker + $exporter).Contains($bad)) { throw "Experimental full-tree probe leaked into production code: $bad" }
+          }
+          foreach ($required in @('solver.export.currentStreet','solver.history.apply','solver.cards.possible')) {
+            if (-not $exporter.Contains($required)) { throw "Verified persistence primitive missing: $required" }
           }
           $ranges = @(Get-ChildItem ranges -File)
           if ($ranges.Count -ne 6) { throw "Expected 6 source range files; got $($ranges.Count)" }
           $boards = @(Get-Content boards/BRD001__FLOP_UNPAIRED_RAINBOW__ISO286__V1.txt | Where-Object { $_.Trim() })
           if ($boards.Count -ne 286) { throw "Expected 286 BRD001 boards; got $($boards.Count)" }
           if (-not (Test-Path smoke/CFG001-one-board.json) -or -not (Test-Path smoke/boards.txt)) { throw 'Smoke fixture missing' }
-          Write-Host 'PASS: clean v015 runner-development baseline.'
+          $smokeBoards = @(Get-Content smoke/boards.txt | Where-Object { $_.Trim() -and -not $_.Trim().StartsWith('#') })
+          if ($smokeBoards.Count -ne 1 -or $smokeBoards[0].Trim() -ne '6s As 8c') { throw 'Smoke fixture must contain only 6s As 8c' }
+          foreach ($requiredFile in @('scripts/FullTree-Export.ps1','scripts/inspect-full-tree.py','docs/FULL_TREE_EXPORT.md')) {
+            if (-not (Test-Path $requiredFile -PathType Leaf)) { throw "Full-tree production file missing: $requiredFile" }
+          }
+          Write-Host 'PASS: v015 core plus verified v016 full-tree persistence baseline.'
