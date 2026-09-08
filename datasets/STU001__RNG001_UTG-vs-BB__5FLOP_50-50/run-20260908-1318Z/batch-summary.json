@@ -1,0 +1,62 @@
+﻿[
+    {
+        "index":  1,
+        "board":  "As Kh 7d",
+        "decision_node":  "BB_RESPONSE",
+        "status":  "done",
+        "output_directory":  "0001_As_Kh_7d",
+        "combos":  362,
+        "iteration":  120,
+        "exploitability":  0.48502922058105469,
+        "elapsed_ms":  21300,
+        "error":  ""
+    },
+    {
+        "index":  2,
+        "board":  "Ks Qh 8d",
+        "decision_node":  "BB_RESPONSE",
+        "status":  "done",
+        "output_directory":  "0002_Ks_Qh_8d",
+        "combos":  364,
+        "iteration":  129,
+        "exploitability":  0.47633516788482666,
+        "elapsed_ms":  21964,
+        "error":  ""
+    },
+    {
+        "index":  3,
+        "board":  "Js Th 9d",
+        "decision_node":  "BB_RESPONSE",
+        "status":  "done",
+        "output_directory":  "0003_Js_Th_9d",
+        "combos":  359,
+        "iteration":  120,
+        "exploitability":  0.49932044744491577,
+        "elapsed_ms":  20929,
+        "error":  ""
+    },
+    {
+        "index":  4,
+        "board":  "Ts 7h 6d",
+        "decision_node":  "BB_RESPONSE",
+        "status":  "done",
+        "output_directory":  "0004_Ts_7h_6d",
+        "combos":  368,
+        "iteration":  160,
+        "exploitability":  0.49793827533721918,
+        "elapsed_ms":  26643,
+        "error":  ""
+    },
+    {
+        "index":  5,
+        "board":  "7s 5h 4d",
+        "decision_node":  "BB_RESPONSE",
+        "status":  "done",
+        "output_directory":  "0005_7s_5h_4d",
+        "combos":  383,
+        "iteration":  145,
+        "exploitability":  0.47593182325363159,
+        "elapsed_ms":  26080,
+        "error":  ""
+    }
+]

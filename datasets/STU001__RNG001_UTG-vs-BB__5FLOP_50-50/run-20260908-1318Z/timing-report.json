@@ -1,0 +1,32 @@
+﻿{
+    "schema_version":  1,
+    "study_id":  "STU001",
+    "study_name":  "STU001__RNG001_UTG-vs-BB__5FLOP_50-50",
+    "source_commit":  "f22868b5ecbd2f51848333166c06168a3852ab77",
+    "started_at_utc":  "2026-09-08T13:07:16.6769442Z",
+    "ended_at_utc":  "2026-09-08T13:09:14.2384200Z",
+    "success":  true,
+    "boards_done":  5,
+    "boards_expected":  5,
+    "decision_node":  "BB_RESPONSE",
+    "raw_output_path":  "D:\\current\\manuals\\покер\\sotf\\tsgpu-batch-production-v012\\output\\STU001__RNG001_UTG-vs-BB__5FLOP_50-50__run-20260908-1318Z",
+    "dataset_path":  "D:\\current\\manuals\\покер\\sotf\\tsgpu-batch-production-v012\\datasets\\STU001__RNG001_UTG-vs-BB__5FLOP_50-50\\run-20260908-1318Z",
+    "timing_ms":  {
+                      "total_wall":  117561,
+                      "board_sum":  116916,
+                      "mean":  23383,
+                      "median":  21964,
+                      "min":  20929,
+                      "max":  26643,
+                      "estimate_286":  6724516
+                  },
+    "validation":  {
+                       "required_files_per_board":  5,
+                       "exactly_one_solve_start_per_board":  true,
+                       "exactly_one_current_street_export_per_board":  true,
+                       "forbidden_full_tree_calls":  0
+                   },
+    "errors":  [
+
+               ]
+}
