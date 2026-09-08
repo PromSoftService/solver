@@ -10,42 +10,51 @@ Run from the repository root:
 git fetch origin
 git reset --hard origin/main
 git clean -fdx
-```
-
-Then verify:
-
-```powershell
 git status
 ```
 
-It should report a clean working tree on `main`.
+## Active study
 
-## Start the first new-generation study
+Run:
 
 ```powershell
-.\scripts\RUN__STU001__BRD001__AND_PUSH.cmd
+.\scripts\RUN__STU002__BRD001__AND_PUSH.cmd
 ```
 
-The launcher itself fetches remote again, requires local HEAD == `origin/main`, requires a clean worktree, solves/validates every board, then commits and pushes `results/STU001__BRD001__RUN-...` automatically.
+STU002 uses RNG001 + BRD001 and the exact historical CFG001 tree-action abstraction:
 
-If any board fails, no study-result commit/push is made.
+- flop BB/OOP open bet: none;
+- flop UTG/IP bet: 33%;
+- flop BB/OOP raise parameter: 60;
+- flop UTG/IP raise parameter: 100;
+- turn bets/donk/raises: 100;
+- river bets/donk/raises: 100;
+- maxRaiseNumber=3;
+- addAllinThreshold=200 study value -> native 2.0;
+- all six add-all-in flags enabled.
+
+Unlike the old CFG001 workflow, STU002 must save **the complete solved postflop tree through river** for each board. It must not export only BB_RESPONSE or UTG_CBET.
+
+The launcher fetches remote, requires local HEAD == `origin/main`, requires a clean worktree, solves/validates all 286 boards, and only then commits/pushes `results/STU002__BRD001__RUN-...` automatically.
+
+If any board fails, no result commit/push is made.
 
 ### If full-tree export discovery fails
 
-The first failed board should contain:
+The first failed board contains diagnostics such as:
 
 ```text
 export-probes.json
 bridge-transcript.jsonl
 ```
 
-The batch intentionally stops immediately on `FULL_TREE_EXPORT_UNRESOLVED` instead of solving the remaining boards. Keep the incomplete ignored `output/` directory; after the exporter is fixed, resume with:
+The batch intentionally stops on `FULL_TREE_EXPORT_UNRESOLVED` instead of solving the remaining boards. Keep the incomplete ignored `output/` directory. After the exporter is fixed, resume with:
 
 ```powershell
-powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\Run-STU001.ps1 -Resume
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\Run-STU002.ps1 -Resume
 ```
 
-Do not change STU001's poker tree merely because the native full-export bridge method needs discovery.
+Do not change STU002's poker tree merely because the native full-export bridge method needs discovery.
 
 ## Prompt for a new ChatGPT chat
 
@@ -53,9 +62,9 @@ Do not change STU001's poker tree merely because the native full-export bridge m
 Продолжай работу с репозиторием:
 https://github.com/PromSoftService/solver
 
-Remote main — единственный источник истины. Не используй память старого чата вместо репозитория.
+Remote main — единственный источник истины.
 
-Сначала полностью прочитай:
+Сначала прочитай полностью:
 1. AGENTS.md
 2. README.md
 3. docs/ARCHITECTURE.md
@@ -64,32 +73,34 @@ Remote main — единственный источник истины. Не и�
 6. docs/HISTORY.md
 7. docs/HANDOFF.md
 
-Репозиторий 2026-09-08 был сознательно сброшен на новое поколение studies.
-Старые CFG001/CFG002/CFG003 datasets и universal EXP-001..004 — только история. Они удалены из current main и НЕ являются активными данными для новой стратегии. Не восстанавливай и не анализируй их, если я отдельно этого не попрошу.
+Активный study: STU002 / RNG001 / BRD001.
 
-Новая обязательная архитектура:
-- один flop board = один полный postflop solve;
-- B33 и B75 существуют одновременно в одном дереве;
-- после solve сохраняется полный solved strategy tree до river;
-- flop/turn/river и любые ветки потом анализируются из сохраненного tree без повторного GPU solve;
-- study result коммитится и пушится только после полной проверки всех boards;
-- partial study не пушится.
+STU002 специально использует старое компактное дерево CFG001, потому что большой multi-size STU001 считает слишком долго. Не заменяй его снова на B33/B75/B150 без прямого запроса пользователя.
 
-Активный первый study: STU001 / RNG001 / BRD001.
-Tree:
-- flop B33/B75 + all-in;
-- turn B33/B75 + all-in;
-- river B33/B75/B150 + all-in;
-- normal raise = native TexasSolver 60% pot-raise parameter + all-in;
-- max one normal raise per street;
-- OOP turn/river donks используют те же normal bet sizes.
+Точные active tree settings:
+- flop BB/OOP open bet = none;
+- flop UTG/IP bet = 33%;
+- flop BB/OOP raise parameter = 60;
+- flop UTG/IP raise parameter = 100;
+- turn bets/donk/raises = 100;
+- river bets/donk/raises = 100;
+- maxRaiseNumber=3;
+- addAllinThreshold=200 study value -> native 2.0;
+- all add-all-in flags enabled.
 
-Моя локальная команда study:
-.\scripts\RUN__STU001__BRD001__AND_PUSH.cmd
+Ключевая новая архитектура:
+- один board решается один раз;
+- после solve сохраняется полный solved postflop tree до river;
+- потом из сохраненного tree можно отдельно анализировать flop/turn/river/любые ветки без нового GPU solve;
+- node-only export запрещен как финальный результат study;
+- study пушится автоматически только после успешных 286/286 и полной проверки деревьев.
 
-Если study уже успешно завершился и сам запушил results/STU001__BRD001__RUN-..., сначала найди последний run в remote main, прочитай RUN_MANIFEST.json и tree.meta.json, затем работай только с этими full-tree results.
+Локальная команда:
+.\scripts\RUN__STU002__BRD001__AND_PUSH.cmd
 
-Если run остановился с FULL_TREE_EXPORT_UNRESOLVED, НЕ запускай 286 solves заново и НЕ меняй poker tree. Разбери export-probes.json и bridge-transcript.jsonl первого failed board, найди реальный full-tree export API TexasSolverGPU v0.2.0, исправь только exporter, проверь runner/CI, затем дай мне одну точную команду Resume.
+Если уже появился results/STU002__BRD001__RUN-..., сначала прочитай его RUN_MANIFEST.json и tree.meta.json и работай только с этим full-tree result.
 
-Не отправляй меня в GUI, если bridge automation может решить задачу. Код/CI/анализ делай сам; GPU solve выполняется на моем Windows/NVIDIA ПК.
+Если run остановился с FULL_TREE_EXPORT_UNRESOLVED, не меняй poker tree и не запускай остальные boards. Разбери export-probes.json и bridge-transcript.jsonl первого failed board, исправь только full-tree exporter, проверь Windows CI и дай одну точную команду Resume.
+
+Старые CFG001/CFG002/CFG003 datasets и universal EXP-001..004 удалены из current main и не являются активными данными. Исторический CFG001 используется только как источник tree-action settings для STU002.
 ```

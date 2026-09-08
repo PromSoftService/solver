@@ -40,47 +40,49 @@ For bodyless GET requests the `body` property must be **omitted**, not sent as `
 | `solver.node.actionsAfter` | `/api/actions-after` | POST |
 | `solver.export.currentStreet` | `/api/export/current-street` | POST |
 
-The production v020 worker is deliberately rebuilt from the proven v015 startup/init/allocate/solve/poll/window-suppression implementation. Only the post-solve export stage changed materially.
+The production full-tree worker is deliberately rebuilt from the proven v015 startup/init/allocate/solve/poll/window-suppression implementation. Only the post-solve export stage changed materially.
 
-## Multiple sizing strings
+## Sizing strings
 
-The runner normalizes sizing fields as comma-separated percentage tokens. For example:
+The worker normalizes bare numeric sizing tokens by appending `%` before sending the native config. Empty strings remain empty.
 
-```text
-33,75
-```
-
-becomes the native sizing string:
+Example:
 
 ```text
-33%,75%
+33 -> 33%
+100 -> 100%
+"" -> ""
 ```
 
-This lets B33 and B75 coexist in the **same solved tree**. Do not return to separate B33-only and B75-only solves for branches that are supposed to compete at one node.
+Native raise values must not be described as fixed raise-to multiples. In particular historical `oopFlopRaise=60` is the TexasSolver native raise parameter, not a universal exact `3x`.
 
-## STU001 effective tree settings
+## Active STU002 effective tree settings
 
-The active study materializes these settings for both players where applicable:
+STU002 intentionally restores the old CFG001 action abstraction exactly:
 
 ```text
-flop bet:        33%,75%
-turn bet:        33%,75%
-turn OOP donk:   33%,75%
-river bet:       33%,75%,150%
-river OOP donk:  33%,75%,150%
-normal raise:    60% native pot-raise parameter
-max normal raises per street: 1
-all-in: enabled flop/turn/river for both players
-add_allin_threshold: 20.0 native value (study JSON stores 2000 and worker divides by 100)
+flop OOP/BB open bet:  empty
+flop IP/UTG bet:       33%
+flop OOP/BB raise:     60%
+flop IP/UTG raise:     100%
+turn OOP/IP bet:       100%
+turn OOP donk:         100%
+turn OOP/IP raise:     100%
+river OOP/IP bet:      100%
+river OOP donk:        100%
+river OOP/IP raise:    100%
+maxRaiseNumber:        3
+all-in flags:          enabled for both players on flop/turn/river
+add_allin_threshold:   2.0 native value (study JSON stores 200 and worker divides by 100)
 ```
 
-`raise=60` must not be described as a fixed exact `3x` raise-to size. The resulting multiple depends on the preceding pot and bet.
+These values are copied from historical CFG001 at commit `bec0b758fe7957a45d028f1adaa2a5252ff0598a`.
 
-STU001 starts at the flop with fixed RNG001 ranges, native pot 55 and effective stack 975. Preflop is not solved.
+STU002 starts at the flop with fixed RNG001 ranges, native pot 55 and effective stack 975. Preflop is not solved.
 
 ## Full-tree export contract
 
-`solver.export.currentStreet` is verified but is **not sufficient** if its payload contains only one street. The new study requires a nested strategy tree containing action/chance/strategy structure through turn and river.
+`solver.export.currentStreet` is verified but is **not sufficient** if its payload contains only one street. The active study requires a nested strategy tree containing action/chance/strategy structure through turn and river.
 
 The public TexasSolverGPU viewer consumes a nested JSON tree with fields such as:
 
@@ -89,7 +91,7 @@ The public TexasSolverGPU viewer consumes a nested JSON tree with fields such as
 - `strategy`;
 - `betting round` values including turn (`2`) and river (`3`).
 
-The exact GPU v0.2.0 bridge method for producing the viewer-compatible complete dump is not publicly documented. Therefore v020 probes candidate export methods only **after the equilibrium solve**, validates the returned JSON structurally, and accepts a board only when turn and river strategy nodes are present.
+The exact GPU v0.2.0 bridge method for producing the viewer-compatible complete dump is not publicly documented. Therefore the worker probes candidate full-tree export methods only **after the equilibrium solve**, structurally validates every returned JSON payload, and accepts a board only when turn and river strategy nodes are present.
 
 Every probe is recorded in:
 
@@ -104,7 +106,7 @@ If no candidate succeeds, the worker throws:
 FULL_TREE_EXPORT_UNRESOLVED
 ```
 
-The batch stops immediately on that error. This is an exporter-discovery failure, not a reason to change STU001's ranges/tree or to solve the remaining 285 boards blindly. Fix the exporter using the saved probe/transcript evidence and resume the same study.
+The batch stops immediately on that error. This is an exporter-discovery failure, not a reason to change STU002's poker tree or to solve the remaining boards blindly. Fix only the exporter using the saved probe/transcript evidence and resume the same study.
 
 ## Successful per-board full-tree artifacts
 

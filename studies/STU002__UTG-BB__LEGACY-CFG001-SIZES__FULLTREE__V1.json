@@ -1,0 +1,60 @@
+{
+  "schema_version": 1,
+  "study_id": "STU002",
+  "name": "UTG open 2.5bb -> BB call; legacy CFG001 sizing with complete postflop full-tree export",
+  "range_id": "RNG001",
+  "board_set_id": "BRD001",
+  "board_file": "boards/BRD001__FLOP_UNPAIRED_RAINBOW__ISO286__V1.txt",
+  "ranges": {
+    "oop_position": "BB",
+    "ip_position": "UTG",
+    "oop_file": "ranges/RNG001__TSGPU020_6M100_UTG-O2p5_BB-C__V1__BB.txt",
+    "ip_file": "ranges/RNG001__TSGPU020_6M100_UTG-O2p5_BB-C__V1__UTG.txt"
+  },
+  "game": {
+    "stack_bb": 100,
+    "preflop": "UTG open 2.5bb -> BB call",
+    "flop_pot_bb": 5.5,
+    "flop_effective_stack_bb": 97.5,
+    "money_scale": 10,
+    "flop_pot_native": 55,
+    "effective_stack_native": 975
+  },
+  "tree": {
+    "flop": {
+      "oop_bet": "",
+      "ip_bet": "33",
+      "oop_raise": "60",
+      "ip_raise": "100"
+    },
+    "turn": {
+      "oop_bet": "100",
+      "ip_bet": "100",
+      "oop_donk": "100",
+      "oop_raise": "100",
+      "ip_raise": "100"
+    },
+    "river": {
+      "oop_bet": "100",
+      "ip_bet": "100",
+      "oop_donk": "100",
+      "oop_raise": "100",
+      "ip_raise": "100"
+    },
+    "max_raise_number": 3,
+    "add_allin_threshold_percent": 200,
+    "add_allin_flop_ip": true,
+    "add_allin_turn_ip": true,
+    "add_allin_river_ip": true,
+    "add_allin_flop_oop": true,
+    "add_allin_turn_oop": true,
+    "add_allin_river_oop": true,
+    "provenance": "Exact tree-action settings copied from historical CFG001 at commit bec0b758fe7957a45d028f1adaa2a5252ff0598a. Only the result/export contract is new.",
+    "raise_semantics": "Native TexasSolver sizing parameters. Flop BB raise is 60; other configured raises are 100. Do not reinterpret these as fixed raise-to multiples."
+  },
+  "solve": {
+    "max_iterations": 1000,
+    "target_exploitability": 0.5
+  },
+  "output": "complete validated nested solved strategy tree through river for each flop; no node-specific dataset during solve"
+}
