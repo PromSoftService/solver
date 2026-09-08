@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "study_id": "STU001",
+  "name": "UTG open 2.5bb -> BB call; complete postflop full-tree baseline",
+  "range_id": "RNG001",
+  "board_set_id": "BRD001",
+  "board_file": "boards/BRD001__FLOP_UNPAIRED_RAINBOW__ISO286__V1.txt",
+  "ranges": {
+    "oop_position": "BB",
+    "ip_position": "UTG",
+    "oop_file": "ranges/RNG001__TSGPU020_6M100_UTG-O2p5_BB-C__V1__BB.txt",
+    "ip_file": "ranges/RNG001__TSGPU020_6M100_UTG-O2p5_BB-C__V1__UTG.txt"
+  },
+  "game": {
+    "stack_bb": 100,
+    "preflop": "UTG open 2.5bb -> BB call",
+    "flop_pot_bb": 5.5,
+    "flop_effective_stack_bb": 97.5,
+    "money_scale": 10,
+    "flop_pot_native": 55,
+    "effective_stack_native": 975
+  },
+  "tree": {
+    "flop": {"bet": "33,75", "raise": "60"},
+    "turn": {"bet": "33,75", "donk": "33,75", "raise": "60"},
+    "river": {"bet": "33,75,150", "donk": "33,75,150", "raise": "60"},
+    "allin": "enabled for both players on flop/turn/river",
+    "max_normal_raises": 1,
+    "add_allin_threshold_percent": 2000,
+    "raise_semantics": "TexasSolver native 60% pot-raise parameter; not an exact fixed 3x raise-to multiple"
+  },
+  "solve": {"max_iterations": 1000, "target_exploitability": 0.5},
+  "output": "complete nested solved strategy tree through river for each flop; no node-specific dataset during solve"
+}

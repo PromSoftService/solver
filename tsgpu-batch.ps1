@@ -1,200 +1,22 @@
 [CmdletBinding()]
 param(
-    [Parameter(Mandatory = $true, Position = 0)][string]$Config,
-    [Parameter(Mandatory = $true, Position = 1)][string]$Boards,
-    [Parameter(Mandatory = $true, Position = 2)][string]$OutputDirectory,
-    [string]$SolverExe = '',
-    [Nullable[int]]$MaxIterations = $null,
-    [Nullable[double]]$TargetExploitability = $null,
-    [int]$ExpectedBetAmount = 0,
-    [int]$ExpectedRaiseAmount = 0,
-    [ValidateSet('BB_RESPONSE', 'UTG_CBET', 'UTG_OOP_CBET', 'BTN_RESPONSE', 'BTN_STAB', 'UTG_RESPONSE')][string]$DecisionNode = 'BB_RESPONSE',
-    [int]$SolveTimeoutMinutes = 180,
-    [switch]$ShowHostWindow,
-    [switch]$Resume
+  [Parameter(Mandatory=$true,Position=0)][string]$Config,
+  [Parameter(Mandatory=$true,Position=1)][string]$Boards,
+  [Parameter(Mandatory=$true,Position=2)][string]$OutputDirectory,
+  [string]$SolverExe='',
+  [Nullable[int]]$MaxIterations=$null,
+  [Nullable[double]]$TargetExploitability=$null,
+  [int]$ExportMaxNodes=2000000,
+  [int]$SolveTimeoutMinutes=240,
+  [switch]$Resume,
+  [switch]$ShowHostWindow
 )
-
-$ErrorActionPreference = 'Stop'
-Set-StrictMode -Version Latest
-
-$configPath = (Resolve-Path -LiteralPath $Config).Path
-$boardsPath = (Resolve-Path -LiteralPath $Boards).Path
-$outputPath = [IO.Path]::GetFullPath($OutputDirectory)
-[IO.Directory]::CreateDirectory($outputPath) | Out-Null
-
-if (-not $SolverExe) {
-    $solverCandidates = @(
-        $env:TSGPU_SOLVER_EXE,
-        (Join-Path $PSScriptRoot '..\TexasSolverGpu-v0.2.0-windows-x64\TexasSolverGpu_131.exe'),
-        (Join-Path $PSScriptRoot 'TexasSolverGpu-v0.2.0-windows-x64\TexasSolverGpu_131.exe'),
-        (Join-Path $PSScriptRoot '..\TexasSolverGpu_131.exe')
-    ) | Where-Object { $_ -and (Test-Path -LiteralPath $_ -PathType Leaf) }
-    $SolverExe = $solverCandidates | Select-Object -First 1
-}
-if (-not $SolverExe -or -not (Test-Path -LiteralPath $SolverExe -PathType Leaf)) {
-    throw "TexasSolverGpu_131.exe was not found. Put this runner next to TexasSolverGpu-v0.2.0-windows-x64 or pass -SolverExe."
-}
-$solverPath = (Resolve-Path -LiteralPath $SolverExe).Path
-
-$configDocument = Get-Content -LiteralPath $configPath -Raw -Encoding UTF8 | ConvertFrom-Json
-$configRootProperty = $configDocument.PSObject.Properties['config']
-$configRoot = if ($null -ne $configRootProperty) { $configRootProperty.Value } else { $configDocument }
-
-function Read-FirstSetting([string]$Name, [object]$Default) {
-    foreach ($containerName in @('runner', 'solve')) {
-        $containerProperty = $configDocument.PSObject.Properties[$containerName]
-        if ($null -ne $containerProperty -and $null -ne $containerProperty.Value) {
-            $valueProperty = $containerProperty.Value.PSObject.Properties[$Name]
-            if ($null -ne $valueProperty -and $null -ne $valueProperty.Value) { return $valueProperty.Value }
-        }
-    }
-    $rootProperty = $configRoot.PSObject.Properties[$Name]
-    if ($null -ne $rootProperty -and $null -ne $rootProperty.Value) { return $rootProperty.Value }
-    return $Default
-}
-
-$effectiveMaxIterations = if ($null -ne $MaxIterations) { [int]$MaxIterations } else { [int](Read-FirstSetting 'maxIterations' 1000) }
-$effectiveTargetExploitability = if ($null -ne $TargetExploitability) { [double]$TargetExploitability } else { [double](Read-FirstSetting 'targetExploitability' 0.5) }
-
-$boardList = @(Get-Content -LiteralPath $boardsPath -Encoding UTF8 | ForEach-Object {
-    $line = $_.Trim()
-    if ($line -and -not $line.StartsWith('#')) { $line }
-})
-if ($boardList.Count -eq 0) { throw "No boards found in $boardsPath." }
-
-$previousByIndex = @{}
-if ($Resume) {
-    $previousSummaryPath = Join-Path $outputPath 'batch-summary.csv'
-    if (-not (Test-Path -LiteralPath $previousSummaryPath -PathType Leaf)) {
-        throw "Resume requested but batch-summary.csv was not found in $outputPath"
-    }
-    foreach ($row in (Import-Csv -LiteralPath $previousSummaryPath)) {
-        $previousByIndex[[int]$row.index] = $row
-    }
-    Write-Host "Resume mode: preserving completed boards and retrying failed/missing boards."
-}
-
-$summary = [System.Collections.Generic.List[object]]::new()
-$failed = 0
-for ($i = 0; $i -lt $boardList.Count; $i++) {
-    $board = $boardList[$i]
-    $index = $i + 1
-    $slug = ($board -replace '[^0-9A-Za-z]+', '_').Trim('_')
-    $jobName = ('{0:D4}_{1}' -f $index, $slug)
-    $jobOutput = Join-Path $outputPath $jobName
-    $runPath = Join-Path $jobOutput 'run.json'
-    $comboPath = Join-Path $jobOutput 'combos.json'
-
-    $previous = if ($previousByIndex.ContainsKey($index)) { $previousByIndex[$index] } else { $null }
-    if ($Resume -and $null -ne $previous) {
-        if ([string]$previous.board -ne $board) {
-            throw "Resume summary board mismatch at index ${index}: expected '$board', found '$($previous.board)'."
-        }
-        if ([string]$previous.decision_node -ne $DecisionNode) {
-            throw "Resume decision-node mismatch at index ${index}: expected '$DecisionNode', found '$($previous.decision_node)'."
-        }
-        if ([string]$previous.status -eq 'done' -and
-            (Test-Path -LiteralPath $runPath -PathType Leaf) -and
-            (Test-Path -LiteralPath $comboPath -PathType Leaf)) {
-            Write-Host "[$index/$($boardList.Count)] $board (already done)"
-            $summary.Add([pscustomobject][ordered]@{
-                index = $index
-                board = $board
-                decision_node = $DecisionNode
-                status = 'done'
-                output_directory = $jobName
-                combos = [int]$previous.combos
-                iteration = [int]$previous.iteration
-                exploitability = [double]$previous.exploitability
-                elapsed_ms = [int]$previous.elapsed_ms
-                error = ''
-            })
-            continue
-        }
-    }
-
-    if ($Resume -and (Test-Path -LiteralPath $jobOutput)) {
-        Remove-Item -LiteralPath $jobOutput -Recurse -Force
-    }
-
-    $started = [DateTime]::UtcNow
-    Write-Host "[$index/$($boardList.Count)] $board"
-    try {
-        $run = $null
-        $maxStartupAttempts = 2
-        for ($attempt = 1; $attempt -le $maxStartupAttempts; $attempt++) {
-            try {
-                if ($attempt -gt 1) {
-                    if (Test-Path -LiteralPath $jobOutput) {
-                        Remove-Item -LiteralPath $jobOutput -Recurse -Force
-                    }
-                    Write-Warning "Retrying $board after transient WebView2 startup failure (attempt $attempt/$maxStartupAttempts)."
-                    Start-Sleep -Seconds 1
-                }
-
-                $oneArguments = @{
-                    SolverExe = $solverPath
-                    Config = $configPath
-                    Board = $board
-                    OutputDirectory = $jobOutput
-                    MaxIterations = $effectiveMaxIterations
-                    TargetExploitability = $effectiveTargetExploitability
-                    ExpectedBetAmount = $ExpectedBetAmount
-                    ExpectedRaiseAmount = $ExpectedRaiseAmount
-                    DecisionNode = $DecisionNode
-                    SolveTimeoutMinutes = $SolveTimeoutMinutes
-                    ShowHostWindow = $ShowHostWindow
-                }
-                & (Join-Path $PSScriptRoot 'tsgpu-worker.ps1') @oneArguments
-
-                if (-not (Test-Path -LiteralPath $runPath)) { throw 'run.json was not created.' }
-                $run = Get-Content -LiteralPath $runPath -Raw -Encoding UTF8 | ConvertFrom-Json
-                break
-            } catch {
-                $message = $_.Exception.Message
-                $transientStartup = $message -like '*WebView2 DevTools endpoint did not expose an application page*'
-                if ($transientStartup -and $attempt -lt $maxStartupAttempts) {
-                    continue
-                }
-                throw
-            }
-        }
-        if ($null -eq $run) { throw 'Board run did not produce run.json.' }
-
-        $summary.Add([pscustomobject][ordered]@{
-            index = $index
-            board = $board
-            decision_node = $DecisionNode
-            status = 'done'
-            output_directory = $jobName
-            combos = [int]$run.combo_count
-            iteration = [int]$run.final_status.iteration
-            exploitability = [double]$run.final_status.exploitability
-            elapsed_ms = [int]([DateTime]::UtcNow - $started).TotalMilliseconds
-            error = ''
-        })
-    } catch {
-        $failed++
-        $summary.Add([pscustomobject][ordered]@{
-            index = $index
-            board = $board
-            decision_node = $DecisionNode
-            status = 'error'
-            output_directory = $jobName
-            combos = 0
-            iteration = 0
-            exploitability = $null
-            elapsed_ms = [int]([DateTime]::UtcNow - $started).TotalMilliseconds
-            error = $_.Exception.Message
-        })
-        Write-Error -ErrorAction Continue "Board $board failed: $($_.Exception.Message)"
-    }
-}
-
-$summary | ConvertTo-Json -Depth 20 | Set-Content -LiteralPath (Join-Path $outputPath 'batch-summary.json') -Encoding UTF8
-$summary | Export-Csv -LiteralPath (Join-Path $outputPath 'batch-summary.csv') -NoTypeInformation -Encoding UTF8
-
-Write-Host "Batch complete: $($boardList.Count - $failed) done, $failed failed."
-Write-Host "Decision: $DecisionNode"
-Write-Host "Summary: $outputPath"
-if ($failed -gt 0) { throw "$failed batch job(s) failed." }
+$ErrorActionPreference='Stop';Set-StrictMode -Version Latest
+$configPath=(Resolve-Path -LiteralPath $Config).Path;$boardsPath=(Resolve-Path -LiteralPath $Boards).Path;$outputPath=[IO.Path]::GetFullPath($OutputDirectory);[IO.Directory]::CreateDirectory($outputPath)|Out-Null
+if(-not$SolverExe){$candidates=@($env:TSGPU_SOLVER_EXE,(Join-Path$PSScriptRoot'..\TexasSolverGpu-v0.2.0-windows-x64\TexasSolverGpu_131.exe'),(Join-Path$PSScriptRoot'TexasSolverGpu-v0.2.0-windows-x64\TexasSolverGpu_131.exe'),(Join-Path$PSScriptRoot'..\TexasSolverGpu_131.exe'))|?{$_-and(Test-Path -LiteralPath $_ -PathType Leaf)};$SolverExe=$candidates|select -First 1};if(-not$SolverExe){throw 'TexasSolverGpu_131.exe not found. Set TSGPU_SOLVER_EXE or place solver directory next to repo.'};$solverPath=(Resolve-Path -LiteralPath $SolverExe).Path
+$doc=Get-Content -LiteralPath$configPath -Raw -Encoding UTF8|ConvertFrom-Json;function Setting([string]$n,[object]$d){foreach($container in@('runner','solve')){$p=$doc.PSObject.Properties[$container];if($null-ne$p){$q=$p.Value.PSObject.Properties[$n];if($null-ne$q){return$q.Value}}};return$d};$iters=if($null-ne$MaxIterations){[int]$MaxIterations}else{[int](Setting'maxIterations'1000)};$target=if($null-ne$TargetExploitability){[double]$TargetExploitability}else{[double](Setting'targetExploitability'0.5)}
+$boardList=@(Get-Content -LiteralPath$boardsPath -Encoding UTF8|%{$x=$_.Trim();if($x-and-not$x.StartsWith('#')){$x}});if($boardList.Count-eq0){throw 'No boards found'}
+$summary=[Collections.Generic.List[object]]::new();$failed=0
+for($i=0;$i-lt$boardList.Count;$i++){$board=$boardList[$i];$idx=$i+1;$slug=($board-replace'[^0-9A-Za-z]+','_').Trim('_');$dir=Join-Path$outputPath('{0:D4}_{1}'-f$idx,$slug);$runPath=Join-Path$dir'run.json';$metaPath=Join-Path$dir'tree.meta.json';if($Resume-and(Test-Path$runPath)-and(Test-Path$metaPath)){try{$m=Get-Content$metaPath -Raw|ConvertFrom-Json;if($m.full_tree_validated){Write-Host "[$idx/$($boardList.Count)] $board (already done)";$r=Get-Content$runPath -Raw|ConvertFrom-Json;$summary.Add([pscustomobject]@{index=$idx;board=$board;status='done';iteration=$r.final_status.iteration;exploitability=$r.final_status.exploitability;elapsed_ms=$r.elapsed_ms;error=''});continue}}catch{}};if(Test-Path$dir){Remove-Item$dir -Recurse -Force};Write-Host "[$idx/$($boardList.Count)] $board";try{& (Join-Path$PSScriptRoot'tsgpu-worker.ps1') -SolverExe$solverPath -Config$configPath -Board$board -OutputDirectory$dir -MaxIterations$iters -TargetExploitability$target -ExportMaxNodes$ExportMaxNodes -SolveTimeoutMinutes$SolveTimeoutMinutes -ShowHostWindow:$ShowHostWindow;if(-not(Test-Path$runPath)-or-not(Test-Path$metaPath)){throw 'Full-tree artifacts missing'};$r=Get-Content$runPath -Raw|ConvertFrom-Json;$m=Get-Content$metaPath -Raw|ConvertFrom-Json;if(-not$m.full_tree_validated){throw 'Full-tree validation false'};$summary.Add([pscustomobject]@{index=$idx;board=$board;status='done';iteration=$r.final_status.iteration;exploitability=$r.final_status.exploitability;elapsed_ms=$r.elapsed_ms;error=''})}catch{$failed++;$summary.Add([pscustomobject]@{index=$idx;board=$board;status='error';iteration=0;exploitability=$null;elapsed_ms=0;error=$_.Exception.Message});Write-Error -ErrorAction Continue "Board $board failed: $($_.Exception.Message)"}}
+$summary|ConvertTo-Json -Depth 10|Set-Content -LiteralPath(Join-Path$outputPath'batch-summary.json') -Encoding UTF8;$summary|Export-Csv -LiteralPath(Join-Path$outputPath'batch-summary.csv') -NoTypeInformation -Encoding UTF8
+Write-Host "Batch complete: $($boardList.Count-$failed) done, $failed failed.";if($failed-gt0){throw "$failed board(s) failed; study MUST NOT be committed or pushed."}

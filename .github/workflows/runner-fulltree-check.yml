@@ -1,0 +1,42 @@
+name: Full-tree runner static check
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'tsgpu-*.ps1'
+      - 'tsgpu-*.cmd'
+      - 'scripts/**'
+      - 'studies/**'
+      - 'AGENTS.md'
+      - 'README.md'
+      - 'docs/**'
+      - '.github/workflows/runner-fulltree-check.yml'
+  workflow_dispatch:
+jobs:
+  check:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Parse PowerShell
+        shell: pwsh
+        run: |
+          $files = @('tsgpu-worker.ps1','tsgpu-batch.ps1','scripts/Range-Utils.ps1','scripts/Run-STU001.ps1')
+          foreach ($f in $files) {
+            $tokens=$null; $errors=$null
+            [System.Management.Automation.Language.Parser]::ParseFile((Resolve-Path $f),[ref]$tokens,[ref]$errors) | Out-Null
+            if ($errors.Count) { $errors | Format-List | Out-String | Write-Error; exit 1 }
+          }
+      - name: Validate STU001 definition and clean generation
+        shell: pwsh
+        run: |
+          $s = Get-Content studies/STU001__UTG-BB__FULLTREE__V1.json -Raw | ConvertFrom-Json
+          if ($s.tree.flop.bet -ne '33,75') { throw 'flop sizes changed' }
+          if ($s.tree.turn.bet -ne '33,75') { throw 'turn sizes changed' }
+          if ($s.tree.river.bet -ne '33,75,150') { throw 'river sizes changed' }
+          if ($s.tree.flop.raise -ne '60' -or $s.tree.max_normal_raises -ne 1) { throw 'raise abstraction changed' }
+          $boards = @(Get-Content $s.board_file | ? { $_.Trim() })
+          if ($boards.Count -ne 286) { throw "BRD001 expected 286 boards; got $($boards.Count)" }
+          if (Test-Path datasets) { throw 'legacy datasets directory must stay absent' }
+          $analysisFiles = @(Get-ChildItem analysis -File -ErrorAction SilentlyContinue | ? { $_.Name -ne '.gitkeep' })
+          if ($analysisFiles.Count) { throw 'analysis must start empty after reset' }
+          Write-Host 'PASS: new generation is full-tree-only; STU001 definition is intact.'
