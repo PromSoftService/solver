@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "study_id": "STU001",
+  "name": "RNG001 UTG vs BB five-flop 50/50 performance test",
+  "range_id": "RNG001",
+  "board_set_id": "BRD001",
+  "decision_node": "BB_RESPONSE",
+  "boards": [
+    { "board": "As Kh 7d", "b13_v2": "A[K/Q]x" },
+    { "board": "Ks Qh 8d", "b13_v2": "BBx high" },
+    { "board": "Js Th 9d", "b13_v2": "BBx low" },
+    { "board": "Ts 7h 6d", "b13_v2": "[J-8]x partial" },
+    { "board": "7s 5h 4d", "b13_v2": "[7-4]x" }
+  ],
+  "normal_sizings_pct": {
+    "flop": { "oop_bet_or_donk": 50, "ip_bet": 50, "raise_native": 60 },
+    "turn": { "oop_bet_or_donk": 50, "ip_bet": 50, "raise_native": 60 },
+    "river": { "oop_bet_or_donk": 75, "ip_bet": 100, "raise_native": 60 }
+  },
+  "max_normal_raises_per_street": 1,
+  "all_in_semantics": "Inherited unchanged from the proven v015 config: all-in enabled for both players on every street with addAllinThreshold=200.",
+  "output_policy": {
+    "raw_solver_output": "output/STU001__RNG001_UTG-vs-BB__5FLOP_50-50",
+    "tracked_compact_reports": "datasets/STU001__RNG001_UTG-vs-BB__5FLOP_50-50"
+  }
+}

@@ -31,6 +31,7 @@ A full reconstruction was technically proven through repeated stock current-stre
 
 - `smoke/CFG001-one-board.json` plus `smoke/boards.txt`: one-board regression fixture.
 - `example/config.json` plus `example/boards.txt`: documented five-board, one-flop-sizing example.
+- `studies/STU001__RNG001_UTG-vs-BB__5FLOP_50-50/`: explicitly approved five-board performance study and report launcher.
 - `ranges/`: RNG001 and RNG002 source ranges.
 - `boards/BRD001...txt`: 286 canonical source flops; never use it for routine runner smoke tests.
 
@@ -43,7 +44,7 @@ Each board directory contains:
 - `combos.json` and `combos.csv`: normalized combo frequencies, reach probabilities and EVs;
 - `bridge-transcript.jsonl`: exact methods, paths, bodies, timings and outcomes.
 
-The batch root contains `batch-summary.json` and `batch-summary.csv`. Runtime output belongs under ignored `output/` or `_diagnostics/` directories.
+The batch root contains `batch-summary.json` and `batch-summary.csv`. Raw runtime output belongs under ignored `output/` or `_diagnostics/` directories. Explicitly approved compact study reports may be committed under `datasets/`.
 
 ## Operational risks
 

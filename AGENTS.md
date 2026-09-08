@@ -19,7 +19,7 @@ Complete solved-tree persistence is not a production feature. Do not describe a 
 
 ## Repository policy
 
-Keep source inputs and reusable examples in Git. Generated `output/` and `_diagnostics/` data stay ignored. Do not add calculated datasets, analyses, study results, or solver binaries unless the user explicitly requests them.
+Keep source inputs and reusable examples in Git. Generated `output/` and `_diagnostics/` data stay ignored. The user has explicitly approved reproducible study packages under `studies/` and compact reports under `datasets/`; raw node exports remain local unless separately requested. Do not add solver binaries.
 
 ## Full-tree research history
 

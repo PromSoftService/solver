@@ -48,3 +48,10 @@ Each numbered board directory contains `run.json`, `node.raw.json`, `combos.json
 `-Resume` reuses only boards with both `run.json` and `combos.json` and verifies that the decision preset matches.
 
 See `example/README.md`, `docs/BASELINE.md`, `docs/BRIDGE_SCHEMA.md`, and `docs/HISTORY.md`.
+
+## Active studies
+
+`studies/STU001__RNG001_UTG-vs-BB__5FLOP_50-50/` is the first reproducible
+performance study. It uses RNG001, five canonical BRD001 flops, one 50% normal
+bet size on flop and turn, and writes raw output locally under `output/` plus
+compact tracked reports under `datasets/`.

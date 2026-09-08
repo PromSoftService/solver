@@ -12,7 +12,12 @@ jobs:
       - name: Parse PowerShell baseline
         shell: pwsh
         run: |
-          $files = @('tsgpu-worker.ps1','tsgpu-batch.ps1','scripts/Range-Utils.ps1')
+          $files = @(
+            'tsgpu-worker.ps1',
+            'tsgpu-batch.ps1',
+            'scripts/Range-Utils.ps1',
+            'studies/STU001__RNG001_UTG-vs-BB__5FLOP_50-50/run.ps1'
+          )
           foreach ($f in $files) {
             $tokens=$null; $errors=$null
             [System.Management.Automation.Language.Parser]::ParseFile((Resolve-Path $f),[ref]$tokens,[ref]$errors) | Out-Null
@@ -25,7 +30,7 @@ jobs:
       - name: Validate clean baseline
         shell: pwsh
         run: |
-          foreach ($forbidden in @('datasets','analysis','results','studies','configs','tools')) {
+          foreach ($forbidden in @('analysis','results','configs','tools')) {
             if (Test-Path $forbidden) { throw "Forbidden result/study directory present: $forbidden" }
           }
           $worker = Get-Content tsgpu-worker.ps1 -Raw
@@ -48,4 +53,14 @@ jobs:
           foreach ($setting in @('decisionNode','expectedBetAmount','expectedRaiseAmount')) {
             if (-not $batch.Contains($setting)) { throw "Config-driven setting missing: $setting" }
           }
+          $studyPath = 'studies/STU001__RNG001_UTG-vs-BB__5FLOP_50-50'
+          $study = Get-Content "$studyPath/study.json" -Raw | ConvertFrom-Json
+          $studyConfig = Get-Content "$studyPath/config.json" -Raw | ConvertFrom-Json
+          $studyBoards = @(Get-Content "$studyPath/boards.txt" | Where-Object { $_.Trim() -and -not $_.Trim().StartsWith('#') })
+          if ($study.study_id -ne 'STU001' -or $studyBoards.Count -ne 5) { throw 'STU001 manifest/boards invalid' }
+          if ($studyConfig.runner.decisionNode -ne 'BB_RESPONSE' -or [int]$studyConfig.runner.expectedBetAmount -ne 28 -or [int]$studyConfig.runner.expectedRaiseAmount -ne 95) { throw 'STU001 runner guards invalid' }
+          if ($studyConfig.config.ipFlopBet -ne '50' -or $studyConfig.config.ipTurnBet -ne '50' -or $studyConfig.config.ipRiverBet -ne '100') { throw 'STU001 IP sizing invalid' }
+          if ($studyConfig.config.oopFlopBet -ne '50' -or $studyConfig.config.oopTurnDonk -ne '50' -or $studyConfig.config.oopRiverDonk -ne '75') { throw 'STU001 OOP sizing invalid' }
+          if ([int]$studyConfig.config.maxRaiseNumber -ne 1) { throw 'STU001 maxRaiseNumber invalid' }
+          if (-not (Test-Path datasets/README.md)) { throw 'Tracked dataset policy is missing' }
           Write-Host 'PASS: proven v015 selected current-street production runner.'
