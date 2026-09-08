@@ -66,8 +66,8 @@ jobs:
           if ($workerText -notmatch 'FULL_TREE_EXPORT_UNRESOLVED') { throw 'worker full-tree guard missing' }
           if ($workerText -notmatch 'Test-FullTreeJson') { throw 'worker full-tree structural validation missing' }
           if ($batchText -notmatch 'Stopping immediately instead of wasting the remaining GPU solves') { throw 'batch fail-fast guard missing' }
-          if ($launcherText -notmatch "git push origin HEAD:main") { throw 'STU002 auto-push missing' }
-          if ($launcherText -notmatch "results/\$runName") { throw 'STU002 result promotion missing' }
+          if ($launcherText -notmatch 'git push origin HEAD:main') { throw 'STU002 auto-push missing' }
+          if (-not $launcherText.Contains("Join-Path (Join-Path `$root 'results') `$runName")) { throw 'STU002 result promotion missing' }
 
           if (Test-Path datasets) { throw 'legacy datasets directory must stay absent' }
           $analysisFiles = @(Get-ChildItem analysis -File -ErrorAction SilentlyContinue | Where-Object { $_.Name -ne '.gitkeep' })
