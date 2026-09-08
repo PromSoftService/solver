@@ -134,3 +134,13 @@ like the already-known DevTools startup race and allows up to three startup
 attempts. STU002 resume reporting preserves the prior attempt's board-time sum
 and adds only the retried boards, rather than reporting the short resume wall
 time as the duration of the whole study.
+
+## 10. STU002 CSV serialization correction
+
+Post-run validation of the first complete `BB_FIRST` dataset found that
+`combos.json` was correct but `combos.csv` contained `OrderedDictionary`
+metadata instead of combo fields. Combo rows are now emitted as
+`PSCustomObject` values, CSV numeric serialization uses invariant culture, and
+STU002 aggregation reads the canonical per-board `combos.json` with a
+combo-count check. The completed JSON outputs did not require another GPU solve;
+the affected CSV files were regenerated from them.

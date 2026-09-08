@@ -90,6 +90,8 @@ $requiredFiles = @('run.json', 'node.raw.json', 'combos.json', 'combos.csv', 'br
 $validationRows = [System.Collections.Generic.List[object]]::new()
 $aggregatePath = Join-Path $datasetPath 'combos.csv'
 $aggregateStarted = $false
+$previousCulture = [Threading.Thread]::CurrentThread.CurrentCulture
+[Threading.Thread]::CurrentThread.CurrentCulture = [Globalization.CultureInfo]::InvariantCulture
 foreach ($row in $done) {
     $boardOutput = Join-Path $outputPath ([string]$row.output_directory)
     $missing = @($requiredFiles | Where-Object { -not (Test-Path -LiteralPath (Join-Path $boardOutput $_) -PathType Leaf) })
@@ -126,7 +128,12 @@ foreach ($row in $done) {
         result = 'PASS'
     })
 
-    $enrichedCombos = @(Import-Csv -LiteralPath (Join-Path $boardOutput 'combos.csv') | ForEach-Object {
+    $parsedCombos = Get-Content -LiteralPath (Join-Path $boardOutput 'combos.json') -Raw -Encoding UTF8 | ConvertFrom-Json
+    $comboSource = @($parsedCombos)
+    if ($comboSource.Count -ne [int]$run.combo_count) {
+        throw "Board $($row.board) combo count mismatch: JSON=$($comboSource.Count), run=$($run.combo_count)."
+    }
+    $enrichedCombos = @($comboSource | ForEach-Object {
         $item = [ordered]@{
             board = [string]$row.board
             board_index = [int]$row.index
@@ -143,6 +150,7 @@ foreach ($row in $done) {
         $enrichedCombos | Export-Csv -LiteralPath $aggregatePath -NoTypeInformation -Encoding UTF8 -Append
     }
 }
+[Threading.Thread]::CurrentThread.CurrentCulture = $previousCulture
 
 $elapsedValues = @($done | ForEach-Object { [double]$_.elapsed_ms } | Sort-Object)
 $sumMs = [double](($elapsedValues | Measure-Object -Sum).Sum)

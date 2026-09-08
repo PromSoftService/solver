@@ -728,7 +728,7 @@ try {
         $p = @($probs[$i]); $e = @($actionEvs[$i])
         if ($p.Count -ne $validActions.Count -or $e.Count -ne $validActions.Count) { throw "Action vector mismatch at combo $($cards[$i])." }
         if ($DecisionNode -eq 'BB_FIRST') {
-            [ordered]@{
+            [pscustomobject][ordered]@{
                 combo = [string]$cards[$i]
                 reach_probability = [double]$reach[$i]
                 check_frequency = [double]$p[$checkSlot]
@@ -738,7 +738,7 @@ try {
                 mixed_ev = [double]$mixedEvs[$i]
             }
         } elseif ($DecisionNode -in $checkBetDecisionNodes) {
-            [ordered]@{
+            [pscustomobject][ordered]@{
                 combo = [string]$cards[$i]
                 reach_probability = [double]$reach[$i]
                 check_frequency = [double]$p[$checkSlot]
@@ -748,7 +748,7 @@ try {
                 mixed_ev = [double]$mixedEvs[$i]
             }
         } elseif ($DecisionNode -in $foldCallDecisionNodes) {
-            [ordered]@{
+            [pscustomobject][ordered]@{
                 combo = [string]$cards[$i]
                 reach_probability = [double]$reach[$i]
                 fold_frequency = [double]$p[$foldSlot]
@@ -758,7 +758,7 @@ try {
                 mixed_ev = [double]$mixedEvs[$i]
             }
         } else {
-            [ordered]@{
+            [pscustomobject][ordered]@{
                 combo = [string]$cards[$i]
                 reach_probability = [double]$reach[$i]
                 fold_frequency = [double]$p[$foldSlot]
@@ -793,7 +793,13 @@ try {
     ($run | ConvertTo-Json -Depth 100) | Set-Content -LiteralPath (Join-Path $outputPath 'run.json') -Encoding UTF8
     ($node | ConvertTo-Json -Depth 100) | Set-Content -LiteralPath (Join-Path $outputPath 'node.raw.json') -Encoding UTF8
     ($combos | ConvertTo-Json -Depth 20) | Set-Content -LiteralPath (Join-Path $outputPath 'combos.json') -Encoding UTF8
-    $combos | Export-Csv -LiteralPath (Join-Path $outputPath 'combos.csv') -NoTypeInformation -Encoding UTF8
+    $previousCulture = [Threading.Thread]::CurrentThread.CurrentCulture
+    try {
+        [Threading.Thread]::CurrentThread.CurrentCulture = [Globalization.CultureInfo]::InvariantCulture
+        $combos | Export-Csv -LiteralPath (Join-Path $outputPath 'combos.csv') -NoTypeInformation -Encoding UTF8
+    } finally {
+        [Threading.Thread]::CurrentThread.CurrentCulture = $previousCulture
+    }
     $transcript | ForEach-Object { ConvertTo-CompactJson $_ } | Set-Content -LiteralPath (Join-Path $outputPath 'bridge-transcript.jsonl') -Encoding UTF8
 
     Write-Host "OK: $Board -> $($cards.Count) combos"
