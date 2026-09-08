@@ -1,6 +1,8 @@
-# Native bridge schema (TexasSolverGPU v0.2.0 `_131`)
+# Native bridge schema — TexasSolverGPU v0.2.0 `_131`
 
-## Envelope
+This document separates **verified bridge behavior** from the full-tree export method that still has to be confirmed against the user's installed GPU runtime.
+
+## Verified bridge envelope
 
 Initial request:
 
@@ -8,7 +10,7 @@ Initial request:
 {"id":"rpc_1","method":"bridge.ping","params":{}}
 ```
 
-Authenticated request:
+Authenticated requests carry:
 
 ```json
 {
@@ -23,104 +25,103 @@ Authenticated request:
 }
 ```
 
-Response:
+For bodyless GET requests the `body` property must be **omitted**, not sent as `null`. This distinction was verified against v0.2.0.
 
-```json
-{"id":"rpc_2","ok":true,"result":{}}
+## Verified methods used by the proven v015 base
+
+| Native method | Compatibility path | HTTP verb |
+|---|---|---|
+| `solver.init` | `/api/init` | POST |
+| `solver.allocate` | `/api/allocate` | POST |
+| `solver.solve.start` | `/api/gpu-solve` | POST |
+| `solver.solve.status` | `/api/solve/status` | GET |
+| `solver.solve.stop` | `/api/solve/stop` | POST |
+| `solver.history.apply` | `/api/apply-history` | POST |
+| `solver.node.actionsAfter` | `/api/actions-after` | POST |
+| `solver.export.currentStreet` | `/api/export/current-street` | POST |
+
+The production v020 worker is deliberately rebuilt from the proven v015 startup/init/allocate/solve/poll/window-suppression implementation. Only the post-solve export stage changed materially.
+
+## Multiple sizing strings
+
+The runner normalizes sizing fields as comma-separated percentage tokens. For example:
+
+```text
+33,75
 ```
 
-or:
+becomes the native sizing string:
 
-```json
-{"id":"rpc_2","ok":false,"error":{"code":"...","message":"..."}}
+```text
+33%,75%
 ```
 
-For bodyless GET requests the `body` property must be omitted, not set to
-`null`. This distinction is required by the v0.2.0 native handler.
+This lets B33 and B75 coexist in the **same solved tree**. Do not return to separate B33-only and B75-only solves for branches that are supposed to compete at one node.
 
-## Methods used by the runner
+## STU001 effective tree settings
 
-| Native method | Compatibility path | HTTP verb | `body` |
-| --- | --- | --- | --- |
-| `solver.init` | `/api/init` | POST | native tree configuration below |
-| `solver.allocate` | `/api/allocate` | POST | `{"enable_compression":false}` |
-| `solver.solve.start` | `/api/gpu-solve` | POST | `{"max_iterations":1000,"target_exploitability":0.5,"compute_initial_exploitability":true,"verbose":false}` |
-| `solver.solve.status` | `/api/solve/status` | GET | omitted |
-| `solver.solve.stop` | `/api/solve/stop` | POST | `{}` |
-| `solver.history.apply` | `/api/apply-history` | POST | `{"history":[0,1]}` |
-| `solver.node.actionsAfter` | `/api/actions-after` | POST | `{"append":[]}` |
-| `solver.node.currentPlayer` | `/api/current-player` | GET | omitted |
-| `solver.node.currentBoard` | `/api/current-board` | GET | omitted |
-| `solver.node.numActions` | `/api/num-actions` | GET | omitted |
-| `solver.node.results` | `/api/results` | GET | omitted |
-| `solver.cards.private` | `/api/private-cards/0` | GET | omitted |
-| `solver.export.currentStreet` | `/api/export/current-street` | POST | `{"history":[0,1],"max_nodes":5000}` |
+The active study materializes these settings for both players where applicable:
 
-`solver.cards.private` also requires the player id to remain present in `path`.
-
-## `solver.init.body`
-
-```json
-{
-  "oop_range": [1326 numbers],
-  "ip_range": [1326 numbers],
-  "board": [19, 51, 24],
-  "starting_pot": 55,
-  "effective_stack": 975,
-  "rake_rate": 0,
-  "rake_cap": 0,
-  "oop_flop_bet": "",
-  "oop_flop_raise": "60%",
-  "ip_flop_bet": "33%",
-  "ip_flop_raise": "100%",
-  "oop_turn_bet": "100%",
-  "oop_turn_raise": "100%",
-  "ip_turn_bet": "100%",
-  "ip_turn_raise": "100%",
-  "oop_river_bet": "100%",
-  "oop_river_raise": "100%",
-  "ip_river_bet": "100%",
-  "ip_river_raise": "100%",
-  "donk_option": true,
-  "oop_turn_donk": "100%",
-  "oop_river_donk": "100%",
-  "max_raise_number": 3,
-  "add_allin_threshold": 2.0,
-  "force_allin_threshold": 0.2,
-  "add_allin_flop_ip": true,
-  "add_allin_turn_ip": true,
-  "add_allin_river_ip": true,
-  "add_allin_flop_oop": true,
-  "add_allin_turn_oop": true,
-  "add_allin_river_oop": true,
-  "merging_threshold": 0.1,
-  "num_players": 2
-}
+```text
+flop bet:        33%,75%
+turn bet:        33%,75%
+turn OOP donk:   33%,75%
+river bet:       33%,75%,150%
+river OOP donk:  33%,75%,150%
+normal raise:    60% native pot-raise parameter
+max normal raises per street: 1
+all-in: enabled flop/turn/river for both players
+add_allin_threshold: 20.0 native value (study JSON stores 2000 and worker divides by 100)
 ```
 
-Card ids use `rankIndex * 4 + suitIndex`, ranks `23456789TJQKA`, suits `cdhs`.
-Thus `6s As 8c` is `[19, 51, 24]`.
+`raise=60` must not be described as a fixed exact `3x` raise-to size. The resulting multiple depends on the preceding pot and bet.
 
-Sizing strings are normalized exactly like the shipped frontend: bare numeric
-tokens gain `%`; `allin` remains `allin`.
+STU001 starts at the flop with fixed RNG001 ranges, native pot 55 and effective stack 975. Preflop is not solved.
 
-## Structured export result
+## Full-tree export contract
 
-`solver.export.currentStreet.result` is either the payload itself or:
+`solver.export.currentStreet` is verified but is **not sufficient** if its payload contains only one street. The new study requires a nested strategy tree containing action/chance/strategy structure through turn and river.
 
-```json
-{"payload": {"type":"action", "strategy": {}}}
+The public TexasSolverGPU viewer consumes a nested JSON tree with fields such as:
+
+- `childrens`;
+- `valid_actions`;
+- `strategy`;
+- `betting round` values including turn (`2`) and river (`3`).
+
+The exact GPU v0.2.0 bridge method for producing the viewer-compatible complete dump is not publicly documented. Therefore v020 probes candidate export methods only **after the equilibrium solve**, validates the returned JSON structurally, and accepts a board only when turn and river strategy nodes are present.
+
+Every probe is recorded in:
+
+```text
+export-probes.json
+bridge-transcript.jsonl
 ```
 
-At an action node the relevant fields are:
+If no candidate succeeds, the worker throws:
 
-- `valid_actions: string[]`
-- `strategy.card_strings: string[]`
-- `strategy.reach_probs: number[]`
-- `strategy.strategy_probs: number[action][]`
-- `strategy.action_evs: number[action][]`
-- `strategy.evs: number[]` (mixed EV)
-- `strategy.node_avg_ev: number`
+```text
+FULL_TREE_EXPORT_UNRESOLVED
+```
 
-All per-combo arrays must have the same outer length. Inner strategy/EV arrays
-must match `valid_actions.length`.
+The batch stops immediately on that error. This is an exporter-discovery failure, not a reason to change STU001's ranges/tree or to solve the remaining 285 boards blindly. Fix the exporter using the saved probe/transcript evidence and resume the same study.
+
+## Successful per-board full-tree artifacts
+
+A successful board contains:
+
+```text
+run.json
+tree.meta.json
+tree.json.gz
+```
+
+or, if the compressed tree exceeds the Git-safe part size:
+
+```text
+tree.json.gz.part001
+tree.json.gz.part002
+...
+```
+
+`tree.meta.json` records the complete gzip SHA-256, original compressed byte count, export method/path, structural validation flags, and ordered part names.
