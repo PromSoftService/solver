@@ -9,7 +9,7 @@ param(
     [int]$ExpectedBetAmount = 0,
     [int]$ExpectedRaiseAmount = 0,
     [ValidateSet('BB_RESPONSE', 'UTG_CBET', 'UTG_OOP_CBET', 'BTN_RESPONSE', 'BTN_STAB', 'UTG_RESPONSE')][string]$DecisionNode = 'BB_RESPONSE',
-    [int]$ExportMaxNodes = 2000000,
+    [int]$ExportMaxNodes = 5000,
     [int]$SolveTimeoutMinutes = 180,
     [switch]$ShowHostWindow,
     [switch]$KeepHost
@@ -17,7 +17,7 @@ param(
 
 $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version Latest
-$ScriptVersion = 'v020-fulltree'
+$ScriptVersion = 'v015-production'
 $StatusRetryLimit = 3
 
 # The host can call ShowWindow after ProcessStartInfo has requested Hidden.
@@ -474,59 +474,6 @@ function Get-ActionSlot([string[]]$Actions, [string]$Kind) {
     throw "Required $Kind action is missing: $($Actions -join ' / ')"
 }
 
-function Test-FullTreeJson([string]$Json) {
-    $hasChildren = $Json -match '"childrens"'
-    $hasStrategy = $Json -match '"strategy"'
-    $hasTurn = ($Json -match '"betting round"\s*:\s*2') -or ($Json -match '"betting_round"\s*:\s*2')
-    $hasRiver = ($Json -match '"betting round"\s*:\s*3') -or ($Json -match '"betting_round"\s*:\s*3')
-    return [pscustomobject]@{
-        valid = ($hasChildren -and $hasStrategy -and $hasTurn -and $hasRiver)
-        has_children = $hasChildren
-        has_strategy = $hasStrategy
-        has_turn = $hasTurn
-        has_river = $hasRiver
-    }
-}
-
-function Write-GzipUtf8([string]$Text, [string]$Path) {
-    $stream = [IO.File]::Open($Path, [IO.FileMode]::Create, [IO.FileAccess]::Write, [IO.FileShare]::None)
-    try {
-        $gzip = [IO.Compression.GZipStream]::new($stream, [IO.Compression.CompressionLevel]::Optimal, $false)
-        try {
-            $writer = [IO.StreamWriter]::new($gzip, [Text.UTF8Encoding]::new($false))
-            try { $writer.Write($Text) } finally { $writer.Dispose() }
-        } finally { $gzip.Dispose() }
-    } finally { $stream.Dispose() }
-}
-
-function Split-GitSafe([string]$Path, [int64]$MaxBytes = 90000000) {
-    $file = Get-Item -LiteralPath $Path
-    if ($file.Length -le $MaxBytes) { return @($file.Name) }
-    $parts = [Collections.Generic.List[string]]::new()
-    $source = [IO.File]::OpenRead($Path)
-    try {
-        $index = 1
-        while ($source.Position -lt $source.Length) {
-            $name = ([IO.Path]::GetFileName($Path) + ('.part{0:D3}' -f $index))
-            $destinationPath = Join-Path ([IO.Path]::GetDirectoryName($Path)) $name
-            $destination = [IO.File]::Create($destinationPath)
-            try {
-                $remaining = [Math]::Min($MaxBytes, $source.Length - $source.Position)
-                $buffer = New-Object byte[] 1048576
-                while ($remaining -gt 0) {
-                    $count = $source.Read($buffer, 0, [int][Math]::Min($buffer.Length, $remaining))
-                    if ($count -le 0) { break }
-                    $destination.Write($buffer, 0, $count)
-                    $remaining -= $count
-                }
-            } finally { $destination.Dispose() }
-            $parts.Add($name)
-            $index++
-        }
-    } finally { $source.Dispose() }
-    Remove-Item -LiteralPath $Path -Force
-    return $parts.ToArray()
-}
 $solverPath = (Resolve-Path -LiteralPath $SolverExe).Path
 $configPath = (Resolve-Path -LiteralPath $Config).Path
 $outputPath = [IO.Path]::GetFullPath($OutputDirectory)
@@ -630,71 +577,147 @@ try {
     } while ($running -or (-not $seenRunning -and -not $terminalPhase -and -not $startupGraceElapsed))
 
     Invoke-Bridge $socket 'solver.history.apply' '/api/apply-history' 'POST' ([ordered]@{ history = @() }) 10000 $transcript | Out-Null
+    $rootActions = Split-Actions (Invoke-Bridge $socket 'solver.node.actionsAfter' '/api/actions-after' 'POST' ([ordered]@{ append = @() }) 10000 $transcript)
 
-    $commonBody = [ordered]@{ history = @(); max_nodes = $ExportMaxNodes; dump_rounds = 2 }
-    $currentStreetBody = [ordered]@{ history = @(); max_nodes = $ExportMaxNodes }
-    $candidates = @(
-        [ordered]@{ method = 'solver.export.currentStreet'; path = '/api/export/current-street'; body = $currentStreetBody },
-        [ordered]@{ method = 'solver.export.fullTree'; path = '/api/export/full-tree'; body = $commonBody },
-        [ordered]@{ method = 'solver.export.allStreets'; path = '/api/export/all-streets'; body = $commonBody },
-        [ordered]@{ method = 'solver.export.fullStrategy'; path = '/api/export/full-strategy'; body = $commonBody },
-        [ordered]@{ method = 'solver.export.strategy'; path = '/api/export/strategy'; body = $commonBody },
-        [ordered]@{ method = 'solver.export.tree'; path = '/api/export/tree'; body = $commonBody },
-        [ordered]@{ method = 'solver.dump.strategy'; path = '/api/dump-strategy'; body = ([ordered]@{ dump_rounds = 2 }) },
-        [ordered]@{ method = 'solver.dump.result'; path = '/api/dump-result'; body = ([ordered]@{ dump_rounds = 2 }) }
-    )
-    $chosen = $null
-    $treeText = $null
-    $validation = $null
-    $probeResults = [Collections.Generic.List[object]]::new()
-    foreach ($candidate in $candidates) {
+    if ($DecisionNode -eq 'UTG_OOP_CBET') {
+        # Export the flop root before UTG acts. This is the OOP UTG decision in
+        # UTG-open / BTN-call single-raised pots.
+        $exportHistory = @()
+        $selectedActions = @()
+        $actingPlayer = 'UTG'
+    } elseif ($DecisionNode -eq 'BTN_RESPONSE') {
+        # Export BTN's Fold/Call/Raise response after UTG bets at the flop root.
+        # Native APIs may label a first wager Bet or Raise, so accept either.
+        $rootBet = $null
         try {
-            $response = Invoke-Bridge $socket $candidate.method $candidate.path 'POST' $candidate.body 30000 $transcript
-            $payload = Read-Property $response 'payload' $response
-            if ($payload -is [string] -and $payload.TrimStart().StartsWith('{')) {
-                $text = [string]$payload
-            } else {
-                $text = ConvertTo-Json -InputObject $payload -Depth 100 -Compress
-            }
-            $test = Test-FullTreeJson $text
-            $probeResults.Add([ordered]@{ method = $candidate.method; path = $candidate.path; validation = $test })
-            if ($test.valid) {
-                $chosen = $candidate
-                $treeText = $text
-                $validation = $test
-                break
-            }
+            $rootBet = Find-ActionIndex $rootActions 'Bet' ([Nullable[int]]$ExpectedBetAmount)
         } catch {
-            $probeResults.Add([ordered]@{ method = $candidate.method; path = $candidate.path; error = $_.Exception.Message })
+            $rootBet = Find-ActionIndex $rootActions 'Raise' ([Nullable[int]]$ExpectedBetAmount)
+        }
+        $history = @([int]$rootBet.Index)
+        Invoke-Bridge $socket 'solver.history.apply' '/api/apply-history' 'POST' ([ordered]@{ history = $history }) 10000 $transcript | Out-Null
+        $exportHistory = @($history)
+        $selectedActions = @($rootBet.Label)
+        $actingPlayer = 'BTN'
+    } else {
+        $check = Find-ActionIndex $rootActions 'Check' $null
+        $history = @([int]$check.Index)
+
+        Invoke-Bridge $socket 'solver.history.apply' '/api/apply-history' 'POST' ([ordered]@{ history = $history }) 10000 $transcript | Out-Null
+        $ipActions = Split-Actions (Invoke-Bridge $socket 'solver.node.actionsAfter' '/api/actions-after' 'POST' ([ordered]@{ append = @() }) 10000 $transcript)
+
+        if ($DecisionNode -eq 'UTG_CBET') {
+            # We export the node immediately after BB checks, so no UTG action is
+            # applied here. Native APIs are inconsistent about naming the first IP
+            # wager after a check (Bet vs Raise), therefore do not preselect it.
+            $exportHistory = @($history)
+            $selectedActions = @($check.Label)
+            $actingPlayer = 'UTG'
+        } elseif ($DecisionNode -eq 'BTN_STAB') {
+            # Export BTN's Check/Bet decision after UTG checks the flop root.
+            $exportHistory = @($history)
+            $selectedActions = @($check.Label)
+            $actingPlayer = 'BTN'
+        } elseif ($DecisionNode -eq 'UTG_RESPONSE') {
+            # Export UTG's Fold/Call/Raise response after UTG checks and BTN bets 33%.
+            # Native APIs may label the first IP wager Bet or Raise, so accept either.
+            $bet = $null
+            try {
+                $bet = Find-ActionIndex $ipActions 'Bet' ([Nullable[int]]$ExpectedBetAmount)
+            } catch {
+                $bet = Find-ActionIndex $ipActions 'Raise' ([Nullable[int]]$ExpectedBetAmount)
+            }
+            $history = @($history + [int]$bet.Index)
+            Invoke-Bridge $socket 'solver.history.apply' '/api/apply-history' 'POST' ([ordered]@{ history = $history }) 10000 $transcript | Out-Null
+            $exportHistory = @($history)
+            $selectedActions = @($check.Label, $bet.Label)
+            $actingPlayer = 'UTG'
+        } else {
+            $bet = Find-ActionIndex $ipActions 'Bet' ([Nullable[int]]$ExpectedBetAmount)
+            $history = @($history + [int]$bet.Index)
+            Invoke-Bridge $socket 'solver.history.apply' '/api/apply-history' 'POST' ([ordered]@{ history = $history }) 10000 $transcript | Out-Null
+            $exportHistory = @($history)
+            $selectedActions = @($check.Label, $bet.Label)
+            $actingPlayer = 'BB'
         }
     }
-    $probeResults | ConvertTo-Json -Depth 20 | Set-Content -LiteralPath (Join-Path $outputPath 'export-probes.json') -Encoding UTF8
-    if ($null -eq $chosen) {
-        throw 'FULL_TREE_EXPORT_UNRESOLVED: the solved board is NOT accepted because no probed export contained both turn and river strategy nodes. Inspect export-probes.json and bridge-transcript.jsonl.'
+
+    $export = Invoke-Bridge $socket 'solver.export.currentStreet' '/api/export/current-street' 'POST' ([ordered]@{ history = $exportHistory; max_nodes = $ExportMaxNodes }) 120000 $transcript
+    $node = Read-Property $export 'payload' $export
+    $validActions = @($node.valid_actions)
+
+    if ($DecisionNode -in @('UTG_CBET', 'UTG_OOP_CBET', 'BTN_STAB')) {
+        $checkSlot = Get-ActionSlot $validActions 'Check'
+        # TexasSolverGPU v0.2.0 may expose a first wager as either Bet or Raise
+        # depending on the native API. Treat both labels as the semantic UTG bet.
+        $betSlot = $null
+        for ($i = 0; $i -lt $validActions.Count; $i++) {
+            if ($validActions[$i] -match '(?i)^(?:Bet|Raise)(?:(?:\s+|:)|$)') {
+                $betSlot = $i
+                break
+            }
+        }
+        if ($null -eq $betSlot) {
+            throw "Required wager action is missing: $($validActions -join ' / ')"
+        }
+        if ($validActions.Count -ne 2) {
+            throw "$DecisionNode expects exactly Check plus one wager at the target node; got: $($validActions -join ' / ')"
+        }
+        if ($ExpectedBetAmount -gt 0 -and $validActions[$betSlot] -notmatch "(?i)^(?:Bet|Raise)(?:\s+|:)\s*$ExpectedBetAmount(?:\.0+)?$") {
+            throw "Expected wager $ExpectedBetAmount, got: $($validActions -join ' / ')"
+        }
+    } else {
+        $foldSlot = Get-ActionSlot $validActions 'Fold'
+        $callSlot = Get-ActionSlot $validActions 'Call'
+        $raiseSlot = Get-ActionSlot $validActions 'Raise'
+        if ($ExpectedRaiseAmount -gt 0 -and $validActions[$raiseSlot] -notmatch "(?i)^Raise(?:\s+|:)\s*$ExpectedRaiseAmount(?:\.0+)?$") {
+            throw "Expected Raise $ExpectedRaiseAmount, got: $($validActions -join ' / ')"
+        }
     }
 
-    $gzipPath = Join-Path $outputPath 'tree.json.gz'
-    Write-GzipUtf8 $treeText $gzipPath
-    $gzipSha = (Get-FileHash -LiteralPath $gzipPath -Algorithm SHA256).Hash.ToLowerInvariant()
-    $gzipBytes = (Get-Item -LiteralPath $gzipPath).Length
-    $parts = @(Split-GitSafe $gzipPath)
-    $treeMeta = [ordered]@{
-        schema_version = 1
-        format = 'texassolver-full-tree-json-gzip'
-        board = $Board
-        full_tree_validated = $true
-        validation = $validation
-        export_method = $chosen.method
-        export_path = $chosen.path
-        gzip_sha256 = $gzipSha
-        gzip_bytes = $gzipBytes
-        parts = $parts
+    $strategy = $node.strategy
+    $cards = @($strategy.card_strings)
+    $reach = @($strategy.reach_probs)
+    $probs = @($strategy.strategy_probs)
+    $actionEvs = @($strategy.action_evs)
+    $mixedEvs = @($strategy.evs)
+    foreach ($arrayInfo in @(@('reach_probs', $reach.Count), @('strategy_probs', $probs.Count), @('action_evs', $actionEvs.Count), @('evs', $mixedEvs.Count))) {
+        if ($arrayInfo[1] -ne $cards.Count) { throw "$($arrayInfo[0]) length $($arrayInfo[1]) != card_strings length $($cards.Count)." }
     }
-    $treeMeta | ConvertTo-Json -Depth 20 | Set-Content -LiteralPath (Join-Path $outputPath 'tree.meta.json') -Encoding UTF8
+
+    $combos = for ($i = 0; $i -lt $cards.Count; $i++) {
+        $p = @($probs[$i]); $e = @($actionEvs[$i])
+        if ($p.Count -ne $validActions.Count -or $e.Count -ne $validActions.Count) { throw "Action vector mismatch at combo $($cards[$i])." }
+        if ($DecisionNode -in @('UTG_CBET', 'UTG_OOP_CBET', 'BTN_STAB')) {
+            [ordered]@{
+                combo = [string]$cards[$i]
+                reach_probability = [double]$reach[$i]
+                check_frequency = [double]$p[$checkSlot]
+                bet_frequency = [double]$p[$betSlot]
+                ev_check = [double]$e[$checkSlot]
+                ev_bet = [double]$e[$betSlot]
+                mixed_ev = [double]$mixedEvs[$i]
+            }
+        } else {
+            [ordered]@{
+                combo = [string]$cards[$i]
+                reach_probability = [double]$reach[$i]
+                fold_frequency = [double]$p[$foldSlot]
+                call_frequency = [double]$p[$callSlot]
+                raise_frequency = [double]$p[$raiseSlot]
+                ev_fold = [double]$e[$foldSlot]
+                ev_call = [double]$e[$callSlot]
+                ev_raise = [double]$e[$raiseSlot]
+                mixed_ev = [double]$mixedEvs[$i]
+            }
+        }
+    }
 
     $run = [ordered]@{
-        schema_version = 3
+        schema_version = 2
         runner_version = $ScriptVersion
+        decision_node = $DecisionNode
+        acting_player = $actingPlayer
         solver_exe = $solverPath
         solver_sha256 = (Get-FileHash -LiteralPath $solverPath -Algorithm SHA256).Hash.ToLowerInvariant()
         board = $Board
@@ -702,11 +725,21 @@ try {
         max_iterations = $MaxIterations
         target_exploitability = $TargetExploitability
         final_status = $status
-        full_tree_export = $treeMeta
+        selected_history = $exportHistory
+        selected_actions = $selectedActions
+        node_actions = $validActions
+        combo_count = $cards.Count
         elapsed_ms = [int]([DateTime]::UtcNow - $runStarted).TotalMilliseconds
     }
-    $run | ConvertTo-Json -Depth 30 | Set-Content -LiteralPath (Join-Path $outputPath 'run.json') -Encoding UTF8
-    Write-Host "OK FULL TREE: $Board -> $($chosen.method), gzip=$gzipBytes bytes"
+    ($run | ConvertTo-Json -Depth 100) | Set-Content -LiteralPath (Join-Path $outputPath 'run.json') -Encoding UTF8
+    ($node | ConvertTo-Json -Depth 100) | Set-Content -LiteralPath (Join-Path $outputPath 'node.raw.json') -Encoding UTF8
+    ($combos | ConvertTo-Json -Depth 20) | Set-Content -LiteralPath (Join-Path $outputPath 'combos.json') -Encoding UTF8
+    $combos | Export-Csv -LiteralPath (Join-Path $outputPath 'combos.csv') -NoTypeInformation -Encoding UTF8
+    $transcript | ForEach-Object { ConvertTo-CompactJson $_ } | Set-Content -LiteralPath (Join-Path $outputPath 'bridge-transcript.jsonl') -Encoding UTF8
+
+    Write-Host "OK: $Board -> $($cards.Count) combos"
+    Write-Host "Decision: $DecisionNode ($actingPlayer)"
+    Write-Host "Actions: $($validActions -join ' / ')"
     Write-Host "Output: $outputPath"
 } catch {
     if ($null -ne $socket -and $socket.State -eq [Net.WebSockets.WebSocketState]::Open) {
@@ -727,4 +760,3 @@ try {
         try { [TsGpu.WindowSuppressor]::Stop() } catch {}
     }
 }
-

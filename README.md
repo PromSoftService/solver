@@ -1,84 +1,46 @@
-# TexasSolverGPU full-tree study runner
+# TexasSolverGPU runner development baseline
 
-This repository is the automation and study workspace around the original **TexasSolverGPU v0.2.0 Windows x64** binary. It does not implement a poker solver.
+This repository is a clean engineering baseline for automating **TexasSolverGPU v0.2.0 Windows x64**. It does not contain poker-study results.
 
-## Current principle
+## Current state
 
-One board is solved **once** from the flop root through the complete configured postflop abstraction. The runner then preserves the complete solved strategy tree. Later analysis may inspect flop, turn, river and any response node without repeating the GPU solve.
+The active runner is the last proven `v015-production` implementation. It can reliably:
 
-A study is considered complete only when every requested board has:
+- launch `TexasSolverGpu_131.exe` headlessly;
+- connect through the WebView2 bridge;
+- initialize and allocate the configured postflop tree;
+- solve it and poll status;
+- navigate history/actions;
+- export the selected current-street strategy node.
 
-- a successful native solve;
-- a verified full-tree export containing flop, turn and river strategy nodes;
-- run metadata and input hashes;
-- no missing board result.
+It **does not yet persist the complete solved tree**. That is the next runner-development task.
 
-Only after the whole study passes validation does its launcher move the run into `results/`, create a Git commit, and push `main`. A partial or failed study is never committed automatically.
+A later experimental `v020` generation attempted to discover a full-tree exporter by probing invented/plausible endpoint names. That approach was rejected and is not present in the baseline.
 
-## Active study: STU002
+## Repository contents
 
-`STU002` keeps the new **full-tree export architecture** but deliberately returns to the old compact CFG001 poker tree because the larger multi-sizing STU001 tree is too slow for practical batch solving.
+- `tsgpu-worker.ps1`, `tsgpu-batch.ps1`, `tsgpu-batch.cmd` — proven v015 runner core;
+- `ranges/` — source RNG001 (UTG vs BB) and RNG002 (UTG vs BTN) ranges;
+- `boards/` — BRD001, 286 canonical unpaired-rainbow flops;
+- `smoke/` — one-board runner-development fixture;
+- `scripts/Range-Utils.ps1` — source-range utility;
+- `docs/` — baseline, verified bridge facts and historical record;
+- `.github/workflows/runner-check.yml` — static Windows validation only.
 
-Inputs:
+There are intentionally no `datasets/`, `analysis/`, `results/`, `studies/`, `configs/` or `tools/` directories in active `main`.
 
-- 6-max NLHE cash, 100bb;
-- UTG open 2.5bb -> BB call;
-- TexasSolverGPU bundled UTG/BB weighted ranges (`RNG001`);
-- `BRD001`: 286 canonical unpaired rainbow flops;
-- flop pot 5.5bb, effective stack 97.5bb.
+## Smoke command
 
-Exact tree settings copied from historical CFG001:
-
-- flop BB/OOP open bet: none;
-- flop UTG/IP bet: **33% only**;
-- flop BB/OOP raise parameter: **60**;
-- flop UTG/IP raise parameter: **100**;
-- turn bets/donk/raises: **100**;
-- river bets/donk/raises: **100**;
-- `maxRaiseNumber = 3`;
-- `addAllinThreshold = 200` (worker converts to native `2.0` exactly as before);
-- add-all-in flags enabled for both players on flop/turn/river.
-
-The only architectural change versus old CFG001 is the output: **save and validate the complete solved postflop tree, not one selected node.**
-
-This is a postflop solve. Preflop is not solved: ranges, pot and effective stack are fixed inputs.
-
-## Full-tree export
-
-The proven v015 automation handles startup/init/allocate/solve/polling. The current worker keeps that proven solve path but replaces node-only export with a full-tree contract.
-
-A board is accepted only if the exported JSON contains nested strategy/action/chance structure through both turn and river. If the installed runtime does not expose the required full-tree export through the probed bridge methods, the first board stops with:
-
-```text
-FULL_TREE_EXPORT_UNRESOLVED
-```
-
-The failed board preserves `export-probes.json` and `bridge-transcript.jsonl`. The batch stops immediately rather than wasting the remaining GPU solves. After exporter discovery is fixed, resume the same study.
-
-## User command
-
-After synchronizing the local checkout to remote `main`, run from the repository root:
+From the repository root, with the solver available through `TSGPU_SOLVER_EXE` or in the known adjacent location:
 
 ```powershell
-.\scripts\RUN__STU002__BRD001__AND_PUSH.cmd
+.\tsgpu-batch.cmd .\smoke\CFG001-one-board.json .\smoke\boards.txt .\output\smoke
 ```
 
-The launcher verifies the checkout is clean/current, solves all 286 boards, validates all full-tree exports, then commits and pushes the completed result automatically.
+This exercises the proven current-node runner only. It is **not** a full-tree persistence test.
 
-Resume after an exporter/runtime fix:
+## Development objective
 
-```powershell
-powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\Run-STU002.ps1 -Resume
-```
+The next implementation must discover and use the real TexasSolverGPU mechanism for saving/exporting the complete solved strategy tree. Prove that mechanism on one smoke board before any large study is created.
 
-## Registered but inactive
-
-`STU001` is retained as the earlier larger multi-sizing full-tree study definition. It is not active because its action tree is too expensive for the current workflow. Do not run it unless explicitly requested.
-
-See:
-
-- `AGENTS.md` — mandatory operating rules;
-- `docs/ARCHITECTURE.md` — solve/export architecture;
-- `docs/STUDY_REGISTRY.md` — immutable study definitions;
-- `docs/BRIDGE_SCHEMA.md` — bridge/export contract;
-- `docs/HISTORY.md` — lessons from the discarded node-only research cycle.
+See `AGENTS.md`, `docs/BASELINE.md`, `docs/BRIDGE_SCHEMA.md`, and `docs/HISTORY.md`.

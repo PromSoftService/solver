@@ -1,124 +1,81 @@
-# Mandatory instructions for working with PromSoftService/solver
+# Mandatory instructions for PromSoftService/solver
 
-Read this file before changing the repository. Remote `main` is the source of truth.
+Remote `main` is the source of truth. Read this file before changing the repository.
 
-## 1. Purpose
+## Purpose
 
-The repo automates the original `TexasSolverGpu_131.exe` from TexasSolverGPU v0.2.0. Never replace/reimplement the solver unless the user explicitly asks.
+This repo is a development workspace around the original `TexasSolverGpu_131.exe` from TexasSolverGPU v0.2.0 Windows x64. Do not replace or reimplement the solver unless the user explicitly asks.
 
-The user wants headless/batch operation. Do not send the user into the GUI when the runner can do the work.
+The immediate engineering task is to make the runner persist the **complete solved postflop strategy tree** by using the real mechanism exposed by the installed TexasSolverGPU runtime/frontend. Strategy research is intentionally out of scope until that persistence mechanism is proven.
 
-## 2. Core study architecture — do not regress
+## Baseline status
 
-A registered study defines one complete **postflop game tree**. For each flop board:
+The clean baseline is intentionally small:
 
-1. initialize the native solver with fixed preflop ranges/pot/stack and all configured postflop actions;
-2. solve the entire configured tree once;
-3. export and preserve the complete solved tree, including flop, turn and river strategy/chance/action nodes;
-4. validate that the export actually contains turn and river nodes;
-5. only later derive analytical datasets from the saved tree.
+- `tsgpu-worker.ps1` — proven `v015-production` worker from historical commit `bec0b758fe7957a45d028f1adaa2a5252ff0598a`;
+- `tsgpu-batch.ps1` and `tsgpu-batch.cmd` — proven batch shell from the same state;
+- `scripts/Range-Utils.ps1` — source-range expansion utility;
+- `ranges/` — RNG001 and RNG002 source inputs;
+- `boards/BRD001...txt` — 286 canonical unpaired-rainbow flop inputs;
+- `smoke/` — one-board development fixture only;
+- documentation and one static Windows CI workflow.
 
-Never rerun the GPU solver merely to export another decision node from an already solved tree.
+`v015` reliably starts the solver, hides the host window, connects to the WebView2 bridge, initializes/allocates, solves, polls status, applies history and exports a selected current-street node.
 
-Analytical reports never define the tree. A later report may inspect only BB defense vs B33 while the stored result still contains every branch that was actually configured in that study.
+**Complete solved-tree persistence is NOT implemented in the baseline.** Do not claim otherwise.
 
-## 3. Active study — STU002
+## Full-tree development rule
 
-STU002 intentionally restores the **exact historical CFG001 action abstraction** because the larger multi-sizing STU001 tree is too slow for the user's workflow. The full-tree result contract remains mandatory.
+Do not guess API names such as `solver.export.fullTree`, `solver.export.fullStrategy`, `solver.dump.strategy`, etc. A previous experiment did that and was discarded.
 
-Inputs: RNG001 + BRD001 (286 canonical unpaired rainbow flops), UTG open 2.5bb -> BB call, 5.5bb flop pot, 97.5bb effective stack.
+Before implementing full-tree persistence:
 
-Exact active tree:
+1. inspect the actual installed runtime/frontend behavior;
+2. identify the real native/bridge/frontend mechanism used to save or dump a complete strategy;
+3. prove it on exactly one smoke board;
+4. verify the saved object contains flop, turn chance/action nodes, river chance/action nodes and strategy payloads;
+5. only then generalize it to batch studies.
 
-- flop OOP open bet: none;
-- flop IP open bet: 33%;
-- flop OOP raise parameter: 60;
-- flop IP raise parameter: 100;
-- turn OOP/IP bet: 100%;
-- turn OOP donk: 100%;
-- turn OOP/IP raise: 100%;
-- river OOP/IP bet: 100%;
-- river OOP donk: 100%;
-- river OOP/IP raise: 100%;
-- `maxRaiseNumber = 3`;
-- `addAllinThreshold = 200` in the study JSON, which the worker converts to native `2.0` exactly as in historical CFG001;
-- all six add-all-in street/player flags are enabled exactly as in historical CFG001.
+Do not launch a 286-board batch merely to discover the exporter. One board is enough for runner development.
 
-These values are copied from commit `bec0b758fe7957a45d028f1adaa2a5252ff0598a`, file `configs/CFG001__6M100_UTG-O2p5_BB-C__F_BB-X_UTG-B33_BB-XR60__T-B100-R100__R-B100-R100__V1.json`.
+## What must not return to `main`
 
-Do not reinterpret native raise parameters as fixed raise-to multiples. In particular `raise=60` is the TexasSolver native pot-raise parameter, not a universal exact `3x`.
+Until the user explicitly starts a new research cycle, do not add:
 
-STU001 remains registered as the larger multi-sizing full-tree experiment, but it is **not the active study** and should not be run unless the user explicitly asks.
+- `datasets/`;
+- `analysis/`;
+- `results/`;
+- `studies/`;
+- old strategy reports/EXP artifacts;
+- node-specific dataset collectors;
+- guessed full-tree export probes.
 
-## 4. Preflop scope
+Old files remain recoverable from Git history. They are not active evidence.
 
-TexasSolverGPU in this workflow does not solve preflop. The study starts at the flop with already fixed OOP/IP ranges, pot and effective stack. Say “full postflop tree”, not “preflop to showdown”.
+## Git and CI
 
-## 5. Full-tree export is mandatory
+The user authorizes direct commits/pushes to `main` for normal repository work.
 
-The proven v015 automation solved the configured tree correctly but exported only one selected decision node. That behavior is obsolete.
+Before replacing a file, fetch current remote `main`. After runner changes:
 
-The current worker must preserve a complete solved postflop tree. A board is not accepted merely because the GPU solve finished. `tree.meta.json.full_tree_validated` must be true and the exported JSON must structurally contain turn and river strategy nodes.
+- run/update static CI;
+- inspect the actual GitHub Actions job logs, not only the status badge;
+- keep the baseline documentation synchronized with proven behavior.
 
-If the installed runtime does not expose the full-tree bridge endpoint through the currently probed methods, fail immediately with `FULL_TREE_EXPORT_UNRESOLVED`, preserve `export-probes.json` and `bridge-transcript.jsonl`, and stop the batch. Do not silently fall back to node-only output and do not waste time solving the remaining boards.
+GPU/runtime tests execute on the user's Windows/NVIDIA machine. Do not pretend GitHub-hosted CI can perform the real solver solve.
 
-## 6. Study completion and auto-push
+## Connected facts
 
-A study launcher must:
+TexasSolverGPU workflow here starts postflop. Preflop ranges/pot/stack are inputs; preflop is not solved.
 
-- require a clean checkout whose HEAD matches `origin/main` before solving;
-- isolate transient work under ignored `output/`;
-- solve every requested board;
-- validate every full-tree export;
-- write reproducibility metadata and copy exact inputs;
-- if any board/export fails: STOP, do not commit/push results;
-- after total success: move the run to `results/`, `git add`, commit, rebase on current `origin/main`, push `main`.
+The current baseline supports node-specific/current-street export only. The architectural requirement for future runner work is: **solve the configured tree once, persist the complete solved tree, analyze arbitrary nodes later without another GPU solve.**
 
-The user should normally run one command only.
-
-Active command:
-
-```powershell
-.\scripts\RUN__STU002__BRD001__AND_PUSH.cmd
-```
-
-Resume only after an exporter/runtime issue has been fixed:
-
-```powershell
-powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\Run-STU002.ps1 -Resume
-```
-
-## 7. Results and analysis
-
-`results/` stores versioned solved-tree study runs. `analysis/` starts empty after the 2026-09-08 reset. Analysis must read saved full trees; it must never require a new GPU solve just to inspect a different node/street.
-
-When simplifying poker strategy later:
-
-- weight by reach probability;
-- distinguish local forced-action loss from adaptive exploitability;
-- do not use equity unless explicitly requested;
-- optimize for human-executable rules, not solver-frequency cloning;
-- keep source solver profiles and any simplification artifacts reproducible.
-
-## 8. Historical studies
-
-The old CFG001/CFG002/CFG003 node-specific datasets and universal-strategy EXP-001..004 were removed from current `main`. Their methodology/history is summarized in `docs/HISTORY.md`, and their exact files remain recoverable from Git history (notably commit `bec0b758fe7957a45d028f1adaa2a5252ff0598a`).
-
-Historical CFG001 **tree settings** are intentionally reused by active STU002; its old node-only result datasets are not active evidence.
-
-## 9. Git rules
-
-The user authorizes direct commits/pushes to `main` for normal repository work. Fetch current files before replacing them. Do not overwrite newer remote changes from memory.
-
-For runner/study changes, update static CI and inspect actual job logs. GPU solves themselves run on the user's Windows/NVIDIA machine.
-
-## 10. First files to read in a new chat
+## First files to read in a new chat
 
 1. `AGENTS.md`
 2. `README.md`
-3. `docs/ARCHITECTURE.md`
-4. `docs/STUDY_REGISTRY.md`
-5. `docs/BRIDGE_SCHEMA.md`
-6. latest relevant `results/STU002__.../RUN_MANIFEST.json` if one exists
+3. `docs/BASELINE.md`
+4. `docs/BRIDGE_SCHEMA.md`
+5. `docs/HISTORY.md`
 
-Do not reconstruct current behavior from old chat memory when `main` can be read.
+Do not reconstruct current behavior from old conversation memory when `main` can be read.

@@ -1,0 +1,41 @@
+name: Runner baseline check
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  check:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Parse PowerShell baseline
+        shell: pwsh
+        run: |
+          $files = @('tsgpu-worker.ps1','tsgpu-batch.ps1','scripts/Range-Utils.ps1')
+          foreach ($f in $files) {
+            $tokens=$null; $errors=$null
+            [System.Management.Automation.Language.Parser]::ParseFile((Resolve-Path $f),[ref]$tokens,[ref]$errors) | Out-Null
+            if ($errors.Count) {
+              Write-Host "PARSER ERRORS IN $f"
+              $errors | ForEach-Object { Write-Host ("line {0}: {1} :: {2}" -f $_.Extent.StartLineNumber,$_.ErrorId,$_.Message) }
+              exit 1
+            }
+          }
+      - name: Validate clean baseline
+        shell: pwsh
+        run: |
+          foreach ($forbidden in @('datasets','analysis','results','studies','configs','tools')) {
+            if (Test-Path $forbidden) { throw "Forbidden result/study directory present: $forbidden" }
+          }
+          $worker = Get-Content tsgpu-worker.ps1 -Raw
+          if ($worker -notmatch "v015-production") { throw 'Worker is not the proven v015 baseline' }
+          foreach ($bad in @('solver.export.fullTree','solver.export.allStreets','solver.export.fullStrategy','solver.dump.strategy','FULL_TREE_EXPORT_UNRESOLVED','Test-FullTreeJson')) {
+            if ($worker.Contains($bad)) { throw "Experimental full-tree probe leaked into baseline: $bad" }
+          }
+          $ranges = @(Get-ChildItem ranges -File)
+          if ($ranges.Count -ne 6) { throw "Expected 6 source range files; got $($ranges.Count)" }
+          $boards = @(Get-Content boards/BRD001__FLOP_UNPAIRED_RAINBOW__ISO286__V1.txt | Where-Object { $_.Trim() })
+          if ($boards.Count -ne 286) { throw "Expected 286 BRD001 boards; got $($boards.Count)" }
+          if (-not (Test-Path smoke/CFG001-one-board.json) -or -not (Test-Path smoke/boards.txt)) { throw 'Smoke fixture missing' }
+          Write-Host 'PASS: clean v015 runner-development baseline.'

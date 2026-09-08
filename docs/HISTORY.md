@@ -1,47 +1,77 @@
-# Research history before the full-tree reset
+# Project history
 
-## Why the repository was reset on 2026-09-08
+This file records what was done so future work does not repeat discarded approaches. Historical outputs are intentionally absent from active `main`.
 
-The first research cycle successfully automated TexasSolverGPU and produced seven flop-node datasets, but later review exposed a methodological problem in the study definitions.
+## 1. Working runner generation through v015
 
-The old setup used separate trees for UTG-vs-BB B33 and B75:
+The project automated `TexasSolverGpu_131.exe` from TexasSolverGPU v0.2.0 through its WebView2 bridge.
 
-- CFG001 allowed only B33 at the studied UTG flop bet node;
-- CFG002 replaced that single size with B75.
-
-That means the UTG range arriving in the B75 branch was optimized in a world where B33 did not exist, and vice versa. Those are not the same branch ranges that arise when B33 and B75 compete inside one solved tree. Therefore the old B33/B75 defense datasets must not be treated as two branches of one real strategy.
-
-The old runner also solved the same tree repeatedly to export different decision nodes. TexasSolverGPU solves the configured game tree, while the runner was storing only one selected node. That discarded information needed for later turn/river analysis and wasted GPU time.
-
-## What remains useful from the old cycle
-
-The cycle established several reliable engineering facts:
-
-- `TexasSolverGpu_131.exe` can be automated headlessly through its WebView2 bridge;
-- multiple bet sizes are accepted by the native config as a comma-separated sizing list;
-- the bridge can initialize, allocate, solve, poll status, apply history and export strategy data;
-- `RNG001` and `BRD001` definitions were audited;
-- board isolation/retry and manifesting are useful production patterns;
-- `loss_if_action` is local regret against the solved opponent strategy, not adaptive exploitability.
-
-It also established a poker-research lesson: aggregate EV/frequency objectives can produce ugly human policies if compression is attempted before preserving the correct underlying solved tree.
-
-## Historical locations
-
-Immediately before reset, remote main was:
+By the state represented by commit:
 
 `bec0b758fe7957a45d028f1adaa2a5252ff0598a`
 
-That Git history contains:
+the runner had a proven `v015-production` core that could start the desktop runtime headlessly, suppress its window, initialize/allocate, solve, poll status, navigate action histories and export a selected current-street strategy node.
 
-- old CFG001/CFG002/CFG003 configs;
-- all seven old datasets;
-- old analysis reports;
-- universal strategy EXP-001 through EXP-004;
-- runner v015 decision-node exporters.
+That commit is the source of the worker/batch files retained in the clean baseline.
 
-They are intentionally absent from current `main` so a new study cannot accidentally mix old and new evidence.
+## 2. First research cycle — discarded outputs
 
-## New rule
+The old repository calculated seven node-specific datasets over BRD001, covering UTG-vs-BB and UTG-vs-BTN flop decisions/responses. It also accumulated strategy reports and universal-strategy experiments EXP-001 through EXP-004.
 
-**Solve once, export the complete postflop strategy tree, analyze later.**
+Those files were useful for learning how the solver/runner behaved, but the user later decided that none of these calculated outputs should remain in active `main`. They are recoverable from Git history if ever needed.
+
+No old dataset or strategy result is active evidence now.
+
+## 3. Architectural problem discovered
+
+The old workflow often solved the same configured postflop tree again merely to export another decision node. TexasSolverGPU had already solved the configured tree, while the runner persisted only one selected node.
+
+That wastes GPU time and prevents later turn/river analysis from the same solution.
+
+A second issue was identified when alternative flop bet sizes were studied in separate trees: branch ranges differ when a sizing exists as the only bet versus when it competes with other sizes. This made the old separate-size datasets unsuitable as branches of one common strategy.
+
+The durable architectural requirement became:
+
+**solve the configured postflop tree once, persist the complete solved strategy tree, analyze arbitrary nodes later without another GPU solve.**
+
+## 4. 2026-09-08 full-tree reset attempt — rejected implementation
+
+A new `v020` generation was created after the first research-cycle cleanup. It introduced STU001/STU002-style full-tree study contracts and tried to persist the whole solution.
+
+However, the actual complete-tree native export mechanism had not been identified. The experimental worker instead probed plausible names such as `solver.export.fullTree`, `solver.export.fullStrategy`, `solver.dump.strategy`, and similar endpoints, then accepted JSON heuristically if it appeared to contain turn/river structure.
+
+The user correctly challenged this as a workaround rather than a real implementation. The experiment was abandoned before a production study was launched.
+
+Relevant historical commits include the clean/full-tree experiment sequence around:
+
+- `2ac68b65dbffa63a74872f829a3100fecc57ca6f`;
+- `af522a65f2db4e3ebee192b99ac3d95577e65521`;
+- `772a8034060c47ae2e2f9eaf718bf324123fed8d`.
+
+These commits remain history only. Their guessed exporter logic is not part of the baseline.
+
+## 5. Clean baseline decision
+
+The repository was then intentionally reduced to source inputs, documentation and the proven v015 runner core.
+
+Removed from active `main`:
+
+- all datasets;
+- all analysis/results;
+- all study definitions/launchers;
+- all old configs except one smoke fixture;
+- all strategy/report tools;
+- the v020 guessed full-tree exporter.
+
+Retained:
+
+- RNG001 and RNG002 source ranges;
+- BRD001 source flop list;
+- one smoke fixture;
+- `Range-Utils.ps1`;
+- v015 worker/batch core;
+- engineering history/instructions and static CI.
+
+## 6. Next step
+
+A separate runner-development effort should identify the **real** TexasSolverGPU complete-strategy save/export mechanism from the installed runtime/frontend and prove it on one board before any new large study is created.
