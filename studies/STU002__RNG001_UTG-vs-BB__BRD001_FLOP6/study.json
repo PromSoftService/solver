@@ -1,0 +1,79 @@
+{
+  "schema_version": 2,
+  "study_id": "STU002",
+  "name": "RNG001 UTG vs BB complete six-branch BRD001 flop study",
+  "range_id": "RNG001",
+  "board_set_id": "BRD001",
+  "board_file": "boards/BRD001__FLOP_UNPAIRED_RAINBOW__ISO286__V1.txt",
+  "execution_model": "Each branch is a separate stock job: one board, one GPU solve, one history, one current-street export.",
+  "normal_sizings_pct": {
+    "flop": { "oop_bet_or_donk": 50, "ip_bet": 50, "raise_native": 60 },
+    "turn": { "oop_bet_or_donk": 50, "ip_bet": 50, "raise_native": 60 },
+    "river": { "oop_bet_or_donk": 75, "ip_bet": 100, "raise_native": 60 }
+  },
+  "max_normal_raises_after_opening_bet": 1,
+  "native_max_raise_number": 2,
+  "all_in_semantics": "Inherited unchanged from proven v015: enabled for both players on every street with addAllinThreshold=200.",
+  "branches": [
+    {
+      "id": "01_BB_FIRST",
+      "decision_node": "BB_FIRST",
+      "acting_player": "BB",
+      "history": "flop root",
+      "actions": "Check / Donk 50%",
+      "action_shape": "CHECK_DONK",
+      "expected_bet_amount": 28,
+      "expected_raise_amount": 0
+    },
+    {
+      "id": "02_UTG_AFTER_CHECK",
+      "decision_node": "UTG_CBET",
+      "acting_player": "UTG",
+      "history": "BB Check",
+      "actions": "Check / Bet 50%",
+      "action_shape": "CHECK_BET",
+      "expected_bet_amount": 28,
+      "expected_raise_amount": 0
+    },
+    {
+      "id": "03_BB_AFTER_CBET",
+      "decision_node": "BB_RESPONSE",
+      "acting_player": "BB",
+      "history": "BB Check -> UTG Bet 50%",
+      "actions": "Fold / Call / Raise 60 native",
+      "action_shape": "FOLD_CALL_RAISE",
+      "expected_bet_amount": 28,
+      "expected_raise_amount": 95
+    },
+    {
+      "id": "04_UTG_AFTER_CHECK_RAISE",
+      "decision_node": "UTG_VS_CHECK_RAISE",
+      "acting_player": "UTG",
+      "history": "BB Check -> UTG Bet 50% -> BB Raise 60 native",
+      "actions": "Fold / Call",
+      "action_shape": "FOLD_CALL",
+      "expected_bet_amount": 28,
+      "expected_raise_amount": 95
+    },
+    {
+      "id": "05_UTG_AFTER_DONK",
+      "decision_node": "UTG_VS_DONK",
+      "acting_player": "UTG",
+      "history": "BB Donk 50%",
+      "actions": "Fold / Call / Raise 60 native",
+      "action_shape": "FOLD_CALL_RAISE",
+      "expected_bet_amount": 28,
+      "expected_raise_amount": 95
+    },
+    {
+      "id": "06_BB_AFTER_DONK_RAISE",
+      "decision_node": "BB_VS_DONK_RAISE",
+      "acting_player": "BB",
+      "history": "BB Donk 50% -> UTG Raise 60 native",
+      "actions": "Fold / Call",
+      "action_shape": "FOLD_CALL",
+      "expected_bet_amount": 28,
+      "expected_raise_amount": 95
+    }
+  ]
+}

@@ -39,7 +39,11 @@ Command-line options override matching `runner` values from JSON. The relevant s
 }
 ```
 
-Supported branch presets: `BB_RESPONSE`, `UTG_CBET`, `UTG_OOP_CBET`, `BTN_RESPONSE`, `BTN_STAB`, and `UTG_RESPONSE`. `expectedBetAmount` and `expectedRaiseAmount` are safety checks; use `0` to disable a check.
+Supported UTG-vs-BB flop presets are `BB_FIRST`, `UTG_CBET`, `BB_RESPONSE`,
+`UTG_VS_CHECK_RAISE`, `UTG_VS_DONK`, and `BB_VS_DONK_RAISE`. Existing
+UTG-vs-BTN presets remain `UTG_OOP_CBET`, `BTN_RESPONSE`, `BTN_STAB`, and
+`UTG_RESPONSE`. `expectedBetAmount` and `expectedRaiseAmount` are safety
+checks; use `0` to disable a check.
 
 ## Output
 
@@ -55,3 +59,8 @@ See `example/README.md`, `docs/BASELINE.md`, `docs/BRIDGE_SCHEMA.md`, and `docs/
 performance study. It uses RNG001, five canonical BRD001 flops, one 50% normal
 bet size on flop and turn, and writes raw output locally under `output/` plus
 compact tracked reports under `datasets/`.
+
+`studies/STU002__RNG001_UTG-vs-BB__BRD001_FLOP6/` defines six independent
+stock jobs that cover the complete normal-action UTG-vs-BB flop interaction
+over BRD001. Each board/branch still performs its own solve and exactly one
+current-street export.

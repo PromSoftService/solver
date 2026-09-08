@@ -107,3 +107,22 @@ One useful usability improvement from the work was retained: `runner.decisionNod
 The `example/` directory documents and exercises five flops for the UTG 2.5bb open / BB call spot with pot 55, effective stack 975, IP flop bet 33%, OOP flop bet disabled, and OOP raise 60%. The separate `smoke/` fixture remains one board.
 
 The final Windows/NVIDIA verification used the exact three-argument command from `example/README.md`. All five boards completed successfully in 52.6 seconds total. Every board produced the five documented output files, used exactly one `solver.solve.start` and one `solver.export.currentStreet`, selected `BB_RESPONSE`, and returned `Fold / Call / Raise 73`. No guessed/full-tree bridge call appeared in any transcript.
+
+## 9. STU001 timing proof and STU002 flop study
+
+STU001 introduced the agreed single-size UTG-vs-BB abstraction: 50% flop and
+turn bets, 75% OOP / 100% IP river bets, native raise size 60, and one normal
+raise after the opening bet. TexasSolver counts the opening bet in
+`maxRaiseNumber`, so this is encoded as `maxRaiseNumber=2`.
+
+A clean five-board Windows/NVIDIA run completed 5/5 in 117.561 seconds. This
+established an approximate two-hour runtime for one selected decision over all
+286 BRD001 flops.
+
+STU002 then defined six independent selected-branch jobs for the complete
+normal-action flop interaction: BB first action, UTG after BB check, BB after
+UTG c-bet, UTG after BB check-raise, UTG after BB donk, and BB after UTG raises
+the donk. These presets use only `solver.history.apply`,
+`solver.node.actionsAfter`, and one `solver.export.currentStreet` after a fresh
+solve. Turn and river remain in the solve as continuation abstractions but are
+not exported or analyzed by STU002.

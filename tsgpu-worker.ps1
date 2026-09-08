@@ -8,7 +8,7 @@ param(
     [double]$TargetExploitability = 0.5,
     [int]$ExpectedBetAmount = 0,
     [int]$ExpectedRaiseAmount = 0,
-    [ValidateSet('BB_RESPONSE', 'UTG_CBET', 'UTG_OOP_CBET', 'BTN_RESPONSE', 'BTN_STAB', 'UTG_RESPONSE')][string]$DecisionNode = 'BB_RESPONSE',
+    [ValidateSet('BB_FIRST', 'UTG_CBET', 'BB_RESPONSE', 'UTG_VS_CHECK_RAISE', 'UTG_VS_DONK', 'BB_VS_DONK_RAISE', 'UTG_OOP_CBET', 'BTN_RESPONSE', 'BTN_STAB', 'UTG_RESPONSE')][string]$DecisionNode = 'BB_RESPONSE',
     [int]$ExportMaxNodes = 5000,
     [int]$SolveTimeoutMinutes = 180,
     [switch]$ShowHostWindow,
@@ -467,6 +467,13 @@ function Find-ActionIndex([string[]]$Actions, [string]$Kind, [Nullable[int]]$Amo
     throw "Cannot select $Kind $Amount from actions: $($Actions -join ' / ')"
 }
 
+function Find-WagerActionIndex([string[]]$Actions, [Nullable[int]]$Amount) {
+    foreach ($kind in @('Bet', 'Raise', 'Donk')) {
+        try { return Find-ActionIndex $Actions $kind $Amount } catch {}
+    }
+    throw "Cannot select wager $Amount from actions: $($Actions -join ' / ')"
+}
+
 function Get-ActionSlot([string[]]$Actions, [string]$Kind) {
     for ($i = 0; $i -lt $Actions.Count; $i++) {
         if ($Actions[$i] -match "(?i)^$([regex]::Escape($Kind))(?:(?:\s+|:)|$)") { return $i }
@@ -579,7 +586,12 @@ try {
     Invoke-Bridge $socket 'solver.history.apply' '/api/apply-history' 'POST' ([ordered]@{ history = @() }) 10000 $transcript | Out-Null
     $rootActions = Split-Actions (Invoke-Bridge $socket 'solver.node.actionsAfter' '/api/actions-after' 'POST' ([ordered]@{ append = @() }) 10000 $transcript)
 
-    if ($DecisionNode -eq 'UTG_OOP_CBET') {
+    if ($DecisionNode -eq 'BB_FIRST') {
+        # Export BB's first flop decision in UTG-open / BB-call pots.
+        $exportHistory = @()
+        $selectedActions = @()
+        $actingPlayer = 'BB'
+    } elseif ($DecisionNode -eq 'UTG_OOP_CBET') {
         # Export the flop root before UTG acts. This is the OOP UTG decision in
         # UTG-open / BTN-call single-raised pots.
         $exportHistory = @()
@@ -588,17 +600,30 @@ try {
     } elseif ($DecisionNode -eq 'BTN_RESPONSE') {
         # Export BTN's Fold/Call/Raise response after UTG bets at the flop root.
         # Native APIs may label a first wager Bet or Raise, so accept either.
-        $rootBet = $null
-        try {
-            $rootBet = Find-ActionIndex $rootActions 'Bet' ([Nullable[int]]$ExpectedBetAmount)
-        } catch {
-            $rootBet = Find-ActionIndex $rootActions 'Raise' ([Nullable[int]]$ExpectedBetAmount)
-        }
+        $rootBet = Find-WagerActionIndex $rootActions ([Nullable[int]]$ExpectedBetAmount)
         $history = @([int]$rootBet.Index)
         Invoke-Bridge $socket 'solver.history.apply' '/api/apply-history' 'POST' ([ordered]@{ history = $history }) 10000 $transcript | Out-Null
         $exportHistory = @($history)
         $selectedActions = @($rootBet.Label)
         $actingPlayer = 'BTN'
+    } elseif ($DecisionNode -in @('UTG_VS_DONK', 'BB_VS_DONK_RAISE')) {
+        $donk = Find-WagerActionIndex $rootActions ([Nullable[int]]$ExpectedBetAmount)
+        $history = @([int]$donk.Index)
+        Invoke-Bridge $socket 'solver.history.apply' '/api/apply-history' 'POST' ([ordered]@{ history = $history }) 10000 $transcript | Out-Null
+
+        if ($DecisionNode -eq 'UTG_VS_DONK') {
+            $exportHistory = @($history)
+            $selectedActions = @($donk.Label)
+            $actingPlayer = 'UTG'
+        } else {
+            $utgActions = Split-Actions (Invoke-Bridge $socket 'solver.node.actionsAfter' '/api/actions-after' 'POST' ([ordered]@{ append = @() }) 10000 $transcript)
+            $raise = Find-ActionIndex $utgActions 'Raise' ([Nullable[int]]$ExpectedRaiseAmount)
+            $history = @($history + [int]$raise.Index)
+            Invoke-Bridge $socket 'solver.history.apply' '/api/apply-history' 'POST' ([ordered]@{ history = $history }) 10000 $transcript | Out-Null
+            $exportHistory = @($history)
+            $selectedActions = @($donk.Label, $raise.Label)
+            $actingPlayer = 'BB'
+        }
     } else {
         $check = Find-ActionIndex $rootActions 'Check' $null
         $history = @([int]$check.Index)
@@ -621,24 +646,30 @@ try {
         } elseif ($DecisionNode -eq 'UTG_RESPONSE') {
             # Export UTG's Fold/Call/Raise response after UTG checks and BTN bets 33%.
             # Native APIs may label the first IP wager Bet or Raise, so accept either.
-            $bet = $null
-            try {
-                $bet = Find-ActionIndex $ipActions 'Bet' ([Nullable[int]]$ExpectedBetAmount)
-            } catch {
-                $bet = Find-ActionIndex $ipActions 'Raise' ([Nullable[int]]$ExpectedBetAmount)
-            }
+            $bet = Find-WagerActionIndex $ipActions ([Nullable[int]]$ExpectedBetAmount)
             $history = @($history + [int]$bet.Index)
             Invoke-Bridge $socket 'solver.history.apply' '/api/apply-history' 'POST' ([ordered]@{ history = $history }) 10000 $transcript | Out-Null
             $exportHistory = @($history)
             $selectedActions = @($check.Label, $bet.Label)
             $actingPlayer = 'UTG'
-        } else {
-            $bet = Find-ActionIndex $ipActions 'Bet' ([Nullable[int]]$ExpectedBetAmount)
+        } elseif ($DecisionNode -eq 'BB_RESPONSE') {
+            $bet = Find-WagerActionIndex $ipActions ([Nullable[int]]$ExpectedBetAmount)
             $history = @($history + [int]$bet.Index)
             Invoke-Bridge $socket 'solver.history.apply' '/api/apply-history' 'POST' ([ordered]@{ history = $history }) 10000 $transcript | Out-Null
             $exportHistory = @($history)
             $selectedActions = @($check.Label, $bet.Label)
             $actingPlayer = 'BB'
+        } else {
+            $bet = Find-WagerActionIndex $ipActions ([Nullable[int]]$ExpectedBetAmount)
+            $history = @($history + [int]$bet.Index)
+            Invoke-Bridge $socket 'solver.history.apply' '/api/apply-history' 'POST' ([ordered]@{ history = $history }) 10000 $transcript | Out-Null
+            $bbActions = Split-Actions (Invoke-Bridge $socket 'solver.node.actionsAfter' '/api/actions-after' 'POST' ([ordered]@{ append = @() }) 10000 $transcript)
+            $raise = Find-ActionIndex $bbActions 'Raise' ([Nullable[int]]$ExpectedRaiseAmount)
+            $history = @($history + [int]$raise.Index)
+            Invoke-Bridge $socket 'solver.history.apply' '/api/apply-history' 'POST' ([ordered]@{ history = $history }) 10000 $transcript | Out-Null
+            $exportHistory = @($history)
+            $selectedActions = @($check.Label, $bet.Label, $raise.Label)
+            $actingPlayer = 'UTG'
         }
     }
 
@@ -646,13 +677,15 @@ try {
     $node = Read-Property $export 'payload' $export
     $validActions = @($node.valid_actions)
 
-    if ($DecisionNode -in @('UTG_CBET', 'UTG_OOP_CBET', 'BTN_STAB')) {
+    $checkBetDecisionNodes = @('BB_FIRST', 'UTG_CBET', 'UTG_OOP_CBET', 'BTN_STAB')
+    $foldCallDecisionNodes = @('UTG_VS_CHECK_RAISE', 'BB_VS_DONK_RAISE')
+    if ($DecisionNode -in $checkBetDecisionNodes) {
         $checkSlot = Get-ActionSlot $validActions 'Check'
         # TexasSolverGPU v0.2.0 may expose a first wager as either Bet or Raise
         # depending on the native API. Treat both labels as the semantic UTG bet.
         $betSlot = $null
         for ($i = 0; $i -lt $validActions.Count; $i++) {
-            if ($validActions[$i] -match '(?i)^(?:Bet|Raise)(?:(?:\s+|:)|$)') {
+            if ($validActions[$i] -match '(?i)^(?:Bet|Raise|Donk)(?:(?:\s+|:)|$)') {
                 $betSlot = $i
                 break
             }
@@ -663,8 +696,14 @@ try {
         if ($validActions.Count -ne 2) {
             throw "$DecisionNode expects exactly Check plus one wager at the target node; got: $($validActions -join ' / ')"
         }
-        if ($ExpectedBetAmount -gt 0 -and $validActions[$betSlot] -notmatch "(?i)^(?:Bet|Raise)(?:\s+|:)\s*$ExpectedBetAmount(?:\.0+)?$") {
+        if ($ExpectedBetAmount -gt 0 -and $validActions[$betSlot] -notmatch "(?i)^(?:Bet|Raise|Donk)(?:\s+|:)\s*$ExpectedBetAmount(?:\.0+)?$") {
             throw "Expected wager $ExpectedBetAmount, got: $($validActions -join ' / ')"
+        }
+    } elseif ($DecisionNode -in $foldCallDecisionNodes) {
+        $foldSlot = Get-ActionSlot $validActions 'Fold'
+        $callSlot = Get-ActionSlot $validActions 'Call'
+        if ($validActions.Count -ne 2) {
+            throw "$DecisionNode expects exactly Fold and Call after the single normal raise; got: $($validActions -join ' / ')"
         }
     } else {
         $foldSlot = Get-ActionSlot $validActions 'Fold'
@@ -688,7 +727,17 @@ try {
     $combos = for ($i = 0; $i -lt $cards.Count; $i++) {
         $p = @($probs[$i]); $e = @($actionEvs[$i])
         if ($p.Count -ne $validActions.Count -or $e.Count -ne $validActions.Count) { throw "Action vector mismatch at combo $($cards[$i])." }
-        if ($DecisionNode -in @('UTG_CBET', 'UTG_OOP_CBET', 'BTN_STAB')) {
+        if ($DecisionNode -eq 'BB_FIRST') {
+            [ordered]@{
+                combo = [string]$cards[$i]
+                reach_probability = [double]$reach[$i]
+                check_frequency = [double]$p[$checkSlot]
+                donk_frequency = [double]$p[$betSlot]
+                ev_check = [double]$e[$checkSlot]
+                ev_donk = [double]$e[$betSlot]
+                mixed_ev = [double]$mixedEvs[$i]
+            }
+        } elseif ($DecisionNode -in $checkBetDecisionNodes) {
             [ordered]@{
                 combo = [string]$cards[$i]
                 reach_probability = [double]$reach[$i]
@@ -696,6 +745,16 @@ try {
                 bet_frequency = [double]$p[$betSlot]
                 ev_check = [double]$e[$checkSlot]
                 ev_bet = [double]$e[$betSlot]
+                mixed_ev = [double]$mixedEvs[$i]
+            }
+        } elseif ($DecisionNode -in $foldCallDecisionNodes) {
+            [ordered]@{
+                combo = [string]$cards[$i]
+                reach_probability = [double]$reach[$i]
+                fold_frequency = [double]$p[$foldSlot]
+                call_frequency = [double]$p[$callSlot]
+                ev_fold = [double]$e[$foldSlot]
+                ev_call = [double]$e[$callSlot]
                 mixed_ev = [double]$mixedEvs[$i]
             }
         } else {

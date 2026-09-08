@@ -16,7 +16,9 @@ jobs:
             'tsgpu-worker.ps1',
             'tsgpu-batch.ps1',
             'scripts/Range-Utils.ps1',
-            'studies/STU001__RNG001_UTG-vs-BB__5FLOP_50-50/run.ps1'
+            'studies/STU001__RNG001_UTG-vs-BB__5FLOP_50-50/run.ps1',
+            'studies/STU002__RNG001_UTG-vs-BB__BRD001_FLOP6/run-branch.ps1',
+            'studies/STU002__RNG001_UTG-vs-BB__BRD001_FLOP6/run-all.ps1'
           )
           foreach ($f in $files) {
             $tokens=$null; $errors=$null
@@ -62,5 +64,22 @@ jobs:
           if ($studyConfig.config.ipFlopBet -ne '50' -or $studyConfig.config.ipTurnBet -ne '50' -or $studyConfig.config.ipRiverBet -ne '100') { throw 'STU001 IP sizing invalid' }
           if ($studyConfig.config.oopFlopBet -ne '50' -or $studyConfig.config.oopTurnDonk -ne '50' -or $studyConfig.config.oopRiverDonk -ne '75') { throw 'STU001 OOP sizing invalid' }
           if ([int]$studyConfig.config.maxRaiseNumber -ne 2) { throw 'STU001 maxRaiseNumber invalid' }
+          $study2Path = 'studies/STU002__RNG001_UTG-vs-BB__BRD001_FLOP6'
+          $study2 = Get-Content "$study2Path/study.json" -Raw | ConvertFrom-Json
+          $study2Config = Get-Content "$study2Path/config.json" -Raw | ConvertFrom-Json
+          $expectedBranches = @('BB_FIRST','UTG_CBET','BB_RESPONSE','UTG_VS_CHECK_RAISE','UTG_VS_DONK','BB_VS_DONK_RAISE')
+          $actualBranches = @($study2.branches | ForEach-Object { $_.decision_node })
+          if ($study2.study_id -ne 'STU002' -or $actualBranches.Count -ne 6) { throw 'STU002 manifest invalid' }
+          if (@($actualBranches | Select-Object -Unique).Count -ne 6) { throw 'STU002 decision nodes are not unique' }
+          foreach ($decision in $expectedBranches) {
+            if ($actualBranches -notcontains $decision) { throw "STU002 is missing $decision" }
+            if (-not $worker.Contains("'$decision'")) { throw "Worker is missing STU002 preset $decision" }
+            if (-not $batch.Contains("'$decision'")) { throw "Batch is missing STU002 preset $decision" }
+          }
+          if ($study2Config.runner.decisionNode -ne 'BB_FIRST' -or [int]$study2Config.runner.expectedBetAmount -ne 28 -or [int]$study2Config.runner.expectedRaiseAmount -ne 95) { throw 'STU002 runner guards invalid' }
+          if ($study2Config.config.ipFlopBet -ne '50' -or $study2Config.config.oopFlopBet -ne '50' -or [int]$study2Config.config.maxRaiseNumber -ne 2) { throw 'STU002 flop abstraction invalid' }
+          if (@($study2Config.config.ipRange).Count -ne 1326 -or @($study2Config.config.oopRange).Count -ne 1326) { throw 'STU002 range lengths invalid' }
+          if ((ConvertTo-Json @($study2Config.config.ipRange) -Compress) -ne (ConvertTo-Json @($studyConfig.config.ipRange) -Compress)) { throw 'STU002 IP range differs from proven RNG001 input' }
+          if ((ConvertTo-Json @($study2Config.config.oopRange) -Compress) -ne (ConvertTo-Json @($studyConfig.config.oopRange) -Compress)) { throw 'STU002 OOP range differs from proven RNG001 input' }
           if (-not (Test-Path datasets/README.md)) { throw 'Tracked dataset policy is missing' }
           Write-Host 'PASS: proven v015 selected current-street production runner.'

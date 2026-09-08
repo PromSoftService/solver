@@ -58,7 +58,7 @@ $effectiveTargetExploitability = if ($null -ne $TargetExploitability) { [double]
 $effectiveExpectedBetAmount = if ($null -ne $ExpectedBetAmount) { [int]$ExpectedBetAmount } else { [int](Read-FirstSetting 'expectedBetAmount' 0) }
 $effectiveExpectedRaiseAmount = if ($null -ne $ExpectedRaiseAmount) { [int]$ExpectedRaiseAmount } else { [int](Read-FirstSetting 'expectedRaiseAmount' 0) }
 $effectiveDecisionNode = if ($DecisionNode) { $DecisionNode } else { [string](Read-FirstSetting 'decisionNode' 'BB_RESPONSE') }
-$allowedDecisionNodes = @('BB_RESPONSE', 'UTG_CBET', 'UTG_OOP_CBET', 'BTN_RESPONSE', 'BTN_STAB', 'UTG_RESPONSE')
+$allowedDecisionNodes = @('BB_FIRST', 'UTG_CBET', 'BB_RESPONSE', 'UTG_VS_CHECK_RAISE', 'UTG_VS_DONK', 'BB_VS_DONK_RAISE', 'UTG_OOP_CBET', 'BTN_RESPONSE', 'BTN_STAB', 'UTG_RESPONSE')
 if ($allowedDecisionNodes -notcontains $effectiveDecisionNode) {
     throw "Unsupported decisionNode '$effectiveDecisionNode'. Allowed: $($allowedDecisionNodes -join ', ')."
 }

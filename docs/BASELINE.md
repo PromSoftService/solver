@@ -32,6 +32,7 @@ A full reconstruction was technically proven through repeated stock current-stre
 - `smoke/CFG001-one-board.json` plus `smoke/boards.txt`: one-board regression fixture.
 - `example/config.json` plus `example/boards.txt`: documented five-board, one-flop-sizing example.
 - `studies/STU001__RNG001_UTG-vs-BB__5FLOP_50-50/`: explicitly approved five-board performance study and report launcher.
+- `studies/STU002__RNG001_UTG-vs-BB__BRD001_FLOP6/`: six independent selected-branch jobs covering the normal-action flop interaction over BRD001.
 - `ranges/`: RNG001 and RNG002 source ranges.
 - `boards/BRD001...txt`: 286 canonical source flops; never use it for routine runner smoke tests.
 
@@ -51,3 +52,5 @@ The batch root contains `batch-summary.json` and `batch-summary.csv`. Raw runtim
 - Native schema compatibility is tied to TexasSolverGPU v0.2.0.
 - `-Resume` assumes the config itself has not changed; use a fresh output directory when changing ranges/tree/solve settings.
 - If the host exits before export, the solved in-memory state cannot be restored.
+- The STU002 branch presets add only verified history navigation before the one
+  stock current-street export; they do not change the solve/export boundary.
