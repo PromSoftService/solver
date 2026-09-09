@@ -53,7 +53,7 @@ try {
             Resume = $Resume
         }
         if ($SolverExe) { $arguments['SolverExe'] = $SolverExe }
-        & (Join-Path $studyDirectory 'run-branch.ps1') @arguments
+        & (Join-Path $PSScriptRoot 'run-branch.ps1') @arguments
 
         $branchReport = Get-Content -LiteralPath (Join-Path $datasetPath "$branchId\timing-report.json") -Raw -Encoding UTF8 | ConvertFrom-Json
         $branchRows.Add([pscustomobject][ordered]@{
