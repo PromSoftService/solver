@@ -49,3 +49,17 @@ aggregate analysis-ready `combos.csv` are written under
 This performs 1716 independent GPU solves and is expected to take roughly
 11–12 hours on the measured Windows/NVIDIA host. It does not use multi-export,
 full-tree traversal, guessed APIs or custom tree persistence.
+
+## Build the human strategy after all six datasets exist
+
+The completed compact datasets are already tracked. Rebuilding the strategy
+does not run the solver again:
+
+```text
+python scripts/generate-stu002-strategies.py
+node scripts/build-stu002-workbooks.mjs
+```
+
+The first command produces both the B13 and eight-flop-category policies from
+raw combo frequencies. The second produces the two approved Excel workbooks.
+See `docs/STU002_STRATEGY_WORKFLOW.md` for the complete frozen algorithm.

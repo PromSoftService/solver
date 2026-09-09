@@ -82,4 +82,27 @@ jobs:
           if ((ConvertTo-Json @($study2Config.config.ipRange) -Compress) -ne (ConvertTo-Json @($studyConfig.config.ipRange) -Compress)) { throw 'STU002 IP range differs from proven RNG001 input' }
           if ((ConvertTo-Json @($study2Config.config.oopRange) -Compress) -ne (ConvertTo-Json @($studyConfig.config.oopRange) -Compress)) { throw 'STU002 OOP range differs from proven RNG001 input' }
           if (-not (Test-Path datasets/README.md)) { throw 'Tracked dataset policy is missing' }
+          $strategyRoot = 'datasets/STU002__RNG001_UTG-vs-BB__BRD001_FLOP6/analysis'
+          foreach ($required in @(
+            "$strategyRoot/STU002_simplified_flop_strategy.xlsx",
+            "$strategyRoot/STU002_strategy_8_categories.xlsx",
+            "$strategyRoot/strategy-13/manifest.json",
+            "$strategyRoot/strategy-8/manifest.json",
+            'docs/STU002_STRATEGY_WORKFLOW.md',
+            'scripts/generate-stu002-strategies.py',
+            'scripts/build-stu002-workbooks.mjs'
+          )) {
+            if (-not (Test-Path $required -PathType Leaf)) { throw "Missing STU002 strategy standard file: $required" }
+          }
+          foreach ($obsolete in @('clustered-13-smooth-v2','layered-smooth-12')) {
+            if (Test-Path "$strategyRoot/$obsolete") { throw "Rejected STU002 smoothing output is active: $obsolete" }
+          }
           Write-Host 'PASS: proven v015 selected current-street production runner.'
+      - name: Rebuild and validate STU002 strategy data
+        shell: pwsh
+        run: |
+          python -m py_compile scripts/analyze-stu002.py scripts/generate-stu002-strategies.py
+          node --check scripts/build-stu002-workbooks.mjs
+          python scripts/analyze-stu002.py
+          python scripts/generate-stu002-strategies.py
+          git diff --exit-code -- datasets/STU002__RNG001_UTG-vs-BB__BRD001_FLOP6/analysis

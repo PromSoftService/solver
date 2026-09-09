@@ -3,6 +3,8 @@ _diagnostics/
 .tmp/
 *.tmp
 *.log
+*.inspect.ndjson
+.preview/
 __pycache__/
 *.pyc
 .DS_Store

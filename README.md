@@ -64,3 +64,8 @@ compact tracked reports under `datasets/`.
 stock jobs that cover the complete normal-action UTG-vs-BB flop interaction
 over BRD001. Each board/branch still performs its own solve and exactly one
 current-street export.
+
+Its completed compact datasets now feed two approved human-strategy tables:
+13 hand rows by B13 and the same hand rows by eight broader flop categories.
+The exact range provenance, classifiers, aggregation rule, EV audit and rebuild
+commands are fixed in `docs/STU002_STRATEGY_WORKFLOW.md`.

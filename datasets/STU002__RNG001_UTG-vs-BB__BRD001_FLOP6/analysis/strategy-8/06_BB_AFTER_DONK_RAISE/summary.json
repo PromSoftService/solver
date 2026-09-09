@@ -1,0 +1,31 @@
+{
+  "branch": "06_BB_AFTER_DONK_RAISE",
+  "acting_player": "BB",
+  "action_shape": "FOLD_CALL",
+  "threshold": 0.65,
+  "mix_rule": "strict 50/50 top two actions",
+  "csv_rows": 106381,
+  "active_rows": 57240,
+  "zero_reach_rows": 49141,
+  "hand_categories": 13,
+  "populated_cells": 82,
+  "reach_sum": 109275.67744199933,
+  "weighted_loss_native": 147741.54105184742,
+  "mean_local_loss_bb": 0.13520075510880705,
+  "solver_reach_weighted_frequencies": {
+    "fold": 0.41475921377116176,
+    "call": 0.5852407864160666
+  },
+  "simplified_reach_weighted_frequencies": {
+    "fold": 0.32027351254423536,
+    "call": 0.6797264874557725
+  },
+  "policy_cell_counts": {
+    "C": 50,
+    "F": 27,
+    "F/C": 5
+  },
+  "node_reach_fraction": 0.008244586404636283,
+  "root_loss_bb": 0.00111467430746663,
+  "incremental_root_loss_vs_13xB13_bb": -2.4170943226506023e-06
+}

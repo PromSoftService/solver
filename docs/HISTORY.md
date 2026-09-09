@@ -144,3 +144,25 @@ metadata instead of combo fields. Combo rows are now emitted as
 STU002 aggregation reads the canonical per-board `combos.json` with a
 combo-count check. The completed JSON outputs did not require another GPU solve;
 the affected CSV files were regenerated from them.
+
+## 11. STU002 human-strategy standard
+
+The first strict table retained too many base/draw combinations for practical
+study. A data-backed merge produced 13 displayed hand rows: seven made-hand
+bases, two 2-overcard rows, two A-high rows and two Air rows. Direct draws and
+BDFD remain strictly classified before this display mapping. For A-high and
+Air, a lone BDFD remains in the naked row; for 2 overcards it joins the draw
+row.
+
+Two later attempts tried to smooth action changes horizontally across B13.
+They were rejected after distorting important strategic structure, including
+BB low-board donks and UTG raise frequencies. Their scripts and generated
+outputs were removed from active `main`; Git history preserves them if they
+are ever needed for diagnosis.
+
+The accepted replacement does not smooth displayed labels. It recalculates
+cells directly from source solver combo frequencies at two flop resolutions:
+B13 and eight broader, mutually exclusive categories. Both use the same 13
+hand rows, a pure threshold strictly above 65%, otherwise an exact top-two
+50/50 mix. EV is a reach-weighted local-regret audit only. The complete active
+contract is `docs/STU002_STRATEGY_WORKFLOW.md`.

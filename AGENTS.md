@@ -21,6 +21,15 @@ Complete solved-tree persistence is not a production feature. Do not describe a 
 
 Keep source inputs and reusable examples in Git. Generated `output/` and `_diagnostics/` data stay ignored. The user has explicitly approved reproducible study packages under `studies/` and compact reports under `datasets/`; raw node exports remain local unless separately requested. Do not add solver binaries.
 
+## STU002 strategy standard
+
+The active human-strategy outputs are exactly two workbooks: the B13 table and
+the eight-flop-category table. Both use the same 13 displayed hand rows and are
+rebuilt directly from the tracked solver combo frequencies. Do not infer
+frequencies from displayed action labels and do not restore the discarded row
+smoothing experiments. Read `docs/STU002_STRATEGY_WORKFLOW.md` before changing
+STU002 classification, aggregation, thresholds, or workbooks.
+
 ## Full-tree research history
 
 The installed runtime exposes no monolithic full-tree save/load method. A diagnostic proved that the solved tree can be reconstructed by repeatedly combining `solver.history.apply`, `solver.cards.possible`, and `solver.export.currentStreet`. The complete one-board proof required 33,125 fragments, about 18.3 minutes of extraction, and a 589 MB archive. It was rejected as a production architecture.
@@ -46,3 +55,4 @@ GitHub-hosted CI cannot prove a CUDA solve. Never claim a runtime result that wa
 3. `docs/BASELINE.md`
 4. `docs/BRIDGE_SCHEMA.md`
 5. `docs/HISTORY.md`
+6. `docs/STU002_STRATEGY_WORKFLOW.md` when working on STU002

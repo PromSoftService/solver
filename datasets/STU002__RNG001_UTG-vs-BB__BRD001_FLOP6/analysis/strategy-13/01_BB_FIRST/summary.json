@@ -1,0 +1,29 @@
+{
+  "branch": "01_BB_FIRST",
+  "acting_player": "BB",
+  "action_shape": "CHECK_DONK",
+  "threshold": 0.65,
+  "mix_rule": "strict 50/50 top two actions",
+  "csv_rows": 106381,
+  "active_rows": 106381,
+  "zero_reach_rows": 0,
+  "hand_categories": 13,
+  "populated_cells": 126,
+  "reach_sum": 13254234.00020941,
+  "weighted_loss_native": 28296.20580191874,
+  "mean_local_loss_bb": 0.00021348805069739733,
+  "solver_reach_weighted_frequencies": {
+    "check": 0.9362318557873419,
+    "donk": 0.06376814428144364
+  },
+  "simplified_reach_weighted_frequencies": {
+    "check": 0.9722371461501238,
+    "donk": 0.027762853849885815
+  },
+  "policy_cell_counts": {
+    "X": 114,
+    "X/D": 12
+  },
+  "node_reach_fraction": 0.9999999999999555,
+  "root_loss_bb": 0.00021348805069738782
+}
