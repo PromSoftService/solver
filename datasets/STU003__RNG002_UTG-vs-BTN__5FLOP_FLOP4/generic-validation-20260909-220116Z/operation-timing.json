@@ -1,0 +1,47 @@
+﻿{
+    "schema_version":  1,
+    "study_id":  "STU003",
+    "operation":  "4 branches by 5 flops, including validation and parsing",
+    "started_at_utc":  "2026-09-09T22:01:16.2499255Z",
+    "ended_at_utc":  "2026-09-09T22:06:35.9439172Z",
+    "success":  true,
+    "resumed":  false,
+    "branches_expected":  4,
+    "branches_completed":  4,
+    "boards_expected_total":  20,
+    "boards_completed_total":  20,
+    "total_wall_ms_including_all_parsing":  319691,
+    "raw_output_root":  "D:\\current\\manuals\\покер\\sotf\\tsgpu-batch-production-v012\\output\\STU003__RNG002_UTG-vs-BTN__5FLOP_FLOP4\\generic-validation-20260909-220116Z",
+    "dataset_root":  "D:\\current\\manuals\\покер\\sotf\\tsgpu-batch-production-v012\\datasets\\STU003__RNG002_UTG-vs-BTN__5FLOP_FLOP4\\generic-validation-20260909-220116Z",
+    "branches":  [
+                     {
+                         "branch_id":  "01_UTG_FIRST",
+                         "decision_node":  "UTG_OOP_CBET",
+                         "boards_done":  5,
+                         "elapsed_ms_including_parsing":  85625,
+                         "result":  "PASS"
+                     },
+                     {
+                         "branch_id":  "02_BTN_AFTER_CHECK",
+                         "decision_node":  "BTN_STAB",
+                         "boards_done":  5,
+                         "elapsed_ms_including_parsing":  78301,
+                         "result":  "PASS"
+                     },
+                     {
+                         "branch_id":  "03_BTN_AFTER_CBET",
+                         "decision_node":  "BTN_RESPONSE",
+                         "boards_done":  5,
+                         "elapsed_ms_including_parsing":  77981,
+                         "result":  "PASS"
+                     },
+                     {
+                         "branch_id":  "04_UTG_AFTER_STAB",
+                         "decision_node":  "UTG_RESPONSE",
+                         "boards_done":  5,
+                         "elapsed_ms_including_parsing":  76952,
+                         "result":  "PASS"
+                     }
+                 ],
+    "error":  ""
+}

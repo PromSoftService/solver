@@ -1,0 +1,6 @@
+﻿"index","board","decision_node","status","output_directory","combos","iteration","exploitability","elapsed_ms","error"
+"1","As Kh 7d","BTN_RESPONSE","done","0001_As_Kh_7d","204","140","0,483700305223465","15483",""
+"2","Ks Qh 8d","BTN_RESPONSE","done","0002_Ks_Qh_8d","211","129","0,470053970813751","15598",""
+"3","Js Th 9d","BTN_RESPONSE","done","0003_Js_Th_9d","213","110","0,479280114173889","14324",""
+"4","Ts 7h 6d","BTN_RESPONSE","done","0004_Ts_7h_6d","216","129","0,476312279701233","15737",""
+"5","7s 5h 4d","BTN_RESPONSE","done","0005_7s_5h_4d","220","129","0,48757404088974","16650",""

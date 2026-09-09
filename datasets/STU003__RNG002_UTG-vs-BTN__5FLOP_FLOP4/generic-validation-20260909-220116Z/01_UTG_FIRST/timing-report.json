@@ -1,0 +1,38 @@
+﻿{
+    "schema_version":  1,
+    "study_id":  "STU003",
+    "branch_id":  "01_UTG_FIRST",
+    "decision_node":  "UTG_OOP_CBET",
+    "acting_player":  "UTG",
+    "history":  "flop root",
+    "actions":  "Check / Bet 50%",
+    "source_commit":  "cdcc428cacbbd5b3e49431e9897c01b6eaa672df",
+    "started_at_utc":  "2026-09-09T22:01:16.9885913Z",
+    "ended_at_utc":  "2026-09-09T22:02:42.6138012Z",
+    "resumed":  false,
+    "success":  true,
+    "boards_done":  5,
+    "boards_expected":  5,
+    "raw_output_path":  "D:\\current\\manuals\\покер\\sotf\\tsgpu-batch-production-v012\\output\\STU003__RNG002_UTG-vs-BTN__5FLOP_FLOP4\\generic-validation-20260909-220116Z\\01_UTG_FIRST",
+    "dataset_path":  "D:\\current\\manuals\\покер\\sotf\\tsgpu-batch-production-v012\\datasets\\STU003__RNG002_UTG-vs-BTN__5FLOP_FLOP4\\generic-validation-20260909-220116Z\\01_UTG_FIRST",
+    "timing_ms":  {
+                      "operation_total_wall_including_parsing":  85625,
+                      "solver_batch_wall":  85295,
+                      "validation_and_parsing_wall":  331,
+                      "board_sum":  85206,
+                      "mean":  17041,
+                      "median":  16175,
+                      "min":  14330,
+                      "max":  22313
+                  },
+    "validation":  {
+                       "required_files_per_board":  5,
+                       "exactly_one_solve_start_per_board":  true,
+                       "exactly_one_current_street_export_per_board":  true,
+                       "forbidden_full_tree_calls":  0,
+                       "aggregate_combo_csv":  true
+                   },
+    "errors":  [
+
+               ]
+}

@@ -1,0 +1,38 @@
+﻿{
+    "schema_version":  1,
+    "study_id":  "STU003",
+    "branch_id":  "04_UTG_AFTER_STAB",
+    "decision_node":  "UTG_RESPONSE",
+    "acting_player":  "UTG",
+    "history":  "UTG Check -\u003e BTN Bet 50%",
+    "actions":  "Fold / Call / Raise 60 native",
+    "source_commit":  "cdcc428cacbbd5b3e49431e9897c01b6eaa672df",
+    "started_at_utc":  "2026-09-09T22:05:18.9694475Z",
+    "ended_at_utc":  "2026-09-09T22:06:35.9212451Z",
+    "resumed":  false,
+    "success":  true,
+    "boards_done":  5,
+    "boards_expected":  5,
+    "raw_output_path":  "D:\\current\\manuals\\покер\\sotf\\tsgpu-batch-production-v012\\output\\STU003__RNG002_UTG-vs-BTN__5FLOP_FLOP4\\generic-validation-20260909-220116Z\\04_UTG_AFTER_STAB",
+    "dataset_path":  "D:\\current\\manuals\\покер\\sotf\\tsgpu-batch-production-v012\\datasets\\STU003__RNG002_UTG-vs-BTN__5FLOP_FLOP4\\generic-validation-20260909-220116Z\\04_UTG_AFTER_STAB",
+    "timing_ms":  {
+                      "operation_total_wall_including_parsing":  76952,
+                      "solver_batch_wall":  76746,
+                      "validation_and_parsing_wall":  206,
+                      "board_sum":  76726,
+                      "mean":  15345,
+                      "median":  15631,
+                      "min":  14215,
+                      "max":  16100
+                  },
+    "validation":  {
+                       "required_files_per_board":  5,
+                       "exactly_one_solve_start_per_board":  true,
+                       "exactly_one_current_street_export_per_board":  true,
+                       "forbidden_full_tree_calls":  0,
+                       "aggregate_combo_csv":  true
+                   },
+    "errors":  [
+
+               ]
+}

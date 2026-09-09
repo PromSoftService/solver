@@ -1,0 +1,6 @@
+﻿"index","board","decision_node","status","output_directory","combos","iteration","exploitability","elapsed_ms","error"
+"1","As Kh 7d","UTG_RESPONSE","done","0001_As_Kh_7d","261","140","0,483700305223465","15705",""
+"2","Ks Qh 8d","UTG_RESPONSE","done","0002_Ks_Qh_8d","266","129","0,470053970813751","15075",""
+"3","Js Th 9d","UTG_RESPONSE","done","0003_Js_Th_9d","274","110","0,479280114173889","14215",""
+"4","Ts 7h 6d","UTG_RESPONSE","done","0004_Ts_7h_6d","285","129","0,476312279701233","15631",""
+"5","7s 5h 4d","UTG_RESPONSE","done","0005_7s_5h_4d","299","129","0,48757404088974","16100",""

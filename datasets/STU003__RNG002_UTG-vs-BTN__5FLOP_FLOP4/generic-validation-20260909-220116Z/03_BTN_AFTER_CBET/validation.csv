@@ -1,0 +1,6 @@
+﻿"board","output_directory","decision_node","acting_player","actions","combos","solve_start_calls","current_street_export_calls","forbidden_full_tree_calls","result"
+"As Kh 7d","0001_As_Kh_7d","BTN_RESPONSE","BTN","Fold / Call / Raise 112","204","1","1","0","PASS"
+"Ks Qh 8d","0002_Ks_Qh_8d","BTN_RESPONSE","BTN","Fold / Call / Raise 112","211","1","1","0","PASS"
+"Js Th 9d","0003_Js_Th_9d","BTN_RESPONSE","BTN","Fold / Call / Raise 112","213","1","1","0","PASS"
+"Ts 7h 6d","0004_Ts_7h_6d","BTN_RESPONSE","BTN","Fold / Call / Raise 112","216","1","1","0","PASS"
+"7s 5h 4d","0005_7s_5h_4d","BTN_RESPONSE","BTN","Fold / Call / Raise 112","220","1","1","0","PASS"
