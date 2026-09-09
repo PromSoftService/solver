@@ -33,6 +33,7 @@ A full reconstruction was technically proven through repeated stock current-stre
 - `example/config.json` plus `example/boards.txt`: documented five-board, one-flop-sizing example.
 - `studies/STU001__RNG001_UTG-vs-BB__5FLOP_50-50/`: explicitly approved five-board performance study and report launcher.
 - `studies/STU002__RNG001_UTG-vs-BB__BRD001_FLOP6/`: six independent selected-branch jobs covering the normal-action flop interaction over BRD001.
+- `studies/STU003__RNG002_UTG-vs-BTN__5FLOP_FLOP4/`: four selected UTG-vs-BTN flop decisions over five pilot boards, with end-to-end timing through parsing.
 - `docs/STU002_STRATEGY_WORKFLOW.md`: the accepted post-processing contract and
   the two active human-strategy workbooks derived from the completed STU002
   compact datasets.

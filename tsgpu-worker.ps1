@@ -644,7 +644,8 @@ try {
             $selectedActions = @($check.Label)
             $actingPlayer = 'BTN'
         } elseif ($DecisionNode -eq 'UTG_RESPONSE') {
-            # Export UTG's Fold/Call/Raise response after UTG checks and BTN bets 33%.
+            # Export UTG's Fold/Call/Raise response after UTG checks and BTN bets
+            # the configured IP flop size.
             # Native APIs may label the first IP wager Bet or Raise, so accept either.
             $bet = Find-WagerActionIndex $ipActions ([Nullable[int]]$ExpectedBetAmount)
             $history = @($history + [int]$bet.Index)
