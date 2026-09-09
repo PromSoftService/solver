@@ -45,13 +45,16 @@ try {
     foreach ($branchId in $branchIds) {
         Write-Host ""
         Write-Host "[$($branchRows.Count + 1)/$($branchIds.Count)] Starting $branchId; total elapsed $([Math]::Round($operationTimer.Elapsed.TotalSeconds, 3)) s"
+        $branchOutputPath = Join-Path $outputPath $branchId
+        $branchDatasetPath = Join-Path $datasetPath $branchId
+        $branchCanResume = $Resume -and (Test-Path -LiteralPath (Join-Path $branchOutputPath 'batch-summary.csv') -PathType Leaf)
         $arguments = @{
             BranchId = $branchId
-            OutputDirectory = (Join-Path $outputPath $branchId)
-            DatasetDirectory = (Join-Path $datasetPath $branchId)
+            OutputDirectory = $branchOutputPath
+            DatasetDirectory = $branchDatasetPath
             StudyDirectory = $studyDirectory
-            Resume = $Resume
         }
+        if ($branchCanResume) { $arguments['Resume'] = $true }
         if ($SolverExe) { $arguments['SolverExe'] = $SolverExe }
         & (Join-Path $PSScriptRoot 'run-branch.ps1') @arguments
 
