@@ -1,0 +1,37 @@
+{
+  "branch": "03_BB_AFTER_CBET",
+  "acting_player": "BB",
+  "action_shape": "FOLD_CALL_RAISE",
+  "threshold": 0.65,
+  "all_mixes": "strict 50/50",
+  "csv_rows": 106381,
+  "active_rows": 106308,
+  "zero_reach_rows": 73,
+  "hand_categories": 13,
+  "populated_cells": 126,
+  "mean_local_loss_bb": 0.016859085175564843,
+  "reach_sum": 6937656.57339394,
+  "weighted_loss_native": 1169625.4308966575,
+  "solver_reach_weighted_frequencies": {
+    "fold": 0.478993331523032,
+    "call": 0.3909302086799,
+    "raise": 0.13007645935020065
+  },
+  "simplified_reach_weighted_frequencies": {
+    "fold": 0.47473569672032534,
+    "call": 0.4084165663621703,
+    "raise": 0.11684773691751384
+  },
+  "policy_cell_counts": {
+    "F": 30,
+    "F/C": 14,
+    "C": 46,
+    "C/R": 19,
+    "R": 15,
+    "F/R": 2
+  },
+  "model": "recommended-13",
+  "strict_root_loss_bb": 0.007167022619499563,
+  "root_loss_bb": 0.008824541885092161,
+  "incremental_root_loss_bb": 0.001657519265592598
+}

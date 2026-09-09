@@ -1,0 +1,37 @@
+{
+  "branch": "05_UTG_AFTER_DONK",
+  "acting_player": "UTG",
+  "action_shape": "FOLD_CALL_RAISE",
+  "threshold": 0.65,
+  "all_mixes": "strict 50/50",
+  "csv_rows": 80553,
+  "active_rows": 80553,
+  "zero_reach_rows": 0,
+  "hand_categories": 13,
+  "populated_cells": 135,
+  "mean_local_loss_bb": 0.01628671477594084,
+  "reach_sum": 845197.8969849964,
+  "weighted_loss_native": 137654.97077419664,
+  "solver_reach_weighted_frequencies": {
+    "fold": 0.28043412654921046,
+    "call": 0.590275828368219,
+    "raise": 0.12929004818488346
+  },
+  "simplified_reach_weighted_frequencies": {
+    "fold": 0.35653796600235643,
+    "call": 0.5833366794560944,
+    "raise": 0.060125354541555535
+  },
+  "policy_cell_counts": {
+    "F": 17,
+    "C/R": 42,
+    "F/R": 4,
+    "R": 14,
+    "F/C": 17,
+    "C": 41
+  },
+  "model": "recommended-13",
+  "strict_root_loss_bb": 0.0008627437985400035,
+  "root_loss_bb": 0.0010385735665449669,
+  "incremental_root_loss_bb": 0.0001758297680049634
+}
