@@ -1,0 +1,13 @@
+﻿hand_category,ABB,A[K/Q]x,A[J-T][9-5],A[J-T][4-2],A[9-7]x,A[6-2]x,BBB,BBx,K/Qx dis,K/Qx con,[J-8]x dis,[J-8]x con,[7-4]x
+Two pair+,C/R,C/R,C/R,C/R,C/R,C/R,C/R,C/R,C/R,C/R,C/R,C/R,C/R
+Overpair,—,—,—,—,—,—,C/R,C/R,C/R,C/R,C/R,C/R,C/R
+Top pair,C/R,C/R,C/R,C/R,C/R,C/R,C/R,C/R,C/R,C/R,C/R,C/R,C/R
+Second pair,C/R,C/R,C/R,C/R,C/R,C/R,C/R,C/R,C/R,C/R,C/R,C/R,C/R
+Third pair,C/R,C/R,C/R,C/R,C/R,C/R,C/R,C/R,C/R,C/R,C/R,C/R,C/R
+Underpair,C,C,C,C,C,C,C,C,C,C,C,C,C
+Weak pair,F/C,F/C,F/C,F/C,F/C,F/C,F/C,F/C,F/C,F/C,F/C,F/C,C
+OESD,C/R,C/R,C/R,—,C/R,C/R,C/R,C/R,C/R,C/R,C/R,C/R,C/R
+Gutshot,C/R,C/R,C/R,C/R,C/R,C/R,C/R,C/R,C/R,C/R,C/R,C/R,C/R
+2 overcards + BDFD,—,—,—,—,—,—,—,—,C,C,C,C,C
+A-high + BDFD,—,—,—,—,—,—,—,F/C,F/C,F/C,F/C,F/C,F/C
+Air,F,F,F,F,F,F,F,F,F,F,F,F,F

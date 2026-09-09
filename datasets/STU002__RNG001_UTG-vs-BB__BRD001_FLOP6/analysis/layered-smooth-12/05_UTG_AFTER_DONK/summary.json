@@ -1,0 +1,117 @@
+{
+  "branch": "05_UTG_AFTER_DONK",
+  "acting_player": "UTG",
+  "action_shape": "FOLD_CALL_RAISE",
+  "raw": {
+    "weighted_loss_native": 131098.0556411407,
+    "root_loss_bb": 0.0009891032227065221,
+    "node_loss_bb": 0.015510930174908835,
+    "reach_sum": 845197.8969849964,
+    "solver_frequencies": {
+      "fold": 0.28043412654921046,
+      "call": 0.590275828368219,
+      "raise": 0.12929004818488346
+    },
+    "simplified_frequencies": {
+      "fold": 0.3544159306389249,
+      "call": 0.5860154592999349,
+      "raise": 0.05956861006114599
+    },
+    "policy_cell_counts": {
+      "R": 18,
+      "C/R": 40,
+      "C": 43,
+      "F/C": 15,
+      "F/R": 3,
+      "F": 15
+    }
+  },
+  "smoothed": {
+    "weighted_loss_native": 204836.94612813636,
+    "root_loss_bb": 0.0015454453733417632,
+    "node_loss_bb": 0.024235382844518902,
+    "reach_sum": 845197.8969849964,
+    "solver_frequencies": {
+      "fold": 0.28043412654921046,
+      "call": 0.590275828368219,
+      "raise": 0.12929004818488346
+    },
+    "simplified_frequencies": {
+      "fold": 0.40549329852400684,
+      "call": 0.39453185648416345,
+      "raise": 0.19997484499183593
+    },
+    "policy_cell_counts": {
+      "C/R": 84,
+      "C": 19,
+      "F/C": 18,
+      "F": 13
+    }
+  },
+  "incremental_root_loss_bb": 0.0005563421506352411,
+  "incremental_node_loss_bb": 0.008724452669610068,
+  "selection_target_root_loss_bb": 0.0016267846586700044,
+  "selection_total_root_loss_bb": 0.0015454453733417689,
+  "selected_rows": {
+    "Two pair+": {
+      "kind": "structured",
+      "blocks": 1,
+      "mix_cells": 13
+    },
+    "Overpair": {
+      "kind": "structured",
+      "blocks": 1,
+      "mix_cells": 7
+    },
+    "Top pair": {
+      "kind": "structured",
+      "blocks": 1,
+      "mix_cells": 13
+    },
+    "Second pair": {
+      "kind": "structured",
+      "blocks": 1,
+      "mix_cells": 13
+    },
+    "Third pair": {
+      "kind": "structured",
+      "blocks": 1,
+      "mix_cells": 13
+    },
+    "Underpair": {
+      "kind": "structured",
+      "blocks": 1,
+      "mix_cells": 0
+    },
+    "Weak pair": {
+      "kind": "structured",
+      "blocks": 2,
+      "mix_cells": 12
+    },
+    "OESD": {
+      "kind": "structured",
+      "blocks": 1,
+      "mix_cells": 12
+    },
+    "Gutshot": {
+      "kind": "structured",
+      "blocks": 1,
+      "mix_cells": 13
+    },
+    "2 overcards + BDFD": {
+      "kind": "structured",
+      "blocks": 1,
+      "mix_cells": 0
+    },
+    "A-high + BDFD": {
+      "kind": "structured",
+      "blocks": 1,
+      "mix_cells": 6
+    },
+    "Air": {
+      "kind": "structured",
+      "blocks": 1,
+      "mix_cells": 0
+    }
+  }
+}

@@ -1,0 +1,228 @@
+{
+  "separate-high-bdfd": {
+    "sum_root_loss_bb": 0.016292876274035365,
+    "branches": {
+      "01_BB_FIRST": {
+        "root_loss_bb": 0.0002084353436250425,
+        "node_loss_bb": 0.00020843534362505176,
+        "hand_categories": 12,
+        "populated_cells": 125,
+        "policy_cell_counts": {
+          "X": 112,
+          "X/D": 13
+        }
+      },
+      "02_UTG_AFTER_CHECK": {
+        "root_loss_bb": 0.001940206309248357,
+        "node_loss_bb": 0.002072356656824816,
+        "hand_categories": 12,
+        "populated_cells": 134,
+        "policy_cell_counts": {
+          "B": 68,
+          "X/B": 45,
+          "X": 21
+        }
+      },
+      "03_BB_AFTER_CBET": {
+        "root_loss_bb": 0.010294814383371396,
+        "node_loss_bb": 0.019668007111972117,
+        "hand_categories": 12,
+        "populated_cells": 125,
+        "policy_cell_counts": {
+          "F": 25,
+          "F/C": 18,
+          "C": 44,
+          "C/R": 18,
+          "R": 19,
+          "F/R": 1
+        }
+      },
+      "04_UTG_AFTER_CHECK_RAISE": {
+        "root_loss_bb": 0.0023320463918503394,
+        "node_loss_bb": 0.03425155631762412,
+        "hand_categories": 12,
+        "populated_cells": 134,
+        "policy_cell_counts": {
+          "F": 28,
+          "C": 90,
+          "F/C": 16
+        }
+      },
+      "05_UTG_AFTER_DONK": {
+        "root_loss_bb": 0.0009891032227065221,
+        "node_loss_bb": 0.015510930174908835,
+        "hand_categories": 12,
+        "populated_cells": 134,
+        "policy_cell_counts": {
+          "F": 15,
+          "C/R": 40,
+          "F/R": 3,
+          "R": 18,
+          "F/C": 15,
+          "C": 43
+        }
+      },
+      "06_BB_AFTER_DONK_RAISE": {
+        "root_loss_bb": 0.0005282706232337096,
+        "node_loss_bb": 0.06407484830732571,
+        "hand_categories": 12,
+        "populated_cells": 120,
+        "policy_cell_counts": {
+          "C": 73,
+          "F/C": 12,
+          "F": 35
+        }
+      }
+    }
+  },
+  "combined-high-bdfd": {
+    "sum_root_loss_bb": 0.018305582777192034,
+    "branches": {
+      "01_BB_FIRST": {
+        "root_loss_bb": 0.0002084353436250425,
+        "node_loss_bb": 0.00020843534362505176,
+        "hand_categories": 11,
+        "populated_cells": 122,
+        "policy_cell_counts": {
+          "X": 110,
+          "X/D": 12
+        }
+      },
+      "02_UTG_AFTER_CHECK": {
+        "root_loss_bb": 0.0019620047110313022,
+        "node_loss_bb": 0.0020956397802883863,
+        "hand_categories": 11,
+        "populated_cells": 129,
+        "policy_cell_counts": {
+          "B": 68,
+          "X/B": 45,
+          "X": 16
+        }
+      },
+      "03_BB_AFTER_CBET": {
+        "root_loss_bb": 0.010932241039655195,
+        "node_loss_bb": 0.020885796140728233,
+        "hand_categories": 11,
+        "populated_cells": 122,
+        "policy_cell_counts": {
+          "F": 25,
+          "F/C": 18,
+          "C": 42,
+          "C/R": 18,
+          "R": 19
+        }
+      },
+      "04_UTG_AFTER_CHECK_RAISE": {
+        "root_loss_bb": 0.0027005716216863397,
+        "node_loss_bb": 0.03966421136098193,
+        "hand_categories": 11,
+        "populated_cells": 129,
+        "policy_cell_counts": {
+          "F": 26,
+          "C": 87,
+          "F/C": 16
+        }
+      },
+      "05_UTG_AFTER_DONK": {
+        "root_loss_bb": 0.001945673295480135,
+        "node_loss_bb": 0.030511681628937165,
+        "hand_categories": 11,
+        "populated_cells": 129,
+        "policy_cell_counts": {
+          "F": 15,
+          "C/R": 40,
+          "F/R": 3,
+          "R": 18,
+          "F/C": 14,
+          "C": 39
+        }
+      },
+      "06_BB_AFTER_DONK_RAISE": {
+        "root_loss_bb": 0.0005566567657140179,
+        "node_loss_bb": 0.06751785212669809,
+        "hand_categories": 11,
+        "populated_cells": 117,
+        "policy_cell_counts": {
+          "C": 72,
+          "F/C": 13,
+          "F": 32
+        }
+      }
+    }
+  },
+  "all-bdfd": {
+    "sum_root_loss_bb": 0.018334732039918335,
+    "branches": {
+      "01_BB_FIRST": {
+        "root_loss_bb": 0.0002170139543362883,
+        "node_loss_bb": 0.00021701395433629798,
+        "hand_categories": 11,
+        "populated_cells": 129,
+        "policy_cell_counts": {
+          "X": 117,
+          "X/D": 12
+        }
+      },
+      "02_UTG_AFTER_CHECK": {
+        "root_loss_bb": 0.0019505441680547676,
+        "node_loss_bb": 0.0020833986426242947,
+        "hand_categories": 11,
+        "populated_cells": 136,
+        "policy_cell_counts": {
+          "B": 70,
+          "X/B": 49,
+          "X": 17
+        }
+      },
+      "03_BB_AFTER_CBET": {
+        "root_loss_bb": 0.01139613668943407,
+        "node_loss_bb": 0.02177205815568997,
+        "hand_categories": 11,
+        "populated_cells": 129,
+        "policy_cell_counts": {
+          "F": 36,
+          "F/C": 14,
+          "C": 42,
+          "C/R": 18,
+          "R": 19
+        }
+      },
+      "04_UTG_AFTER_CHECK_RAISE": {
+        "root_loss_bb": 0.0031583797216754306,
+        "node_loss_bb": 0.046388194200362394,
+        "hand_categories": 11,
+        "populated_cells": 136,
+        "policy_cell_counts": {
+          "F": 30,
+          "C": 86,
+          "F/C": 20
+        }
+      },
+      "05_UTG_AFTER_DONK": {
+        "root_loss_bb": 0.0011179425377309013,
+        "node_loss_bb": 0.017531364011589577,
+        "hand_categories": 11,
+        "populated_cells": 136,
+        "policy_cell_counts": {
+          "F": 22,
+          "C/R": 42,
+          "F/R": 3,
+          "R": 18,
+          "F/C": 11,
+          "C": 40
+        }
+      },
+      "06_BB_AFTER_DONK_RAISE": {
+        "root_loss_bb": 0.0004947149686868759,
+        "node_loss_bb": 0.0600048255190432,
+        "hand_categories": 11,
+        "populated_cells": 117,
+        "policy_cell_counts": {
+          "C": 72,
+          "F/C": 11,
+          "F": 34
+        }
+      }
+    }
+  }
+}
