@@ -72,6 +72,11 @@ try {
     $operationEnded = [DateTime]::UtcNow
     $success = $null -eq $caughtError
     $errorText = if ($success) { '' } else { [string]$caughtError.Exception.Message }
+    $completedBoards = if ($branchRows.Count) {
+        [int](($branchRows | Measure-Object -Property boards_done -Sum).Sum)
+    } else {
+        0
+    }
     $report = [pscustomobject][ordered]@{
         schema_version = 1
         study_id = [string]$study.study_id
@@ -83,7 +88,7 @@ try {
         branches_expected = $branchIds.Count
         branches_completed = $branchRows.Count
         boards_expected_total = $branchIds.Count * $boardCount
-        boards_completed_total = [int](($branchRows | Measure-Object -Property boards_done -Sum).Sum)
+        boards_completed_total = $completedBoards
         total_wall_ms_including_all_parsing = [int][Math]::Round($operationTimer.Elapsed.TotalMilliseconds)
         raw_output_root = $outputPath
         dataset_root = $datasetPath
