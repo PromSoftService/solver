@@ -30,6 +30,6 @@
     "R": 42,
     "C": 127
   },
-  "own_range_reach_fraction": 0.06811148703379341,
-  "root_scaled_local_loss_bb": 0.0009215065663462088
+  "node_reach_fraction": 0.06376814359635138,
+  "root_scaled_local_loss_bb": 0.0008627437985400419
 }

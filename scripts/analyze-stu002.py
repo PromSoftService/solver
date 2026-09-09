@@ -422,13 +422,14 @@ def main() -> None:
         summaries.append(result["summary"])
 
     summary_by_branch = {row["branch"]: row for row in summaries}
-    root_reach = {
-        "BB": summary_by_branch["01_BB_FIRST"]["reach_sum"],
-        "UTG": summary_by_branch["02_UTG_AFTER_CHECK"]["reach_sum"],
-    }
+    root_reach = summary_by_branch["01_BB_FIRST"]["reach_sum"]
+    utg_paths = (summary_by_branch["02_UTG_AFTER_CHECK"]["reach_sum"] +
+                 summary_by_branch["05_UTG_AFTER_DONK"]["reach_sum"])
+    if not math.isclose(utg_paths, root_reach, rel_tol=1e-6):
+        raise RuntimeError(f"UTG check/donk path reach {utg_paths} != flop root {root_reach}")
     for row in summaries:
-        denominator = root_reach[row["acting_player"]]
-        row["own_range_reach_fraction"] = row["reach_sum"] / denominator
+        denominator = root_reach
+        row["node_reach_fraction"] = row["reach_sum"] / denominator
         row["root_scaled_local_loss_bb"] = (
             row["weighted_loss_native"] / denominator / EV_SCALE_PER_BB)
         with (OUT_ROOT / row["branch"] / "summary.json").open("w", encoding="utf-8") as f:

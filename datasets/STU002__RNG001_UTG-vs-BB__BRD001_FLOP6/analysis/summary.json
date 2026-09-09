@@ -26,7 +26,7 @@
       "X/D": 39,
       "D": 13
     },
-    "own_range_reach_fraction": 1.0,
+    "node_reach_fraction": 1.0,
     "root_scaled_local_loss_bb": 0.0002033381708523657
   },
   {
@@ -56,8 +56,8 @@
       "X/B": 107,
       "X": 63
     },
-    "own_range_reach_fraction": 1.0,
-    "root_scaled_local_loss_bb": 0.0014611368670458358
+    "node_reach_fraction": 0.9362318512399077,
+    "root_scaled_local_loss_bb": 0.0013679628739492018
   },
   {
     "branch": "03_BB_AFTER_CBET",
@@ -91,7 +91,7 @@
       "R": 66,
       "F/C": 23
     },
-    "own_range_reach_fraction": 0.523429462108812,
+    "node_reach_fraction": 0.523429462108812,
     "root_scaled_local_loss_bb": 0.007167022619499882
   },
   {
@@ -121,8 +121,8 @@
       "F/C": 31,
       "C": 278
     },
-    "own_range_reach_fraction": 0.0727232809275815,
-    "root_scaled_local_loss_bb": 0.0014143508883471402
+    "node_reach_fraction": 0.0680858519310695,
+    "root_scaled_local_loss_bb": 0.001324160350500051
   },
   {
     "branch": "05_UTG_AFTER_DONK",
@@ -156,8 +156,8 @@
       "R": 42,
       "C": 127
     },
-    "own_range_reach_fraction": 0.06811148703379341,
-    "root_scaled_local_loss_bb": 0.0009215065663462088
+    "node_reach_fraction": 0.06376814359635138,
+    "root_scaled_local_loss_bb": 0.0008627437985400419
   },
   {
     "branch": "06_BB_AFTER_DONK_RAISE",
@@ -186,7 +186,7 @@
       "C": 246,
       "F/C": 21
     },
-    "own_range_reach_fraction": 0.008244586404636649,
+    "node_reach_fraction": 0.008244586404636649,
     "root_scaled_local_loss_bb": 0.00041345277420609065
   }
 ]

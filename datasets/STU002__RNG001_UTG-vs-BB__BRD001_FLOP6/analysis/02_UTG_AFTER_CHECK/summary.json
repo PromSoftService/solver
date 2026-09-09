@@ -25,6 +25,6 @@
     "X/B": 107,
     "X": 63
   },
-  "own_range_reach_fraction": 1.0,
-  "root_scaled_local_loss_bb": 0.0014611368670458358
+  "node_reach_fraction": 0.9362318512399077,
+  "root_scaled_local_loss_bb": 0.0013679628739492018
 }

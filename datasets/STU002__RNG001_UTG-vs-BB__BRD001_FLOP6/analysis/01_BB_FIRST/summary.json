@@ -25,6 +25,6 @@
     "X/D": 39,
     "D": 13
   },
-  "own_range_reach_fraction": 1.0,
+  "node_reach_fraction": 1.0,
   "root_scaled_local_loss_bb": 0.0002033381708523657
 }
