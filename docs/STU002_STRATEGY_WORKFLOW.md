@@ -18,9 +18,9 @@ The deliverable is six tables, one for every normal-action decision on the
 flop.  Each cell contains one pure action or an exact 50/50 mix.  We publish
 the same strategy in two resolutions:
 
-1. `STU002_simplified_flop_strategy.xlsx`: 13 hand rows by the 13 B13 flop
+1. `STU002_simplified_flop_strategy.xlsx`: 11 hand rows by the 13 B13 flop
    categories;
-2. `STU002_strategy_8_categories.xlsx`: the same 13 hand rows by eight broader
+2. `STU002_strategy_8_categories.xlsx`: the same 11 hand rows by eight broader
    flop categories.
 
 Turn and river are deliberately outside the current strategy analysis.  They
@@ -169,7 +169,7 @@ equally inside its final group; we do not average the already aggregated B13
 means.  Consequently 47 BBx boards naturally carry more influence than four
 BBB boards inside Broadway.
 
-## 6. Strict combo classifier and the 13 displayed hand rows
+## 6. Strict combo classifier and the 11 displayed hand rows
 
 Every legal concrete hand on every flop receives exactly one base category by
 this priority:
@@ -193,7 +193,7 @@ or `OESD`) and one BDFD boolean.  Double gutshots count as OESD.  On rainbow
 flops BDFD requires suited hole cards plus one flop card of that suit.  A made
 straight receives no direct-draw modifier.
 
-The strict classifier is then mapped to 13 learnable rows:
+The strict classifier is then mapped to 11 learnable rows:
 
 1. Two pair+
 2. Overpair
@@ -202,19 +202,24 @@ The strict classifier is then mapped to 13 learnable rows:
 5. Second pair
 6. Third pair
 7. Weak pair
-8. 2 overcards
-9. 2 overcards + draw
-10. A-high
-11. A-high + draw
-12. Air
-13. Air + draw
+8. OESD
+9. Gutshot
+10. 2 overcards + BDFD
+11. Air
 
 For every made-hand base, all BDFD/Gutshot/OESD variants merge into the base.
-For `2 overcards`, `+ draw` means BDFD or a direct straight draw.  For A-high
-and Air, `+ draw` means a direct Gutshot/OESD only; a lone BDFD stays in the
-naked row.  This asymmetric rule was chosen from the source solver data and
-avoids the large error caused by treating every BDFD as equivalent to a direct
-straight draw.
+Every remaining unmade hand is routed by strict priority: any OESD becomes
+`OESD`; otherwise any Gutshot becomes `Gutshot`; otherwise exactly two
+overcards plus BDFD becomes `2 overcards + BDFD`; every other unmade hand
+becomes `Air`.  Thus naked two overcards, A-high, A-high plus BDFD and Air plus
+BDFD all belong to Air.
+
+This four-row unmade partition was selected directly from raw solver combo
+frequencies. Relative to keeping six separate unmade rows, its added
+reach-weighted local regret is about 0.00052 bb per root occurrence across the
+six decisions. Merging `2 overcards + BDFD` into Air is materially worse, so
+that row remains separate. OESD and Gutshot remain explicit regardless of
+overcards or BDFD.
 
 The order above is the display order.  Moving Underpair directly below Top
 pair is a presentation change only; it does not alter classification.

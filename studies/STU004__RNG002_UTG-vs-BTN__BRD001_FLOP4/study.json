@@ -1,11 +1,12 @@
 {
   "schema_version": 2,
-  "study_id": "STU003",
-  "name": "RNG002 UTG vs BTN four-branch five-flop pilot study",
+  "study_id": "STU004",
+  "name": "RNG002 UTG vs BTN four-branch BRD001 flop study",
   "range_id": "RNG002",
   "board_set_id": "BRD001",
-  "board_file": "studies/STU003__RNG002_UTG-vs-BTN__5FLOP_FLOP4/boards.txt",
-  "expected_boards": 5,
+  "board_file": "boards/BRD001__FLOP_UNPAIRED_RAINBOW__ISO286__V1.txt",
+  "expected_boards": 286,
+  "pilot_study": "STU003__RNG002_UTG-vs-BTN__5FLOP_FLOP4",
   "execution_model": "Each branch is a separate stock job: one board, one GPU solve, one history, one current-street export.",
   "normal_sizings_pct": {
     "flop": { "oop_bet": 50, "ip_bet": 50, "raise_native": 60 },

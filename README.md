@@ -71,6 +71,10 @@ deliberately omits both responses after a flop raise, and records total
 wall-clock time through validation and combo parsing.
 
 STU002's completed compact datasets feed two approved human-strategy tables:
-13 hand rows by B13 and the same hand rows by eight broader flop categories.
+11 hand rows by B13 and the same hand rows by eight broader flop categories.
 The exact range provenance, classifiers, aggregation rule, EV audit and rebuild
 commands are fixed in `docs/STU002_STRATEGY_WORKFLOW.md`.
+
+`studies/STU004__RNG002_UTG-vs-BTN__BRD001_FLOP4/` is the production form of
+the STU003 pilot: the same four selected UTG-vs-BTN flop decisions over all
+286 canonical BRD001 flops.

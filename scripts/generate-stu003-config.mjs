@@ -4,11 +4,10 @@ import { fileURLToPath } from "node:url";
 
 const scriptDirectory = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(scriptDirectory, "..");
-const studyDirectory = path.join(
-  repoRoot,
-  "studies",
+const studyDirectories = [
   "STU003__RNG002_UTG-vs-BTN__5FLOP_FLOP4",
-);
+  "STU004__RNG002_UTG-vs-BTN__BRD001_FLOP4",
+].map((name) => path.join(repoRoot, "studies", name));
 const templatePath = path.join(
   repoRoot,
   "studies",
@@ -20,7 +19,6 @@ const manifestPath = path.join(
   rangeDirectory,
   "RNG002__TSGPU020_6M100_UTG-O2p5_BTN-C__V1.json",
 );
-const outputPath = path.join(studyDirectory, "config.json");
 
 function readRangeMap(filePath) {
   const map = new Map();
@@ -96,6 +94,9 @@ generated.config.effectiveStack = 975;
 generated.config.ipRange = ipRange;
 generated.config.oopRange = oopRange;
 
-fs.mkdirSync(studyDirectory, { recursive: true });
-fs.writeFileSync(outputPath, `${JSON.stringify(generated, null, 2)}\n`, "utf8");
-console.log(`Wrote ${path.relative(repoRoot, outputPath)}`);
+for (const studyDirectory of studyDirectories) {
+  const outputPath = path.join(studyDirectory, "config.json");
+  fs.mkdirSync(studyDirectory, { recursive: true });
+  fs.writeFileSync(outputPath, `${JSON.stringify(generated, null, 2)}\n`, "utf8");
+  console.log(`Wrote ${path.relative(repoRoot, outputPath)}`);
+}

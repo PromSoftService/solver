@@ -7,29 +7,28 @@
   "csv_rows": 106381,
   "active_rows": 106308,
   "zero_reach_rows": 73,
-  "hand_categories": 13,
-  "populated_cells": 126,
+  "hand_categories": 11,
+  "populated_cells": 119,
   "reach_sum": 6937656.57339394,
-  "weighted_loss_native": 1169625.4308966575,
-  "mean_local_loss_bb": 0.016859085175564843,
+  "weighted_loss_native": 1337251.7077418526,
+  "mean_local_loss_bb": 0.019275265265655282,
   "solver_reach_weighted_frequencies": {
     "fold": 0.478993331523032,
     "call": 0.3909302086799,
     "raise": 0.13007645935020065
   },
   "simplified_reach_weighted_frequencies": {
-    "fold": 0.47473569672032534,
-    "call": 0.4084165663621703,
-    "raise": 0.11684773691751384
+    "fold": 0.518020283083558,
+    "call": 0.37691865021278786,
+    "raise": 0.10506106670367059
   },
   "policy_cell_counts": {
-    "F": 30,
+    "F": 24,
     "F/C": 14,
-    "C": 46,
-    "C/R": 19,
-    "R": 15,
-    "F/R": 2
+    "C": 44,
+    "C/R": 18,
+    "R": 19
   },
   "node_reach_fraction": 0.5234294621087887,
-  "root_loss_bb": 0.008824541885092161
+  "root_loss_bb": 0.010089241730006164
 }

@@ -6,9 +6,7 @@ Underpair,—,—,F,F,F/C,F,—,C,C,F/C,C,C,C
 Second pair,C,C,F,F/C,F/C,F,C,C,C,C,C,C,C
 Third pair,F/C,F,F,F,F,F,F/C,F/C,C,C,C,C,C
 Weak pair,F,F,F,F,F,F,C,F/C,F,F,F,F,F/C
-2 overcards,—,—,—,—,—,—,—,—,—,F,F,F,F
-2 overcards + draw,—,—,—,—,—,—,—,C,—,—,C,C,F/C
-A-high,—,—,—,—,—,—,—,F,F,F,F,F,F
-A-high + draw,—,—,—,—,—,—,C,F/C,C,C,C,C,C
+OESD,C,C,C,—,C,C,C,C,C,C,C,C,C
+Gutshot,C,C,C,F/C,C,C,C,F/C,C,C,C,C,C
+2 overcards + BDFD,—,—,—,—,—,—,—,—,—,—,C,F/C,F
 Air,—,—,—,—,F,F,—,F,F,F,F,F,F
-Air + draw,C,C,C,F/C,C,C,C,C,C,C,C,C,C

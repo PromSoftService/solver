@@ -5,7 +5,9 @@ import { SpreadsheetFile, Workbook } from "@oai/artifact-tool";
 
 
 const scriptDir = path.dirname(fileURLToPath(import.meta.url));
-const repo = path.resolve(scriptDir, "..");
+const repo = process.env.SOLVER_REPO_ROOT
+  ? path.resolve(process.env.SOLVER_REPO_ROOT)
+  : path.resolve(scriptDir, "..");
 const study = "STU002__RNG001_UTG-vs-BB__BRD001_FLOP6";
 const analysisRoot = path.join(repo, "datasets", study, "analysis");
 
@@ -13,7 +15,7 @@ const outputs = [
   {
     key: "strategy-13",
     filename: "STU002_simplified_flop_strategy.xlsx",
-    subtitle: "13 категорий рук × 13 узких категорий флопов B13. Чистое действие или строгий микс 50/50.",
+    subtitle: "11 категорий рук × 13 узких категорий флопов B13. Чистое действие или строгий микс 50/50.",
     flopHeaders: [
       "ABB (6)", "A[K/Q]x (16)", "A[J-T][9-5] (10)", "A[J-T][4-2] (6)",
       "A[9-7]x (18)", "A[6-2]x (10)", "BBB (4)", "BBx (47)",
@@ -52,7 +54,7 @@ const outputs = [
   {
     key: "strategy-8",
     filename: "STU002_strategy_8_categories.xlsx",
-    subtitle: "13 категорий рук × 8 категорий флопов. Чистое действие или строгий микс 50/50.",
+    subtitle: "11 категорий рук × 8 категорий флопов. Чистое действие или строгий микс 50/50.",
     flopHeaders: [
       "A-high high (22)", "A-high medium (16)", "A-high low (28)", "Broadway (51)",
       "K/Q-high (56)", "Middle dry (67)", "Middle connected (26)", "Low (20)",
@@ -92,8 +94,7 @@ const branchInfo = [
 
 const handOrder = [
   "Two pair+", "Overpair", "Top pair", "Underpair", "Second pair", "Third pair",
-  "Weak pair", "2 overcards", "2 overcards + draw", "A-high", "A-high + draw",
-  "Air", "Air + draw",
+  "Weak pair", "OESD", "Gutshot", "2 overcards + BDFD", "Air",
 ];
 
 const colors = {
@@ -233,7 +234,7 @@ function addSummary(workbook, model, loaded) {
   };
   const headers = [
     "Ситуация", "Игрок", "Reach узла", "Solver frequencies", "Стратегия",
-    "Loss в узле, bb", "Loss от root, bb", "Добавка к 13×B13, bb",
+    "Loss в узле, bb", "Loss от root, bb", "Добавка к B13, bb",
     "Комбо reach > 0", "Ячеек",
   ];
   sheet.getRange("A5:J5").values = [headers];
@@ -252,7 +253,7 @@ function addSummary(workbook, model, loaded) {
       frequencyText(s.solver_reach_weighted_frequencies, info.labels),
       frequencyText(s.simplified_reach_weighted_frequencies, info.labels),
       s.mean_local_loss_bb, s.root_loss_bb,
-      s.incremental_root_loss_vs_13xB13_bb ?? 0,
+      s.incremental_root_loss_vs_B13_bb ?? 0,
       s.active_rows, s.populated_cells,
     ];
   });
@@ -292,7 +293,7 @@ function addSummary(workbook, model, loaded) {
   sheet.getRange("F14:J18").values = [
     [model.methodCategory, null, null, null, null],
     ["Каждый реальный флоп внутри итоговой категории получает одинаковый вес.", null, null, null, null],
-    ["13 категорий рук и правила BDFD/Gutshot/OESD одинаковы в обеих таблицах.", null, null, null, null],
+    ["11 категорий рук: 7 made, OESD, Gutshot, 2 overcards + BDFD и Air.", null, null, null, null],
     ["Все значения через / означают только микс 50/50.", null, null, null, null],
     ["EV используется для аудита потерь, но не выбирает действие.", null, null, null, null],
   ];
@@ -316,7 +317,9 @@ function addStrategySheet(workbook, model, branch, loaded) {
   const sheet = workbook.worksheets.add(branch.sheet);
   const totalCols = 1 + model.flopHeaders.length;
   const lastCol = colName(totalCols);
-  styleBase(sheet, lastCol, 19);
+  const firstDataRow = 7;
+  const lastDataRow = firstDataRow + handOrder.length - 1;
+  styleBase(sheet, lastCol, lastDataRow);
   sheet.mergeCells(`A2:${lastCol}2`);
   sheet.mergeCells(`A3:${lastCol}3`);
   sheet.getRange("A2").values = [[branch.title]];
@@ -353,20 +356,20 @@ function addStrategySheet(workbook, model, branch, loaded) {
     if (!record) throw new Error(`${model.key}/${branch.id}: missing hand row ${hand}`);
     return [hand, ...model.csvHeaders.map((header) => record[header])];
   });
-  sheet.getRange(`A7:${lastCol}19`).values = matrix;
-  sheet.getRange("A7:A19").format = {
+  sheet.getRange(`A${firstDataRow}:${lastCol}${lastDataRow}`).values = matrix;
+  sheet.getRange(`A${firstDataRow}:A${lastDataRow}`).format = {
     fill: colors.background,
     font: { name: "Aptos", size: 10, bold: true, color: colors.text },
     borders: { preset: "all", style: "thin", color: colors.border },
   };
-  for (let row = 7; row <= 19; row += 1) {
+  for (let row = firstDataRow; row <= lastDataRow; row += 1) {
     for (let col = 2; col <= totalCols; col += 1) {
       const value = sheet.getRange(`${colName(col)}${row}`).values[0][0];
       styleActionCell(sheet.getRange(`${colName(col)}${row}`), value);
     }
   }
   // Visual separators between made hands, unmade draw-capable hands and air.
-  for (const row of [9, 13, 15, 17]) {
+  for (const row of [13, 15, 16]) {
     sheet.getRange(`A${row}:${lastCol}${row}`).format.borders = {
       bottom: { style: "medium", color: colors.divider },
     };
@@ -374,24 +377,24 @@ function addStrategySheet(workbook, model, branch, loaded) {
   // Visual separators between the agreed broader flop families on the B13 sheet.
   for (const offset of model.dividerAfter) {
     const col = colName(1 + offset);
-    sheet.getRange(`${col}5:${col}19`).format.borders = {
+    sheet.getRange(`${col}5:${col}${lastDataRow}`).format.borders = {
       right: { style: "medium", color: colors.divider },
     };
   }
-  sheet.getRange("A1:A19").format.columnWidth = 23;
+  sheet.getRange(`A1:A${lastDataRow}`).format.columnWidth = 23;
   for (let col = 2; col <= totalCols; col += 1) {
-    sheet.getRange(`${colName(col)}1:${colName(col)}19`).format.columnWidth = model.key === "strategy-13" ? 12 : 16;
+    sheet.getRange(`${colName(col)}1:${colName(col)}${lastDataRow}`).format.columnWidth = model.key === "strategy-13" ? 12 : 16;
   }
   sheet.getRange("5:5").format.rowHeight = 34;
   sheet.getRange("6:6").format.rowHeight = 30;
-  sheet.getRange("7:19").format.rowHeight = 24;
+  sheet.getRange(`${firstDataRow}:${lastDataRow}`).format.rowHeight = 24;
   sheet.freezePanes.freezeRows(6);
   sheet.freezePanes.freezeColumns(1);
 }
 
 function addMethod(workbook, model) {
   const sheet = workbook.worksheets.add("Method");
-  const lastRow = 18 + model.categoryRows.length;
+  const lastRow = 19 + model.categoryRows.length;
   styleBase(sheet, "D", lastRow);
   sheet.mergeCells("A2:D2");
   sheet.getRange("A2").values = [["Методика"]];
@@ -413,33 +416,36 @@ function addMethod(workbook, model) {
     ["Микс", "Иначе два наиболее частых действия, строго 50/50"],
     ["Вес диапазона", "Combo с reach_probability >0 участвует независимо от величины reach"],
     ["EV-аудит", "Reach-weighted local regret против solved opponent; не adaptive exploitability"],
-    ["Категории рук", "Те же 13 категорий и те же правила BDFD/Gutshot/OESD"],
+    ["Категории рук", "7 made-категорий; затем OESD; Gutshot; 2 overcards + BDFD; Air"],
+    ["Приоритет неготовых", "OESD > Gutshot > 2 overcards + BDFD > Air; BDFD без двух оверкарт уходит в Air"],
     ["Категории флопов", model.methodCategory],
     ["Роль исходной B13", model.key === "strategy-8" ? "Только детерминированное описание состава новых групп" : "Итоговые столбцы стратегии"],
     ["JT9", "Исходная B13 = [J-8]x con; в 8-групповой таблице = Middle connected"],
   ];
-  sheet.getRange("A5:B14").values = rows;
-  sheet.getRange("A5:B14").format = {
+  const methodEnd = 4 + rows.length;
+  sheet.getRange(`A5:B${methodEnd}`).values = rows;
+  sheet.getRange(`A5:B${methodEnd}`).format = {
     fill: colors.background,
     font: { name: "Aptos", size: 10, color: colors.text },
     borders: { preset: "all", style: "thin", color: colors.borderLight },
     wrapText: true,
   };
-  sheet.getRange("A17:D17").values = [["Категория флопов", "Входящие B13 / определение", "Количество", "Пояснение"]];
-  sheet.getRange("A17:D17").format = {
+  const categoryHeaderRow = methodEnd + 3;
+  sheet.getRange(`A${categoryHeaderRow}:D${categoryHeaderRow}`).values = [["Категория флопов", "Входящие B13 / определение", "Количество", "Пояснение"]];
+  sheet.getRange(`A${categoryHeaderRow}:D${categoryHeaderRow}`).format = {
     fill: colors.section,
     font: { name: "Aptos", size: 10, bold: true, color: colors.white },
     borders: { preset: "all", style: "thin", color: colors.white },
   };
-  const categoryEnd = 17 + model.categoryRows.length;
-  sheet.getRange(`A18:D${categoryEnd}`).values = model.categoryRows;
-  sheet.getRange(`A18:D${categoryEnd}`).format = {
+  const categoryEnd = categoryHeaderRow + model.categoryRows.length;
+  sheet.getRange(`A${categoryHeaderRow + 1}:D${categoryEnd}`).values = model.categoryRows;
+  sheet.getRange(`A${categoryHeaderRow + 1}:D${categoryEnd}`).format = {
     fill: colors.background,
     font: { name: "Aptos", size: 9, color: colors.text },
     borders: { preset: "all", style: "thin", color: colors.borderLight },
     wrapText: true,
   };
-  sheet.getRange(`C18:C${categoryEnd}`).format.numberFormat = "0";
+  sheet.getRange(`C${categoryHeaderRow + 1}:C${categoryEnd}`).format.numberFormat = "0";
   sheet.getRange(`A1:A${lastRow}`).format.columnWidth = 24;
   sheet.getRange(`B1:B${lastRow}`).format.columnWidth = 52;
   sheet.getRange(`C1:C${lastRow}`).format.columnWidth = 12;

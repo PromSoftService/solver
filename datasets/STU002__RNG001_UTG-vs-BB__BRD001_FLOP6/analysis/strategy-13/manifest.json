@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "model": "13 hand categories x B13 flop categories",
+  "model": "11 hand categories x 13 B13 flop categories",
   "source": "six tracked STU002 aggregate combo datasets",
   "pure_threshold": 0.65,
   "mix_rule": "strict 50/50 top two actions",
@@ -12,12 +12,10 @@
     "Second pair",
     "Third pair",
     "Weak pair",
-    "2 overcards",
-    "2 overcards + draw",
-    "A-high",
-    "A-high + draw",
-    "Air",
-    "Air + draw"
+    "OESD",
+    "Gutshot",
+    "2 overcards + BDFD",
+    "Air"
   ],
   "flop_categories": [
     "ABB",
@@ -55,25 +53,25 @@
         "csv_rows": 106381,
         "active_rows": 106381,
         "zero_reach_rows": 0,
-        "hand_categories": 13,
-        "populated_cells": 126,
+        "hand_categories": 11,
+        "populated_cells": 119,
         "reach_sum": 13254234.00020941,
-        "weighted_loss_native": 28296.20580191874,
-        "mean_local_loss_bb": 0.00021348805069739733,
+        "weighted_loss_native": 27993.29661593389,
+        "mean_local_loss_bb": 0.00021120267391907833,
         "solver_reach_weighted_frequencies": {
           "check": 0.9362318557873419,
           "donk": 0.06376814428144364
         },
         "simplified_reach_weighted_frequencies": {
-          "check": 0.9722371461501238,
-          "donk": 0.027762853849885815
+          "check": 0.9721865652187796,
+          "donk": 0.02781343478123117
         },
         "policy_cell_counts": {
-          "X": 114,
+          "X": 107,
           "X/D": 12
         },
         "node_reach_fraction": 0.9999999999999555,
-        "root_loss_bb": 0.00021348805069738782
+        "root_loss_bb": 0.0002112026739190689
       }
     },
     {
@@ -96,26 +94,26 @@
         "csv_rows": 80553,
         "active_rows": 80553,
         "zero_reach_rows": 0,
-        "hand_categories": 13,
-        "populated_cells": 135,
+        "hand_categories": 11,
+        "populated_cells": 128,
         "reach_sum": 12409036.034782983,
-        "weighted_loss_native": 274236.26231121103,
-        "mean_local_loss_bb": 0.0022099723261542375,
+        "weighted_loss_native": 257425.02561238527,
+        "mean_local_loss_bb": 0.0020744965595297935,
         "solver_reach_weighted_frequencies": {
           "check": 0.44091897436309446,
           "bet": 0.559081023941644
         },
         "simplified_reach_weighted_frequencies": {
-          "check": 0.381753359121731,
-          "bet": 0.6182466408782715
+          "check": 0.38653549082597144,
+          "bet": 0.6134645091740278
         },
         "policy_cell_counts": {
-          "B": 66,
-          "X/B": 49,
-          "X": 20
+          "B": 68,
+          "X/B": 41,
+          "X": 19
         },
         "node_reach_fraction": 0.9362318512398661,
-        "root_loss_bb": 0.0020690464821042547
+        "root_loss_bb": 0.0019422097543193115
       }
     },
     {
@@ -140,31 +138,30 @@
         "csv_rows": 106381,
         "active_rows": 106308,
         "zero_reach_rows": 73,
-        "hand_categories": 13,
-        "populated_cells": 126,
+        "hand_categories": 11,
+        "populated_cells": 119,
         "reach_sum": 6937656.57339394,
-        "weighted_loss_native": 1169625.4308966575,
-        "mean_local_loss_bb": 0.016859085175564843,
+        "weighted_loss_native": 1337251.7077418526,
+        "mean_local_loss_bb": 0.019275265265655282,
         "solver_reach_weighted_frequencies": {
           "fold": 0.478993331523032,
           "call": 0.3909302086799,
           "raise": 0.13007645935020065
         },
         "simplified_reach_weighted_frequencies": {
-          "fold": 0.47473569672032534,
-          "call": 0.4084165663621703,
-          "raise": 0.11684773691751384
+          "fold": 0.518020283083558,
+          "call": 0.37691865021278786,
+          "raise": 0.10506106670367059
         },
         "policy_cell_counts": {
-          "F": 30,
+          "F": 24,
           "F/C": 14,
-          "C": 46,
-          "C/R": 19,
-          "R": 15,
-          "F/R": 2
+          "C": 44,
+          "C/R": 18,
+          "R": 19
         },
         "node_reach_fraction": 0.5234294621087887,
-        "root_loss_bb": 0.008824541885092161
+        "root_loss_bb": 0.010089241730006164
       }
     },
     {
@@ -187,26 +184,26 @@
         "csv_rows": 80553,
         "active_rows": 75236,
         "zero_reach_rows": 5317,
-        "hand_categories": 13,
-        "populated_cells": 135,
+        "hand_categories": 11,
+        "populated_cells": 128,
         "reach_sum": 902425.8135980049,
-        "weighted_loss_native": 314946.3652546002,
-        "mean_local_loss_bb": 0.03489997299599592,
+        "weighted_loss_native": 302289.35675385554,
+        "mean_local_loss_bb": 0.03349741908962209,
         "solver_reach_weighted_frequencies": {
           "fold": 0.39234128334358354,
           "call": 0.6076587169676121
         },
         "simplified_reach_weighted_frequencies": {
-          "fold": 0.39026296908865027,
-          "call": 0.6097370309113381
+          "fold": 0.40674668793661994,
+          "call": 0.5932533120633706
         },
         "policy_cell_counts": {
-          "F": 34,
-          "C": 88,
-          "F/C": 13
+          "F": 24,
+          "C": 90,
+          "F/C": 14
         },
         "node_reach_fraction": 0.06808585193106646,
-        "root_loss_bb": 0.0023761943938035964
+        "root_loss_bb": 0.002280700316208889
       }
     },
     {
@@ -231,31 +228,31 @@
         "csv_rows": 80553,
         "active_rows": 80553,
         "zero_reach_rows": 0,
-        "hand_categories": 13,
-        "populated_cells": 135,
+        "hand_categories": 11,
+        "populated_cells": 128,
         "reach_sum": 845197.8969849964,
-        "weighted_loss_native": 137654.97077419664,
-        "mean_local_loss_bb": 0.01628671477594084,
+        "weighted_loss_native": 134398.89489622778,
+        "mean_local_loss_bb": 0.015901470575785587,
         "solver_reach_weighted_frequencies": {
           "fold": 0.28043412654921046,
           "call": 0.590275828368219,
           "raise": 0.12929004818488346
         },
         "simplified_reach_weighted_frequencies": {
-          "fold": 0.35653796600235643,
-          "call": 0.5833366794560944,
-          "raise": 0.060125354541555535
+          "fold": 0.3551318710857227,
+          "call": 0.5852995188531367,
+          "raise": 0.05956861006114599
         },
         "policy_cell_counts": {
-          "F": 17,
-          "C/R": 42,
-          "F/R": 4,
-          "R": 14,
-          "F/C": 17,
-          "C": 41
+          "F": 13,
+          "C/R": 40,
+          "F/R": 3,
+          "R": 18,
+          "F/C": 11,
+          "C": 43
         },
         "node_reach_fraction": 0.06376814359634854,
-        "root_loss_bb": 0.0010385735665449669
+        "root_loss_bb": 0.0010140072590698063
       }
     },
     {
@@ -278,26 +275,26 @@
         "csv_rows": 106381,
         "active_rows": 57240,
         "zero_reach_rows": 49141,
-        "hand_categories": 13,
-        "populated_cells": 120,
+        "hand_categories": 11,
+        "populated_cells": 114,
         "reach_sum": 109275.67744199933,
-        "weighted_loss_native": 148061.90838937732,
-        "mean_local_loss_bb": 0.13549392861734005,
+        "weighted_loss_native": 70018.2245577636,
+        "mean_local_loss_bb": 0.06407484830732571,
         "solver_reach_weighted_frequencies": {
           "fold": 0.41475921377116176,
           "call": 0.5852407864160666
         },
         "simplified_reach_weighted_frequencies": {
-          "fold": 0.3228589206113682,
-          "call": 0.6771410793886387
+          "fold": 0.3416942790111597,
+          "call": 0.6583057209888488
         },
         "policy_cell_counts": {
-          "C": 70,
+          "C": 73,
           "F/C": 12,
-          "F": 38
+          "F": 29
         },
         "node_reach_fraction": 0.008244586404636283,
-        "root_loss_bb": 0.0011170914017892806
+        "root_loss_bb": 0.0005282706232337096
       }
     }
   ]

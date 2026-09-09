@@ -3,6 +3,7 @@ param(
     [string]$OutputRoot = '',
     [string]$DatasetRoot = '',
     [string]$SolverExe = '',
+    [string]$StudyDirectory = '',
     [switch]$Resume
 )
 
@@ -11,9 +12,21 @@ Set-StrictMode -Version Latest
 $operationStarted = [DateTime]::UtcNow
 $operationTimer = [Diagnostics.Stopwatch]::StartNew()
 
-$studyDirectory = $PSScriptRoot
+$studyDirectory = if ($StudyDirectory) { [IO.Path]::GetFullPath($StudyDirectory) } else { $PSScriptRoot }
 $repoRoot = (Resolve-Path (Join-Path $studyDirectory '..\..')).Path
 $studyName = Split-Path $studyDirectory -Leaf
+$study = Get-Content -LiteralPath (Join-Path $studyDirectory 'study.json') -Raw -Encoding UTF8 | ConvertFrom-Json
+$boardsPath = if ($study.board_file) {
+    Join-Path $repoRoot ([string]$study.board_file)
+} else {
+    Join-Path $studyDirectory 'boards.txt'
+}
+$boardCount = @(Get-Content -LiteralPath $boardsPath -Encoding UTF8 | Where-Object {
+    $_.Trim() -and -not $_.Trim().StartsWith('#')
+}).Count
+if ($study.expected_boards -and $boardCount -ne [int]$study.expected_boards) {
+    throw "$($study.study_id) requires $($study.expected_boards) boards; got $boardCount."
+}
 $runStamp = $operationStarted.ToString('yyyyMMdd-HHmmssZ')
 if (-not $OutputRoot) { $OutputRoot = Join-Path $repoRoot "output\$studyName" }
 if (-not $DatasetRoot) { $DatasetRoot = Join-Path $repoRoot "datasets\$studyName\$runStamp" }
@@ -21,17 +34,12 @@ $outputPath = [IO.Path]::GetFullPath($OutputRoot)
 $datasetPath = [IO.Path]::GetFullPath($DatasetRoot)
 [IO.Directory]::CreateDirectory($datasetPath) | Out-Null
 
-$branchIds = @(
-    '01_UTG_FIRST',
-    '02_BTN_AFTER_CHECK',
-    '03_BTN_AFTER_CBET',
-    '04_UTG_AFTER_STAB'
-)
+$branchIds = @($study.branches | ForEach-Object { [string]$_.id })
 $branchRows = [System.Collections.Generic.List[object]]::new()
 $caughtError = $null
 
-Write-Host "STU003 OPERATION START: $($operationStarted.ToString('o'))"
-Write-Host "Scope: $($branchIds.Count) branches x 5 flops = $($branchIds.Count * 5) solves"
+Write-Host "$($study.study_id) OPERATION START: $($operationStarted.ToString('o'))"
+Write-Host "Scope: $($branchIds.Count) branches x $boardCount flops = $($branchIds.Count * $boardCount) solves"
 
 try {
     foreach ($branchId in $branchIds) {
@@ -41,6 +49,7 @@ try {
             BranchId = $branchId
             OutputDirectory = (Join-Path $outputPath $branchId)
             DatasetDirectory = (Join-Path $datasetPath $branchId)
+            StudyDirectory = $studyDirectory
             Resume = $Resume
         }
         if ($SolverExe) { $arguments['SolverExe'] = $SolverExe }
@@ -65,15 +74,15 @@ try {
     $errorText = if ($success) { '' } else { [string]$caughtError.Exception.Message }
     $report = [pscustomobject][ordered]@{
         schema_version = 1
-        study_id = 'STU003'
-        operation = 'four branches by five flops, including validation and parsing'
+        study_id = [string]$study.study_id
+        operation = "$($branchIds.Count) branches by $boardCount flops, including validation and parsing"
         started_at_utc = $operationStarted.ToString('o')
         ended_at_utc = $operationEnded.ToString('o')
         success = $success
         resumed = [bool]$Resume
         branches_expected = $branchIds.Count
         branches_completed = $branchRows.Count
-        boards_expected_total = $branchIds.Count * 5
+        boards_expected_total = $branchIds.Count * $boardCount
         boards_completed_total = [int](($branchRows | Measure-Object -Property boards_done -Sum).Sum)
         total_wall_ms_including_all_parsing = [int][Math]::Round($operationTimer.Elapsed.TotalMilliseconds)
         raw_output_root = $outputPath
@@ -85,7 +94,7 @@ try {
     $branchRows | Export-Csv -LiteralPath (Join-Path $datasetPath 'branches.csv') -NoTypeInformation -Encoding UTF8
 
     Write-Host ""
-    Write-Host "STU003 OPERATION END: $($operationEnded.ToString('o'))"
+    Write-Host "$($study.study_id) OPERATION END: $($operationEnded.ToString('o'))"
     Write-Host "Total elapsed including all parsing: $([Math]::Round($operationTimer.Elapsed.TotalSeconds, 3)) s"
     Write-Host "Completed branches: $($branchRows.Count)/$($branchIds.Count)"
     Write-Host "Operation report: $(Join-Path $datasetPath 'operation-timing.json')"

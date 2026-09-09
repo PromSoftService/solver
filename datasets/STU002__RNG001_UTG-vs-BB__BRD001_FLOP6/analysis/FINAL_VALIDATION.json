@@ -34,12 +34,10 @@
     "Second pair",
     "Third pair",
     "Weak pair",
-    "2 overcards",
-    "2 overcards + draw",
-    "A-high",
-    "A-high + draw",
-    "Air",
-    "Air + draw"
+    "OESD",
+    "Gutshot",
+    "2 overcards + BDFD",
+    "Air"
   ],
   "dataset_validation": {
     "01_BB_FIRST": {

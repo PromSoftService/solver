@@ -24,7 +24,7 @@ Keep source inputs and reusable examples in Git. Generated `output/` and `_diagn
 ## STU002 strategy standard
 
 The active human-strategy outputs are exactly two workbooks: the B13 table and
-the eight-flop-category table. Both use the same 13 displayed hand rows and are
+the eight-flop-category table. Both use the same 11 displayed hand rows and are
 rebuilt directly from the tracked solver combo frequencies. Do not infer
 frequencies from displayed action labels and do not restore the discarded row
 smoothing experiments. Read `docs/STU002_STRATEGY_WORKFLOW.md` before changing

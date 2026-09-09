@@ -6,6 +6,7 @@ param(
     [string]$OutputDirectory = '',
     [string]$DatasetDirectory = '',
     [string]$SolverExe = '',
+    [string]$StudyDirectory = '',
     [switch]$Resume
 )
 
@@ -13,12 +14,16 @@ $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version Latest
 $operationStarted = [DateTime]::UtcNow
 
-$studyDirectory = $PSScriptRoot
+$studyDirectory = if ($StudyDirectory) { [IO.Path]::GetFullPath($StudyDirectory) } else { $PSScriptRoot }
 $repoRoot = (Resolve-Path (Join-Path $studyDirectory '..\..')).Path
 $studyName = Split-Path $studyDirectory -Leaf
 $configPath = Join-Path $studyDirectory 'config.json'
-$boardsPath = Join-Path $studyDirectory 'boards.txt'
 $study = Get-Content -LiteralPath (Join-Path $studyDirectory 'study.json') -Raw -Encoding UTF8 | ConvertFrom-Json
+$boardsPath = if ($study.board_file) {
+    Join-Path $repoRoot ([string]$study.board_file)
+} else {
+    Join-Path $studyDirectory 'boards.txt'
+}
 $branch = @($study.branches | Where-Object { $_.id -eq $BranchId })
 if ($branch.Count -ne 1) { throw "Branch '$BranchId' is not uniquely defined." }
 $branch = $branch[0]
@@ -28,7 +33,9 @@ $boardList = @(Get-Content -LiteralPath $boardsPath -Encoding UTF8 | ForEach-Obj
     if ($line -and -not $line.StartsWith('#')) { $line }
 })
 $expectedBoards = $boardList.Count
-if ($expectedBoards -ne 5) { throw "STU003 pilot requires exactly five boards; got $expectedBoards." }
+if ($study.expected_boards -and $expectedBoards -ne [int]$study.expected_boards) {
+    throw "$($study.study_id) requires $($study.expected_boards) boards; got $expectedBoards."
+}
 
 if (-not $OutputDirectory) {
     $OutputDirectory = Join-Path $repoRoot "output\$studyName\$BranchId"
@@ -169,7 +176,7 @@ $postprocessWallMs = [Math]::Max(0.0, $operationWallMs - $batchWallMs)
 
 $report = [pscustomobject][ordered]@{
     schema_version = 1
-    study_id = 'STU003'
+    study_id = [string]$study.study_id
     branch_id = $BranchId
     decision_node = [string]$branch.decision_node
     acting_player = [string]$branch.acting_player
@@ -207,7 +214,7 @@ $report = [pscustomobject][ordered]@{
 $report | ConvertTo-Json -Depth 20 | Set-Content -LiteralPath (Join-Path $datasetPath 'timing-report.json') -Encoding UTF8
 
 $reportText = @"
-# STU003 $BranchId five-flop result
+# $($study.study_id) $BranchId result
 
 - Success: $expectedBoards/$expectedBoards
 - Source commit: $commitSha
@@ -224,6 +231,6 @@ $reportText = @"
 "@
 $reportText | Set-Content -LiteralPath (Join-Path $datasetPath 'README.md') -Encoding UTF8
 
-Write-Host "STUDY BRANCH COMPLETE: $BranchId $expectedBoards/$expectedBoards"
+Write-Host "$($study.study_id) BRANCH COMPLETE: $BranchId $expectedBoards/$expectedBoards"
 Write-Host "Branch total including parsing: $([Math]::Round($operationWallMs / 1000, 3)) s"
 Write-Host "Dataset: $datasetPath"

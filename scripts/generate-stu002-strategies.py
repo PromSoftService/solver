@@ -35,12 +35,10 @@ HAND_ORDER = [
     "Second pair",
     "Third pair",
     "Weak pair",
-    "2 overcards",
-    "2 overcards + draw",
-    "A-high",
-    "A-high + draw",
+    "OESD",
+    "Gutshot",
+    "2 overcards + BDFD",
     "Air",
-    "Air + draw",
 ]
 
 FLOP_GROUPS = [
@@ -108,7 +106,12 @@ GROUP_BY_B13 = {
 
 
 def remap_hand(row: dict) -> dict:
-    """Map the strict base/direct/BDFD classifier to the accepted 13 rows."""
+    """Map strict base/direct/BDFD data to the accepted 11 learnable rows.
+
+    Made hands always keep their base.  Unmade hands use direct draw strength
+    before overcards/BDFD: OESD, then Gutshot, then exactly two overcards with
+    a BDFD, otherwise Air.
+    """
     mapped = dict(row)
     base = row["base"]
     if base in {
@@ -116,13 +119,14 @@ def remap_hand(row: dict) -> dict:
         "Underpair", "Weak pair",
     }:
         label = base
-    elif base == "2 overcards":
-        label = base + " + draw" if row["direct"] != "none" or row["bdfd"] else base
-    elif base in {"A-high", "Air"}:
-        # A lone BDFD behaved much closer to the naked class than to a direct
-        # straight draw.  Gutshot and OESD are therefore the only "+ draw"
-        # trigger for these two bases.
-        label = base + " + draw" if row["direct"] != "none" else base
+    elif row["direct"] == "OESD":
+        label = "OESD"
+    elif row["direct"] == "Gutshot":
+        label = "Gutshot"
+    elif base == "2 overcards" and row["bdfd"]:
+        label = "2 overcards + BDFD"
+    elif base in {"2 overcards", "A-high", "Air"}:
+        label = "Air"
     else:
         raise RuntimeError(f"Unsupported base category: {base}")
     mapped["hand_category"] = label
@@ -273,7 +277,7 @@ def write_model(root: Path, model: str, flop_categories: list[str], loaded: dict
             summary["weighted_loss_native"] / root_reach / analysis.EV_SCALE_PER_BB
         )
         if baseline_loss is not None:
-            summary["incremental_root_loss_vs_13xB13_bb"] = (
+            summary["incremental_root_loss_vs_B13_bb"] = (
                 summary["root_loss_bb"] - baseline_loss[branch]
             )
 
@@ -343,7 +347,7 @@ def main() -> None:
 
     narrow = write_model(
         NARROW_ROOT,
-        "13 hand categories x B13 flop categories",
+        "11 hand categories x 13 B13 flop categories",
         analysis.B13,
         loaded,
         analysis.flop_class,
@@ -353,7 +357,7 @@ def main() -> None:
     }
     wide = write_model(
         WIDE_ROOT,
-        "13 hand categories x 8 flop categories",
+        "11 hand categories x 8 flop categories",
         [group["name"] for group in FLOP_GROUPS],
         loaded,
         lambda board: GROUP_BY_B13[analysis.flop_class(board)],
