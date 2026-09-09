@@ -1,0 +1,48 @@
+﻿hand_category,ABB,A[K/Q]x,A[J-T][9-5],A[J-T][4-2],A[9-7]x,A[6-2]x,BBB,BBx,K/Qx dis,K/Qx con,[J-8]x dis,[J-8]x con,[7-4]x
+Two pair+,B,B,B,B,B,B,B,B,B,B,B,B,B
+Two pair+ + BDFD,B,B,B,B,B,B,B,B,B,B,B,B,B
+Overpair,—,—,—,—,—,—,—,B,B,B,B,X/B,X/B
+Overpair + Gutshot,—,—,—,—,—,—,B,B,—,—,B,B,B
+Overpair + OESD,—,—,—,—,—,—,B,—,—,—,—,B,B
+Top pair,B,B,X/B,X/B,X/B,X,B,X/B,X/B,X,X,X,X/B
+Top pair + BDFD,B,B,X/B,X/B,X/B,X/B,B,B,B,B,B,B,B
+Top pair + Gutshot,B,—,—,—,—,X,B,X/B,—,B,B,X/B,B
+Top pair + Gutshot + BDFD,B,—,—,—,—,X,B,B,—,B,B,B,B
+Top pair + OESD,—,—,—,—,—,—,B,B,—,—,B,X/B,B
+Top pair + OESD + BDFD,—,—,—,—,—,—,B,B,—,—,B,B,B
+Second pair,B,X/B,X/B,X,B,B,—,X,X/B,X/B,X,X,X
+Second pair + BDFD,X/B,X/B,B,X/B,B,B,—,X/B,B,B,X/B,X/B,B
+Second pair + Gutshot,X/B,—,—,—,—,B,B,X/B,—,X,X/B,X,X/B
+Second pair + Gutshot + BDFD,B,—,—,—,—,B,B,B,—,X/B,B,X/B,B
+Second pair + OESD,—,—,—,—,—,—,X/B,X/B,—,—,B,X,X/B
+Second pair + OESD + BDFD,—,—,—,—,—,—,B,B,—,—,B,B,B
+Third pair,B,B,B,B,X/B,X/B,X,B,X,X,X,X,X
+Third pair + BDFD,B,B,B,B,B,B,X,B,B,X/B,B,X/B,B
+Third pair + Gutshot,B,—,—,—,—,—,X/B,X/B,—,X,X,X,X/B
+Third pair + Gutshot + BDFD,B,—,—,—,—,—,X/B,X/B,—,X,X,X,B
+Third pair + OESD,—,—,—,—,—,—,X/B,X,—,—,X,X,X
+Third pair + OESD + BDFD,—,—,—,—,—,—,B,B,—,—,B,X/B,X/B
+Underpair,—,X,X,X,X,X,—,X/B,X,X,X,X/B,X/B
+Underpair + Gutshot,B,—,—,—,—,B,—,X,—,X,X/B,X/B,B
+Underpair + OESD,—,—,—,—,—,—,B,X/B,—,—,—,X/B,B
+Weak pair,B,X/B,X/B,X/B,X/B,X/B,B,X/B,X,X,X,X,X
+Weak pair + Gutshot,B,—,—,—,—,B,B,X,—,—,X,X,X
+Weak pair + OESD,—,—,—,—,—,—,B,X,—,—,X,X,X/B
+2 overcards,—,—,—,—,—,—,—,—,X/B,X,X/B,X/B,X/B
+2 overcards + BDFD,—,—,—,—,—,—,—,—,X,X,X/B,X,X/B
+2 overcards + Gutshot,—,—,—,—,—,—,—,B,—,—,X/B,X/B,X/B
+2 overcards + Gutshot + BDFD,—,—,—,—,—,—,—,B,—,—,B,B,B
+2 overcards + OESD,—,—,—,—,—,—,—,B,—,—,B,X/B,B
+2 overcards + OESD + BDFD,—,—,—,—,—,—,—,B,—,—,B,B,B
+A-high,—,—,—,—,—,—,—,B,X/B,X/B,X/B,X/B,X
+A-high + BDFD,—,—,—,—,—,—,—,X/B,X/B,X/B,X/B,X,X
+A-high + Gutshot,—,—,—,—,—,—,B,B,B,X/B,X/B,X/B,X
+A-high + Gutshot + BDFD,—,—,—,—,—,—,B,B,B,B,B,B,X/B
+A-high + OESD,—,—,—,—,—,—,B,X/B,—,—,X/B,X/B,X/B
+A-high + OESD + BDFD,—,—,—,—,—,—,B,B,—,—,B,B,B
+Air,X/B,X,X/B,X/B,B,X/B,X/B,B,B,B,X/B,X/B,X
+Air + BDFD,X/B,X/B,X/B,X/B,X/B,X/B,X/B,B,B,X/B,X/B,X/B,X/B
+Air + Gutshot,B,B,B,X/B,B,B,B,X/B,B,B,X/B,B,B
+Air + Gutshot + BDFD,B,B,B,B,B,B,B,B,B,B,B,B,B
+Air + OESD,B,B,B,—,B,B,B,B,B,B,B,B,B
+Air + OESD + BDFD,B,B,B,—,B,B,B,B,B,B,B,B,B

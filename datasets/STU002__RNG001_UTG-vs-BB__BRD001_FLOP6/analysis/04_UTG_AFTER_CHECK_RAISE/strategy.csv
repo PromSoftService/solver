@@ -1,0 +1,48 @@
+﻿hand_category,ABB,A[K/Q]x,A[J-T][9-5],A[J-T][4-2],A[9-7]x,A[6-2]x,BBB,BBx,K/Qx dis,K/Qx con,[J-8]x dis,[J-8]x con,[7-4]x
+Two pair+,C,C,C,C,C,C,C,C,C,C,C,C,C
+Two pair+ + BDFD,C,C,C,C,C,C,C,C,C,C,C,C,C
+Overpair,—,—,—,—,—,—,—,C,C,C,C,C,C
+Overpair + Gutshot,—,—,—,—,—,—,C,C,—,—,C,C,C
+Overpair + OESD,—,—,—,—,—,—,C,—,—,—,—,C,C
+Top pair,F,C,C,C,C,C,F,F/C,C,C,C,C,C
+Top pair + BDFD,F/C,C,C,C,C,C,F,C,C,C,C,C,C
+Top pair + Gutshot,C,—,—,—,—,C,C,C,—,C,C,C,C
+Top pair + Gutshot + BDFD,C,—,—,—,—,C,C,C,—,C,C,C,C
+Top pair + OESD,—,—,—,—,—,—,C,C,—,—,C,C,C
+Top pair + OESD + BDFD,—,—,—,—,—,—,C,C,—,—,C,C,C
+Second pair,F,F,F,F/C,C,C,—,F/C,C,C,C,C,C
+Second pair + BDFD,F,C,C,C,C,C,—,C,C,C,C,C,C
+Second pair + Gutshot,F/C,—,—,—,—,C,F,C,—,C,C,C,C
+Second pair + Gutshot + BDFD,C,—,—,—,—,C,C,C,—,C,C,C,C
+Second pair + OESD,—,—,—,—,—,—,C,C,—,—,C,C,C
+Second pair + OESD + BDFD,—,—,—,—,—,—,C,C,—,—,C,C,C
+Third pair,F,C,F/C,C,C,C,F,F,C,C,C,C,C
+Third pair + BDFD,F,C,C,C,C,C,F,C,C,C,C,C,C
+Third pair + Gutshot,F,—,—,—,—,—,F,F/C,—,—,C,—,C
+Third pair + Gutshot + BDFD,C,—,—,—,—,—,F/C,C,—,—,C,C,C
+Third pair + OESD,—,—,—,—,—,—,C,C,—,—,C,C,C
+Third pair + OESD + BDFD,—,—,—,—,—,—,C,C,—,—,C,C,C
+Underpair,—,C,F/C,F/C,C,C,—,C,C,C,C,C,C
+Underpair + Gutshot,C,—,—,—,—,C,—,C,—,C,C,C,C
+Underpair + OESD,—,—,—,—,—,—,C,C,—,—,—,C,C
+Weak pair,F,F,F,F,F/C,C,F,F,F/C,F,F/C,F,—
+Weak pair + Gutshot,F/C,—,—,—,—,C,F,C,—,—,C,F,C
+Weak pair + OESD,—,—,—,—,—,—,C,C,—,—,C,F/C,C
+2 overcards,—,—,—,—,—,—,—,—,F,F,F,F,F
+2 overcards + BDFD,—,—,—,—,—,—,—,—,C,C,C,C,C
+2 overcards + Gutshot,—,—,—,—,—,—,—,F/C,—,—,C,F/C,C
+2 overcards + Gutshot + BDFD,—,—,—,—,—,—,—,C,—,—,C,C,C
+2 overcards + OESD,—,—,—,—,—,—,—,C,—,—,C,C,C
+2 overcards + OESD + BDFD,—,—,—,—,—,—,—,C,—,—,C,C,C
+A-high,—,—,—,—,—,—,—,F,F,F,F,F,F
+A-high + BDFD,—,—,—,—,—,—,—,F,F,F,F/C,F,F/C
+A-high + Gutshot,—,—,—,—,—,—,F,F/C,C,C,C,C,C
+A-high + Gutshot + BDFD,—,—,—,—,—,—,F/C,C,C,C,C,C,C
+A-high + OESD,—,—,—,—,—,—,F/C,C,—,—,C,C,C
+A-high + OESD + BDFD,—,—,—,—,—,—,C,C,—,—,C,C,C
+Air,F,F,F,F,F,F,F,F,F,F,F,F,F
+Air + BDFD,F,F,F,F,F/C,F/C,F,F,F/C,F/C,F/C,F/C,C
+Air + Gutshot,F,C,F/C,F/C,C,C,F,F,C,C,C,C,C
+Air + Gutshot + BDFD,C,C,C,C,C,C,F,C,C,C,C,C,C
+Air + OESD,C,C,C,—,C,C,F/C,C,C,C,C,C,C
+Air + OESD + BDFD,C,C,C,—,C,C,C,C,C,C,C,C,C

@@ -1,0 +1,39 @@
+﻿{
+    "schema_version":  1,
+    "study_id":  "STU002",
+    "branch_id":  "06_BB_AFTER_DONK_RAISE",
+    "decision_node":  "BB_VS_DONK_RAISE",
+    "acting_player":  "BB",
+    "history":  "BB Donk 50% -\u003e UTG Raise 60 native",
+    "actions":  "Fold / Call",
+    "source_commit":  "6e25d49c7042047564657023e035c7928c756e65",
+    "started_at_utc":  "2026-09-09T02:43:14.2632542Z",
+    "ended_at_utc":  "2026-09-09T04:49:03.6693237Z",
+    "resumed":  false,
+    "success":  true,
+    "boards_done":  286,
+    "boards_expected":  286,
+    "raw_output_path":  "D:\\current\\manuals\\покер\\sotf\\tsgpu-batch-production-v012\\output\\STU002__RNG001_UTG-vs-BB__BRD001_FLOP6\\06_BB_AFTER_DONK_RAISE",
+    "dataset_path":  "D:\\current\\manuals\\покер\\sotf\\tsgpu-batch-production-v012\\datasets\\STU002__RNG001_UTG-vs-BB__BRD001_FLOP6\\06_BB_AFTER_DONK_RAISE\\20260909-024314Z",
+    "timing_ms":  {
+                      "total_wall":  7549406,
+                      "current_invocation_wall":  7549406,
+                      "board_sum":  7549283,
+                      "prior_attempt_board_sum":  0,
+                      "retry_board_sum":  0,
+                      "mean":  26396,
+                      "median":  23953,
+                      "min":  17773,
+                      "max":  80459
+                  },
+    "validation":  {
+                       "required_files_per_board":  5,
+                       "exactly_one_solve_start_per_board":  true,
+                       "exactly_one_current_street_export_per_board":  true,
+                       "forbidden_full_tree_calls":  0,
+                       "aggregate_combo_csv":  true
+                   },
+    "errors":  [
+
+               ]
+}
