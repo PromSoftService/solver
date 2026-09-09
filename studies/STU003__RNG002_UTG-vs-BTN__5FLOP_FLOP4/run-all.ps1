@@ -48,6 +48,14 @@ try {
         $branchOutputPath = Join-Path $outputPath $branchId
         $branchDatasetPath = Join-Path $datasetPath $branchId
         $branchCanResume = $Resume -and (Test-Path -LiteralPath (Join-Path $branchOutputPath 'batch-summary.csv') -PathType Leaf)
+        if ($Resume -and -not $branchCanResume -and (Test-Path -LiteralPath $branchOutputPath)) {
+            $staleItems = @(Get-ChildItem -LiteralPath $branchOutputPath -Force)
+            if ($staleItems.Count -eq 0) {
+                Remove-Item -LiteralPath $branchOutputPath
+            } else {
+                throw "Cannot safely start ${branchId}: output exists without batch-summary.csv and is not empty: $branchOutputPath"
+            }
+        }
         $arguments = @{
             BranchId = $branchId
             OutputDirectory = $branchOutputPath
