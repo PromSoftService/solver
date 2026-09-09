@@ -1,0 +1,1383 @@
+{
+  "model": "clustered-13-smooth-v2",
+  "source": "clustered-13",
+  "rule": "minimum policy-profile distortion; keep raw rows already at <=3 blocks",
+  "initial_max_blocks": 3,
+  "global_action_drift_cap": 0.015,
+  "b13_class_action_drift_cap": 0.15,
+  "root_loss_delta_cap_bb_per_branch": 0.00025,
+  "branches": [
+    {
+      "branch": "01_BB_FIRST",
+      "raw": {
+        "root_loss_bb": 0.00021348805069738782,
+        "node_loss_bb": 0.00021348805069739733,
+        "reach_sum": 13254234.00020941,
+        "solver_frequencies": {
+          "check": 0.9362318557873419,
+          "donk": 0.06376814428144364
+        },
+        "simplified_frequencies": {
+          "check": 0.9722371461501238,
+          "donk": 0.027762853849885815
+        },
+        "class_frequencies": {
+          "ABB": {
+            "check": 1.0,
+            "donk": 0.0
+          },
+          "A[K/Q]x": {
+            "check": 1.0,
+            "donk": 0.0
+          },
+          "A[J-T][9-5]": {
+            "check": 1.0,
+            "donk": 0.0
+          },
+          "A[J-T][4-2]": {
+            "check": 1.0,
+            "donk": 0.0
+          },
+          "A[9-7]x": {
+            "check": 1.0,
+            "donk": 0.0
+          },
+          "A[6-2]x": {
+            "check": 0.9754428152258207,
+            "donk": 0.024557184774178738
+          },
+          "BBB": {
+            "check": 1.0,
+            "donk": 0.0
+          },
+          "BBx": {
+            "check": 1.0,
+            "donk": 0.0
+          },
+          "K/Qx dis": {
+            "check": 1.0,
+            "donk": 0.0
+          },
+          "K/Qx con": {
+            "check": 1.0,
+            "donk": 0.0
+          },
+          "[J-8]x dis": {
+            "check": 1.0,
+            "donk": 0.0
+          },
+          "[J-8]x con": {
+            "check": 1.0,
+            "donk": 0.0
+          },
+          "[7-4]x": {
+            "check": 0.6569853452740578,
+            "donk": 0.34301465472594606
+          }
+        },
+        "policy_cell_counts": {
+          "X": 114,
+          "X/D": 12
+        }
+      },
+      "smoothed": {
+        "root_loss_bb": 0.0002123137598908286,
+        "node_loss_bb": 0.00021231375989083805,
+        "reach_sum": 13254234.00020941,
+        "solver_frequencies": {
+          "check": 0.9362318557873419,
+          "donk": 0.06376814428144364
+        },
+        "simplified_frequencies": {
+          "check": 0.9730750518789515,
+          "donk": 0.02692494812105797
+        },
+        "class_frequencies": {
+          "ABB": {
+            "check": 1.0,
+            "donk": 0.0
+          },
+          "A[K/Q]x": {
+            "check": 1.0,
+            "donk": 0.0
+          },
+          "A[J-T][9-5]": {
+            "check": 1.0,
+            "donk": 0.0
+          },
+          "A[J-T][4-2]": {
+            "check": 1.0,
+            "donk": 0.0
+          },
+          "A[9-7]x": {
+            "check": 1.0,
+            "donk": 0.0
+          },
+          "A[6-2]x": {
+            "check": 1.0,
+            "donk": 0.0
+          },
+          "BBB": {
+            "check": 1.0,
+            "donk": 0.0
+          },
+          "BBx": {
+            "check": 1.0,
+            "donk": 0.0
+          },
+          "K/Qx dis": {
+            "check": 1.0,
+            "donk": 0.0
+          },
+          "K/Qx con": {
+            "check": 1.0,
+            "donk": 0.0
+          },
+          "[J-8]x dis": {
+            "check": 1.0,
+            "donk": 0.0
+          },
+          "[J-8]x con": {
+            "check": 1.0,
+            "donk": 0.0
+          },
+          "[7-4]x": {
+            "check": 0.6569853452740578,
+            "donk": 0.34301465472594606
+          }
+        },
+        "policy_cell_counts": {
+          "X": 115,
+          "X/D": 11
+        }
+      },
+      "global_action_drift": 0.0008379057288278452,
+      "max_b13_class_action_drift": 0.02455718477417934,
+      "incremental_root_loss_bb": -1.1742908065592254e-06,
+      "rows": {
+        "Two pair+": {
+          "raw_blocks": 4,
+          "smoothed_blocks": 2,
+          "policy_distance": 0.017482517482517484
+        },
+        "Overpair": {
+          "raw_blocks": 2,
+          "smoothed_blocks": 2,
+          "policy_distance": 0.0
+        },
+        "Top pair": {
+          "raw_blocks": 2,
+          "smoothed_blocks": 2,
+          "policy_distance": 0.0
+        },
+        "Second pair": {
+          "raw_blocks": 2,
+          "smoothed_blocks": 2,
+          "policy_distance": 0.0
+        },
+        "Third pair": {
+          "raw_blocks": 2,
+          "smoothed_blocks": 2,
+          "policy_distance": 0.0
+        },
+        "Underpair": {
+          "raw_blocks": 2,
+          "smoothed_blocks": 2,
+          "policy_distance": 0.0
+        },
+        "Weak pair": {
+          "raw_blocks": 2,
+          "smoothed_blocks": 2,
+          "policy_distance": 0.0
+        },
+        "2 overcards": {
+          "raw_blocks": 1,
+          "smoothed_blocks": 1,
+          "policy_distance": 0.0
+        },
+        "2 overcards + draw": {
+          "raw_blocks": 2,
+          "smoothed_blocks": 2,
+          "policy_distance": 0.0
+        },
+        "A-high": {
+          "raw_blocks": 2,
+          "smoothed_blocks": 2,
+          "policy_distance": 0.0
+        },
+        "A-high + draw": {
+          "raw_blocks": 2,
+          "smoothed_blocks": 2,
+          "policy_distance": 0.0
+        },
+        "Air": {
+          "raw_blocks": 1,
+          "smoothed_blocks": 1,
+          "policy_distance": 0.0
+        },
+        "Air + draw": {
+          "raw_blocks": 2,
+          "smoothed_blocks": 2,
+          "policy_distance": 0.0
+        }
+      }
+    },
+    {
+      "branch": "02_UTG_AFTER_CHECK",
+      "raw": {
+        "root_loss_bb": 0.0020690464821042547,
+        "node_loss_bb": 0.0022099723261542375,
+        "reach_sum": 12409036.034782983,
+        "solver_frequencies": {
+          "check": 0.44091897436309446,
+          "bet": 0.559081023941644
+        },
+        "simplified_frequencies": {
+          "check": 0.381753359121731,
+          "bet": 0.6182466408782715
+        },
+        "class_frequencies": {
+          "ABB": {
+            "check": 0.011702059239265178,
+            "bet": 0.9882979407607346
+          },
+          "A[K/Q]x": {
+            "check": 0.23852813451675908,
+            "bet": 0.7614718654832373
+          },
+          "A[J-T][9-5]": {
+            "check": 0.3781139463498735,
+            "bet": 0.6218860536501282
+          },
+          "A[J-T][4-2]": {
+            "check": 0.4505225722840064,
+            "bet": 0.549477427715994
+          },
+          "A[9-7]x": {
+            "check": 0.5197706614738754,
+            "bet": 0.480229338526128
+          },
+          "A[6-2]x": {
+            "check": 0.5768267099230782,
+            "bet": 0.423173290076923
+          },
+          "BBB": {
+            "check": 0.11441000879080539,
+            "bet": 0.885589991209195
+          },
+          "BBx": {
+            "check": 0.13658926730455925,
+            "bet": 0.8634107326954396
+          },
+          "K/Qx dis": {
+            "check": 0.4445129301643943,
+            "bet": 0.5554870698356104
+          },
+          "K/Qx con": {
+            "check": 0.5294750697487288,
+            "bet": 0.4705249302512705
+          },
+          "[J-8]x dis": {
+            "check": 0.45497130412325787,
+            "bet": 0.545028695876737
+          },
+          "[J-8]x con": {
+            "check": 0.4106213527139158,
+            "bet": 0.5893786472860856
+          },
+          "[7-4]x": {
+            "check": 0.4680951366020469,
+            "bet": 0.5319048633979541
+          }
+        },
+        "policy_cell_counts": {
+          "B": 66,
+          "X/B": 49,
+          "X": 20
+        }
+      },
+      "smoothed": {
+        "root_loss_bb": 0.002077725414439225,
+        "node_loss_bb": 0.0022192423935242767,
+        "reach_sum": 12409036.034782983,
+        "solver_frequencies": {
+          "check": 0.44091897436309446,
+          "bet": 0.559081023941644
+        },
+        "simplified_frequencies": {
+          "check": 0.39073673105626533,
+          "bet": 0.6092632689437372
+        },
+        "class_frequencies": {
+          "ABB": {
+            "check": 0.011702059239265178,
+            "bet": 0.9882979407607346
+          },
+          "A[K/Q]x": {
+            "check": 0.3240131206322533,
+            "bet": 0.6759868793677443
+          },
+          "A[J-T][9-5]": {
+            "check": 0.428148587191295,
+            "bet": 0.5718514128087065
+          },
+          "A[J-T][4-2]": {
+            "check": 0.4505225722840064,
+            "bet": 0.549477427715994
+          },
+          "A[9-7]x": {
+            "check": 0.5197706614738754,
+            "bet": 0.480229338526128
+          },
+          "A[6-2]x": {
+            "check": 0.5768267099230782,
+            "bet": 0.423173290076923
+          },
+          "BBB": {
+            "check": 0.06739333415138087,
+            "bet": 0.9326066658486186
+          },
+          "BBx": {
+            "check": 0.13658926730455925,
+            "bet": 0.8634107326954396
+          },
+          "K/Qx dis": {
+            "check": 0.4445129301643943,
+            "bet": 0.5554870698356104
+          },
+          "K/Qx con": {
+            "check": 0.5294750697487288,
+            "bet": 0.4705249302512705
+          },
+          "[J-8]x dis": {
+            "check": 0.45497130412325787,
+            "bet": 0.545028695876737
+          },
+          "[J-8]x con": {
+            "check": 0.44489827288907463,
+            "bet": 0.5551017271109268
+          },
+          "[7-4]x": {
+            "check": 0.47420369682316404,
+            "bet": 0.5257963031768369
+          }
+        },
+        "policy_cell_counts": {
+          "B": 67,
+          "X/B": 44,
+          "X": 24
+        }
+      },
+      "global_action_drift": 0.008983371934534357,
+      "max_b13_class_action_drift": 0.08548498611549421,
+      "incremental_root_loss_bb": 8.678932334970323e-06,
+      "rows": {
+        "Two pair+": {
+          "raw_blocks": 1,
+          "smoothed_blocks": 1,
+          "policy_distance": 0.0
+        },
+        "Overpair": {
+          "raw_blocks": 2,
+          "smoothed_blocks": 2,
+          "policy_distance": 0.0
+        },
+        "Top pair": {
+          "raw_blocks": 5,
+          "smoothed_blocks": 5,
+          "policy_distance": 0.0
+        },
+        "Second pair": {
+          "raw_blocks": 8,
+          "smoothed_blocks": 7,
+          "policy_distance": 0.0456140350877193
+        },
+        "Third pair": {
+          "raw_blocks": 8,
+          "smoothed_blocks": 5,
+          "policy_distance": 0.045454545454545456
+        },
+        "Underpair": {
+          "raw_blocks": 7,
+          "smoothed_blocks": 6,
+          "policy_distance": 0.05
+        },
+        "Weak pair": {
+          "raw_blocks": 5,
+          "smoothed_blocks": 5,
+          "policy_distance": 0.0
+        },
+        "2 overcards": {
+          "raw_blocks": 3,
+          "smoothed_blocks": 3,
+          "policy_distance": 0.0
+        },
+        "2 overcards + draw": {
+          "raw_blocks": 3,
+          "smoothed_blocks": 3,
+          "policy_distance": 0.0
+        },
+        "A-high": {
+          "raw_blocks": 3,
+          "smoothed_blocks": 3,
+          "policy_distance": 0.0
+        },
+        "A-high + draw": {
+          "raw_blocks": 2,
+          "smoothed_blocks": 2,
+          "policy_distance": 0.0
+        },
+        "Air": {
+          "raw_blocks": 3,
+          "smoothed_blocks": 3,
+          "policy_distance": 0.0
+        },
+        "Air + draw": {
+          "raw_blocks": 1,
+          "smoothed_blocks": 1,
+          "policy_distance": 0.0
+        }
+      }
+    },
+    {
+      "branch": "03_BB_AFTER_CBET",
+      "raw": {
+        "root_loss_bb": 0.008824541885092161,
+        "node_loss_bb": 0.016859085175564843,
+        "reach_sum": 6937656.57339394,
+        "solver_frequencies": {
+          "fold": 0.478993331523032,
+          "call": 0.3909302086799,
+          "raise": 0.13007645935020065
+        },
+        "simplified_frequencies": {
+          "fold": 0.47473569672032534,
+          "call": 0.4084165663621703,
+          "raise": 0.11684773691751384
+        },
+        "class_frequencies": {
+          "ABB": {
+            "fold": 0.6718812009469841,
+            "call": 0.27708759487032125,
+            "raise": 0.051031204182695106
+          },
+          "A[K/Q]x": {
+            "fold": 0.5386237024316499,
+            "call": 0.3717974650145955,
+            "raise": 0.08957883255375373
+          },
+          "A[J-T][9-5]": {
+            "fold": 0.56321477556302,
+            "call": 0.3032075564265978,
+            "raise": 0.13357766801038345
+          },
+          "A[J-T][4-2]": {
+            "fold": 0.560910503573807,
+            "call": 0.32124750688895093,
+            "raise": 0.11784198953724258
+          },
+          "A[9-7]x": {
+            "fold": 0.5414241995229361,
+            "call": 0.3891563927185701,
+            "raise": 0.06941940775849717
+          },
+          "A[6-2]x": {
+            "fold": 0.5030884504613741,
+            "call": 0.41663957520437594,
+            "raise": 0.0802719743342474
+          },
+          "BBB": {
+            "fold": 0.5760423037238801,
+            "call": 0.30787912842729553,
+            "raise": 0.11607856784882527
+          },
+          "BBx": {
+            "fold": 0.4859182985685987,
+            "call": 0.3913027860998692,
+            "raise": 0.12277891533153011
+          },
+          "K/Qx dis": {
+            "fold": 0.49796725222412813,
+            "call": 0.4261051453106387,
+            "raise": 0.07592760246523307
+          },
+          "K/Qx con": {
+            "fold": 0.49782806482689657,
+            "call": 0.3702290348668326,
+            "raise": 0.13194290030627748
+          },
+          "[J-8]x dis": {
+            "fold": 0.39426283635379583,
+            "call": 0.4569044436642114,
+            "raise": 0.1488327199819947
+          },
+          "[J-8]x con": {
+            "fold": 0.3872443709510692,
+            "call": 0.4832096828904221,
+            "raise": 0.12954594615850962
+          },
+          "[7-4]x": {
+            "fold": 0.45007948392072916,
+            "call": 0.3716867340421491,
+            "raise": 0.17823378203712442
+          }
+        },
+        "policy_cell_counts": {
+          "F": 30,
+          "F/C": 14,
+          "C": 46,
+          "C/R": 19,
+          "R": 15,
+          "F/R": 2
+        }
+      },
+      "smoothed": {
+        "root_loss_bb": 0.008771017119369466,
+        "node_loss_bb": 0.016756827336453048,
+        "reach_sum": 6937656.57339394,
+        "solver_frequencies": {
+          "fold": 0.478993331523032,
+          "call": 0.3909302086799,
+          "raise": 0.13007645935020065
+        },
+        "simplified_frequencies": {
+          "fold": 0.4750310039065944,
+          "call": 0.4012025911787578,
+          "raise": 0.12376640491465561
+        },
+        "class_frequencies": {
+          "ABB": {
+            "fold": 0.5795479660939413,
+            "call": 0.3694208297233636,
+            "raise": 0.051031204182695106
+          },
+          "A[K/Q]x": {
+            "fold": 0.5090567223005337,
+            "call": 0.401364445145711,
+            "raise": 0.08957883255375373
+          },
+          "A[J-T][9-5]": {
+            "fold": 0.4829919864551903,
+            "call": 0.3834303455344276,
+            "raise": 0.13357766801038345
+          },
+          "A[J-T][4-2]": {
+            "fold": 0.5432821031797013,
+            "call": 0.3388759072830566,
+            "raise": 0.11784198953724258
+          },
+          "A[9-7]x": {
+            "fold": 0.5414241995229361,
+            "call": 0.3891563927185701,
+            "raise": 0.06941940775849717
+          },
+          "A[6-2]x": {
+            "fold": 0.5305891249722955,
+            "call": 0.38913890069345447,
+            "raise": 0.0802719743342474
+          },
+          "BBB": {
+            "fold": 0.4755983408030839,
+            "call": 0.3478368734004565,
+            "raise": 0.17656478579645962
+          },
+          "BBx": {
+            "fold": 0.4859182985685987,
+            "call": 0.3913027860998692,
+            "raise": 0.12277891533153011
+          },
+          "K/Qx dis": {
+            "fold": 0.5556206618025697,
+            "call": 0.36845173573220047,
+            "raise": 0.07592760246523307
+          },
+          "K/Qx con": {
+            "fold": 0.49782806482689657,
+            "call": 0.36222378095914276,
+            "raise": 0.13994815421396747
+          },
+          "[J-8]x dis": {
+            "fold": 0.39426283635379583,
+            "call": 0.4534450139501862,
+            "raise": 0.1522921496960199
+          },
+          "[J-8]x con": {
+            "fold": 0.3872443709510692,
+            "call": 0.4323951131169454,
+            "raise": 0.18036051593198577
+          },
+          "[7-4]x": {
+            "fold": 0.45007948392072916,
+            "call": 0.36296970071912216,
+            "raise": 0.18695081536015076
+          }
+        },
+        "policy_cell_counts": {
+          "C/R": 14,
+          "R": 21,
+          "C": 53,
+          "F/C": 5,
+          "F": 32,
+          "F/R": 1
+        }
+      },
+      "global_action_drift": 0.007213975183412491,
+      "max_b13_class_action_drift": 0.10044396292079621,
+      "incremental_root_loss_bb": -5.352476572269456e-05,
+      "rows": {
+        "Two pair+": {
+          "raw_blocks": 4,
+          "smoothed_blocks": 2,
+          "policy_distance": 0.006993006993006993
+        },
+        "Overpair": {
+          "raw_blocks": 1,
+          "smoothed_blocks": 1,
+          "policy_distance": 0.0
+        },
+        "Top pair": {
+          "raw_blocks": 1,
+          "smoothed_blocks": 1,
+          "policy_distance": 0.0
+        },
+        "Second pair": {
+          "raw_blocks": 6,
+          "smoothed_blocks": 3,
+          "policy_distance": 0.027972027972027972
+        },
+        "Third pair": {
+          "raw_blocks": 5,
+          "smoothed_blocks": 3,
+          "policy_distance": 0.07342657342657342
+        },
+        "Underpair": {
+          "raw_blocks": 2,
+          "smoothed_blocks": 2,
+          "policy_distance": 0.0
+        },
+        "Weak pair": {
+          "raw_blocks": 8,
+          "smoothed_blocks": 4,
+          "policy_distance": 0.09272727272727273
+        },
+        "2 overcards": {
+          "raw_blocks": 3,
+          "smoothed_blocks": 3,
+          "policy_distance": 0.0
+        },
+        "2 overcards + draw": {
+          "raw_blocks": 2,
+          "smoothed_blocks": 2,
+          "policy_distance": 0.0
+        },
+        "A-high": {
+          "raw_blocks": 2,
+          "smoothed_blocks": 2,
+          "policy_distance": 0.0
+        },
+        "A-high + draw": {
+          "raw_blocks": 4,
+          "smoothed_blocks": 3,
+          "policy_distance": 0.2815126050420168
+        },
+        "Air": {
+          "raw_blocks": 1,
+          "smoothed_blocks": 1,
+          "policy_distance": 0.0
+        },
+        "Air + draw": {
+          "raw_blocks": 7,
+          "smoothed_blocks": 3,
+          "policy_distance": 0.05338078291814947
+        }
+      }
+    },
+    {
+      "branch": "04_UTG_AFTER_CHECK_RAISE",
+      "raw": {
+        "root_loss_bb": 0.0023761943938035964,
+        "node_loss_bb": 0.03489997299599592,
+        "reach_sum": 902425.8135980049,
+        "solver_frequencies": {
+          "fold": 0.39234128334358354,
+          "call": 0.6076587169676121
+        },
+        "simplified_frequencies": {
+          "fold": 0.39026296908865027,
+          "call": 0.6097370309113381
+        },
+        "class_frequencies": {
+          "ABB": {
+            "fold": 0.34536077229034684,
+            "call": 0.6546392277096517
+          },
+          "A[K/Q]x": {
+            "fold": 0.3705554752999108,
+            "call": 0.6294445247000883
+          },
+          "A[J-T][9-5]": {
+            "fold": 0.2342166077970157,
+            "call": 0.7657833922029846
+          },
+          "A[J-T][4-2]": {
+            "fold": 0.4071230201526509,
+            "call": 0.5928769798473486
+          },
+          "A[9-7]x": {
+            "fold": 0.453081428768026,
+            "call": 0.5469185712319716
+          },
+          "A[6-2]x": {
+            "fold": 0.4416902064769507,
+            "call": 0.5583097935230464
+          },
+          "BBB": {
+            "fold": 0.45934713932285365,
+            "call": 0.5406528606771455
+          },
+          "BBx": {
+            "fold": 0.31249123201234563,
+            "call": 0.6875087679876558
+          },
+          "K/Qx dis": {
+            "fold": 0.47898572296465414,
+            "call": 0.521014277035344
+          },
+          "K/Qx con": {
+            "fold": 0.4495947581930552,
+            "call": 0.5504052418069421
+          },
+          "[J-8]x dis": {
+            "fold": 0.4046451181718734,
+            "call": 0.5953548818281332
+          },
+          "[J-8]x con": {
+            "fold": 0.385665383191825,
+            "call": 0.6143346168081792
+          },
+          "[7-4]x": {
+            "fold": 0.3175487845496727,
+            "call": 0.6824512154503247
+          }
+        },
+        "policy_cell_counts": {
+          "F": 34,
+          "C": 88,
+          "F/C": 13
+        }
+      },
+      "smoothed": {
+        "root_loss_bb": 0.0020641222023995544,
+        "node_loss_bb": 0.030316462875273637,
+        "reach_sum": 902425.8135980049,
+        "solver_frequencies": {
+          "fold": 0.39234128334358354,
+          "call": 0.6076587169676121
+        },
+        "simplified_frequencies": {
+          "fold": 0.39888183121426773,
+          "call": 0.6011181687857202
+        },
+        "class_frequencies": {
+          "ABB": {
+            "fold": 0.39948184524893093,
+            "call": 0.6005181547510676
+          },
+          "A[K/Q]x": {
+            "fold": 0.3705554752999108,
+            "call": 0.6294445247000883
+          },
+          "A[J-T][9-5]": {
+            "fold": 0.2342166077970157,
+            "call": 0.7657833922029846
+          },
+          "A[J-T][4-2]": {
+            "fold": 0.25945453137069113,
+            "call": 0.7405454686293085
+          },
+          "A[9-7]x": {
+            "fold": 0.46098101023328136,
+            "call": 0.5390189897667157
+          },
+          "A[6-2]x": {
+            "fold": 0.4416902064769507,
+            "call": 0.5583097935230464
+          },
+          "BBB": {
+            "fold": 0.37913066244295013,
+            "call": 0.620869337557049
+          },
+          "BBx": {
+            "fold": 0.31249123201234563,
+            "call": 0.6875087679876558
+          },
+          "K/Qx dis": {
+            "fold": 0.4863312795993889,
+            "call": 0.5136687204006085
+          },
+          "K/Qx con": {
+            "fold": 0.4495947581930552,
+            "call": 0.5504052418069421
+          },
+          "[J-8]x dis": {
+            "fold": 0.43559792783379514,
+            "call": 0.56440207216621
+          },
+          "[J-8]x con": {
+            "fold": 0.385665383191825,
+            "call": 0.6143346168081792
+          },
+          "[7-4]x": {
+            "fold": 0.31868585583794,
+            "call": 0.6813141441620572
+          }
+        },
+        "policy_cell_counts": {
+          "C": 90,
+          "F": 40,
+          "F/C": 5
+        }
+      },
+      "global_action_drift": 0.00861886212561791,
+      "max_b13_class_action_drift": 0.14766848878195993,
+      "incremental_root_loss_bb": -0.00031207219140404197,
+      "rows": {
+        "Two pair+": {
+          "raw_blocks": 1,
+          "smoothed_blocks": 1,
+          "policy_distance": 0.0
+        },
+        "Overpair": {
+          "raw_blocks": 1,
+          "smoothed_blocks": 1,
+          "policy_distance": 0.0
+        },
+        "Top pair": {
+          "raw_blocks": 1,
+          "smoothed_blocks": 1,
+          "policy_distance": 0.0
+        },
+        "Second pair": {
+          "raw_blocks": 6,
+          "smoothed_blocks": 3,
+          "policy_distance": 0.017543859649122806
+        },
+        "Third pair": {
+          "raw_blocks": 4,
+          "smoothed_blocks": 2,
+          "policy_distance": 0.007662835249042145
+        },
+        "Underpair": {
+          "raw_blocks": 3,
+          "smoothed_blocks": 3,
+          "policy_distance": 0.0
+        },
+        "Weak pair": {
+          "raw_blocks": 9,
+          "smoothed_blocks": 3,
+          "policy_distance": 0.2679324894514768
+        },
+        "2 overcards": {
+          "raw_blocks": 1,
+          "smoothed_blocks": 1,
+          "policy_distance": 0.0
+        },
+        "2 overcards + draw": {
+          "raw_blocks": 1,
+          "smoothed_blocks": 1,
+          "policy_distance": 0.0
+        },
+        "A-high": {
+          "raw_blocks": 1,
+          "smoothed_blocks": 1,
+          "policy_distance": 0.0
+        },
+        "A-high + draw": {
+          "raw_blocks": 3,
+          "smoothed_blocks": 3,
+          "policy_distance": 0.0
+        },
+        "Air": {
+          "raw_blocks": 4,
+          "smoothed_blocks": 2,
+          "policy_distance": 0.1182170542635659
+        },
+        "Air + draw": {
+          "raw_blocks": 5,
+          "smoothed_blocks": 3,
+          "policy_distance": 0.011194029850746268
+        }
+      }
+    },
+    {
+      "branch": "05_UTG_AFTER_DONK",
+      "raw": {
+        "root_loss_bb": 0.0010385735665449669,
+        "node_loss_bb": 0.01628671477594084,
+        "reach_sum": 845197.8969849964,
+        "solver_frequencies": {
+          "fold": 0.28043412654921046,
+          "call": 0.590275828368219,
+          "raise": 0.12929004818488346
+        },
+        "simplified_frequencies": {
+          "fold": 0.35653796600235643,
+          "call": 0.5833366794560944,
+          "raise": 0.060125354541555535
+        },
+        "class_frequencies": {
+          "ABB": {
+            "fold": 0.2308371816628507,
+            "call": 0.2534463721086453,
+            "raise": 0.5157164462285033
+          },
+          "A[K/Q]x": {
+            "fold": 0.2777237787206063,
+            "call": 0.42028549179108543,
+            "raise": 0.3019907294883072
+          },
+          "A[J-T][9-5]": {
+            "fold": 0.27751536986601244,
+            "call": 0.5245898741036904,
+            "raise": 0.1978947560302986
+          },
+          "A[J-T][4-2]": {
+            "fold": 0.24909114530352472,
+            "call": 0.5779411083536632,
+            "raise": 0.1729677463428125
+          },
+          "A[9-7]x": {
+            "fold": 0.3978564464884964,
+            "call": 0.5616643289377488,
+            "raise": 0.04047922457375475
+          },
+          "A[6-2]x": {
+            "fold": 0.3978321927398117,
+            "call": 0.5797623244844464,
+            "raise": 0.022405482775742253
+          },
+          "BBB": {
+            "fold": 0.32473775626485435,
+            "call": 0.2576677175674156,
+            "raise": 0.41759452616773
+          },
+          "BBx": {
+            "fold": 0.21959982322967386,
+            "call": 0.4715980908531954,
+            "raise": 0.3088020859171313
+          },
+          "K/Qx dis": {
+            "fold": 0.37864271611738204,
+            "call": 0.5388763850143614,
+            "raise": 0.08248089886825809
+          },
+          "K/Qx con": {
+            "fold": 0.3685067492318061,
+            "call": 0.5677072411841642,
+            "raise": 0.06378600958402876
+          },
+          "[J-8]x dis": {
+            "fold": 0.23419286042608747,
+            "call": 0.6202360354378462,
+            "raise": 0.14557110413607063
+          },
+          "[J-8]x con": {
+            "fold": 0.4121440546403388,
+            "call": 0.5243084830785032,
+            "raise": 0.06354746228115733
+          },
+          "[7-4]x": {
+            "fold": 0.38865377776677756,
+            "call": 0.5887506224869854,
+            "raise": 0.022595599746238457
+          }
+        },
+        "policy_cell_counts": {
+          "F": 17,
+          "C/R": 42,
+          "F/R": 4,
+          "R": 14,
+          "F/C": 17,
+          "C": 41
+        }
+      },
+      "smoothed": {
+        "root_loss_bb": 0.0011029161819206578,
+        "node_loss_bb": 0.017295723534028244,
+        "reach_sum": 845197.8969849964,
+        "solver_frequencies": {
+          "fold": 0.28043412654921046,
+          "call": 0.590275828368219,
+          "raise": 0.12929004818488346
+        },
+        "simplified_frequencies": {
+          "fold": 0.35945885930297466,
+          "call": 0.5806605428926115,
+          "raise": 0.059880597804419865
+        },
+        "class_frequencies": {
+          "ABB": {
+            "fold": 0.2624749303318632,
+            "call": 0.2728541243513074,
+            "raise": 0.4646709453168283
+          },
+          "A[K/Q]x": {
+            "fold": 0.3830216975280043,
+            "call": 0.314987572983686,
+            "raise": 0.3019907294883072
+          },
+          "A[J-T][9-5]": {
+            "fold": 0.27751536986601244,
+            "call": 0.5147983124824065,
+            "raise": 0.20768631765158255
+          },
+          "A[J-T][4-2]": {
+            "fold": 0.3278532658002868,
+            "call": 0.49917898785690074,
+            "raise": 0.1729677463428125
+          },
+          "A[9-7]x": {
+            "fold": 0.42238144104669906,
+            "call": 0.5371393343795469,
+            "raise": 0.04047922457375475
+          },
+          "A[6-2]x": {
+            "fold": 0.4020506235698596,
+            "call": 0.5755438936543983,
+            "raise": 0.022405482775742253
+          },
+          "BBB": {
+            "fold": 0.2810435660265916,
+            "call": 0.3858290506088305,
+            "raise": 0.3331273833645783
+          },
+          "BBx": {
+            "fold": 0.21959982322967386,
+            "call": 0.5411503479363646,
+            "raise": 0.2392498288339619
+          },
+          "K/Qx dis": {
+            "fold": 0.3849920515475653,
+            "call": 0.5388763850143614,
+            "raise": 0.07613156343807459
+          },
+          "K/Qx con": {
+            "fold": 0.3685067492318061,
+            "call": 0.5677072411841642,
+            "raise": 0.06378600958402876
+          },
+          "[J-8]x dis": {
+            "fold": 0.23419286042608747,
+            "call": 0.6202360354378462,
+            "raise": 0.14557110413607063
+          },
+          "[J-8]x con": {
+            "fold": 0.4121440546403388,
+            "call": 0.5243084830785032,
+            "raise": 0.06354746228115733
+          },
+          "[7-4]x": {
+            "fold": 0.3907651860698149,
+            "call": 0.5866392141839479,
+            "raise": 0.022595599746238457
+          }
+        },
+        "policy_cell_counts": {
+          "R": 16,
+          "C/R": 37,
+          "C": 44,
+          "F/C": 15,
+          "F": 22,
+          "F/R": 1
+        }
+      },
+      "global_action_drift": 0.0029208933006182325,
+      "max_b13_class_action_drift": 0.12816133304141492,
+      "incremental_root_loss_bb": 6.434261537569094e-05,
+      "rows": {
+        "Two pair+": {
+          "raw_blocks": 3,
+          "smoothed_blocks": 3,
+          "policy_distance": 0.0
+        },
+        "Overpair": {
+          "raw_blocks": 3,
+          "smoothed_blocks": 3,
+          "policy_distance": 0.0
+        },
+        "Top pair": {
+          "raw_blocks": 4,
+          "smoothed_blocks": 2,
+          "policy_distance": 0.006993006993006993
+        },
+        "Second pair": {
+          "raw_blocks": 4,
+          "smoothed_blocks": 3,
+          "policy_distance": 0.010526315789473684
+        },
+        "Third pair": {
+          "raw_blocks": 8,
+          "smoothed_blocks": 3,
+          "policy_distance": 0.03787878787878788
+        },
+        "Underpair": {
+          "raw_blocks": 5,
+          "smoothed_blocks": 3,
+          "policy_distance": 0.06136363636363636
+        },
+        "Weak pair": {
+          "raw_blocks": 10,
+          "smoothed_blocks": 3,
+          "policy_distance": 0.18181818181818182
+        },
+        "2 overcards": {
+          "raw_blocks": 2,
+          "smoothed_blocks": 2,
+          "policy_distance": 0.0
+        },
+        "2 overcards + draw": {
+          "raw_blocks": 4,
+          "smoothed_blocks": 3,
+          "policy_distance": 0.0701219512195122
+        },
+        "A-high": {
+          "raw_blocks": 4,
+          "smoothed_blocks": 3,
+          "policy_distance": 0.017326732673267328
+        },
+        "A-high + draw": {
+          "raw_blocks": 3,
+          "smoothed_blocks": 3,
+          "policy_distance": 0.0
+        },
+        "Air": {
+          "raw_blocks": 3,
+          "smoothed_blocks": 3,
+          "policy_distance": 0.0
+        },
+        "Air + draw": {
+          "raw_blocks": 4,
+          "smoothed_blocks": 3,
+          "policy_distance": 0.007462686567164179
+        }
+      }
+    },
+    {
+      "branch": "06_BB_AFTER_DONK_RAISE",
+      "raw": {
+        "root_loss_bb": 0.0011170914017892806,
+        "node_loss_bb": 0.13549392861734005,
+        "reach_sum": 109275.67744199933,
+        "solver_frequencies": {
+          "fold": 0.41475921377116176,
+          "call": 0.5852407864160666
+        },
+        "simplified_frequencies": {
+          "fold": 0.3228589206113682,
+          "call": 0.6771410793886387
+        },
+        "class_frequencies": {
+          "ABB": {
+            "fold": 0.24158357843511194,
+            "call": 0.7584164215648876
+          },
+          "A[K/Q]x": {
+            "fold": 0.40623111463356876,
+            "call": 0.5937688853664317
+          },
+          "A[J-T][9-5]": {
+            "fold": 0.3688281567443493,
+            "call": 0.6311718432556498
+          },
+          "A[J-T][4-2]": {
+            "fold": 0.4858707426199021,
+            "call": 0.5141292573800996
+          },
+          "A[9-7]x": {
+            "fold": 0.368910678790764,
+            "call": 0.6310893212092356
+          },
+          "A[6-2]x": {
+            "fold": 0.4125299489588227,
+            "call": 0.5874700510411759
+          },
+          "BBB": {
+            "fold": 0.15103667867420253,
+            "call": 0.8489633213257971
+          },
+          "BBx": {
+            "fold": 0.18619034578776314,
+            "call": 0.8138096542122375
+          },
+          "K/Qx dis": {
+            "fold": 0.4143401271286601,
+            "call": 0.5856598728713401
+          },
+          "K/Qx con": {
+            "fold": 0.3697809382284523,
+            "call": 0.6302190617715506
+          },
+          "[J-8]x dis": {
+            "fold": 0.31165726807121713,
+            "call": 0.6883427319287815
+          },
+          "[J-8]x con": {
+            "fold": 0.2591440334415973,
+            "call": 0.7408559665584055
+          },
+          "[7-4]x": {
+            "fold": 0.33770727183899113,
+            "call": 0.6622927281610096
+          }
+        },
+        "policy_cell_counts": {
+          "C": 70,
+          "F/C": 12,
+          "F": 38
+        }
+      },
+      "smoothed": {
+        "root_loss_bb": 0.0011451108134870433,
+        "node_loss_bb": 0.13889245103224326,
+        "reach_sum": 109275.67744199933,
+        "solver_frequencies": {
+          "fold": 0.41475921377116176,
+          "call": 0.5852407864160666
+        },
+        "simplified_frequencies": {
+          "fold": 0.33572761681548435,
+          "call": 0.6642723831845233
+        },
+        "class_frequencies": {
+          "ABB": {
+            "fold": 0.3910028121362592,
+            "call": 0.6089971878637402
+          },
+          "A[K/Q]x": {
+            "fold": 0.40623111463356876,
+            "call": 0.5937688853664317
+          },
+          "A[J-T][9-5]": {
+            "fold": 0.3688281567443493,
+            "call": 0.6311718432556498
+          },
+          "A[J-T][4-2]": {
+            "fold": 0.500583233612566,
+            "call": 0.4994167663874361
+          },
+          "A[9-7]x": {
+            "fold": 0.40454565523720476,
+            "call": 0.595454344762794
+          },
+          "A[6-2]x": {
+            "fold": 0.4125299489588227,
+            "call": 0.5874700510411759
+          },
+          "BBB": {
+            "fold": 0.15103667867420253,
+            "call": 0.8489633213257971
+          },
+          "BBx": {
+            "fold": 0.18810330634775538,
+            "call": 0.8118966936522453
+          },
+          "K/Qx dis": {
+            "fold": 0.4143401271286601,
+            "call": 0.5856598728713401
+          },
+          "K/Qx con": {
+            "fold": 0.3461194713511551,
+            "call": 0.6538805286488476
+          },
+          "[J-8]x dis": {
+            "fold": 0.31165726807121713,
+            "call": 0.6883427319287815
+          },
+          "[J-8]x con": {
+            "fold": 0.2591440334415973,
+            "call": 0.7408559665584055
+          },
+          "[7-4]x": {
+            "fold": 0.3630690316392468,
+            "call": 0.6369309683607532
+          }
+        },
+        "policy_cell_counts": {
+          "C": 71,
+          "F": 44,
+          "F/C": 5
+        }
+      },
+      "global_action_drift": 0.012868696204116126,
+      "max_b13_class_action_drift": 0.1494192337011474,
+      "incremental_root_loss_bb": 2.801941169776269e-05,
+      "rows": {
+        "Two pair+": {
+          "raw_blocks": 1,
+          "smoothed_blocks": 1,
+          "policy_distance": 0.0
+        },
+        "Overpair": {
+          "raw_blocks": 1,
+          "smoothed_blocks": 1,
+          "policy_distance": 0.0
+        },
+        "Top pair": {
+          "raw_blocks": 1,
+          "smoothed_blocks": 1,
+          "policy_distance": 0.0
+        },
+        "Second pair": {
+          "raw_blocks": 5,
+          "smoothed_blocks": 3,
+          "policy_distance": 0.04195804195804196
+        },
+        "Third pair": {
+          "raw_blocks": 4,
+          "smoothed_blocks": 3,
+          "policy_distance": 0.010526315789473684
+        },
+        "Underpair": {
+          "raw_blocks": 6,
+          "smoothed_blocks": 2,
+          "policy_distance": 0.09226190476190477
+        },
+        "Weak pair": {
+          "raw_blocks": 5,
+          "smoothed_blocks": 3,
+          "policy_distance": 0.06377551020408163
+        },
+        "2 overcards": {
+          "raw_blocks": 1,
+          "smoothed_blocks": 1,
+          "policy_distance": 0.0
+        },
+        "2 overcards + draw": {
+          "raw_blocks": 2,
+          "smoothed_blocks": 2,
+          "policy_distance": 0.0
+        },
+        "A-high": {
+          "raw_blocks": 1,
+          "smoothed_blocks": 1,
+          "policy_distance": 0.0
+        },
+        "A-high + draw": {
+          "raw_blocks": 3,
+          "smoothed_blocks": 3,
+          "policy_distance": 0.0
+        },
+        "Air": {
+          "raw_blocks": 1,
+          "smoothed_blocks": 1,
+          "policy_distance": 0.0
+        },
+        "Air + draw": {
+          "raw_blocks": 3,
+          "smoothed_blocks": 3,
+          "policy_distance": 0.0
+        }
+      }
+    }
+  ]
+}

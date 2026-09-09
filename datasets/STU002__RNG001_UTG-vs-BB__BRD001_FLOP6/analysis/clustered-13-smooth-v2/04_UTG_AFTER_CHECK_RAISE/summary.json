@@ -1,0 +1,217 @@
+{
+  "branch": "04_UTG_AFTER_CHECK_RAISE",
+  "raw": {
+    "root_loss_bb": 0.0023761943938035964,
+    "node_loss_bb": 0.03489997299599592,
+    "reach_sum": 902425.8135980049,
+    "solver_frequencies": {
+      "fold": 0.39234128334358354,
+      "call": 0.6076587169676121
+    },
+    "simplified_frequencies": {
+      "fold": 0.39026296908865027,
+      "call": 0.6097370309113381
+    },
+    "class_frequencies": {
+      "ABB": {
+        "fold": 0.34536077229034684,
+        "call": 0.6546392277096517
+      },
+      "A[K/Q]x": {
+        "fold": 0.3705554752999108,
+        "call": 0.6294445247000883
+      },
+      "A[J-T][9-5]": {
+        "fold": 0.2342166077970157,
+        "call": 0.7657833922029846
+      },
+      "A[J-T][4-2]": {
+        "fold": 0.4071230201526509,
+        "call": 0.5928769798473486
+      },
+      "A[9-7]x": {
+        "fold": 0.453081428768026,
+        "call": 0.5469185712319716
+      },
+      "A[6-2]x": {
+        "fold": 0.4416902064769507,
+        "call": 0.5583097935230464
+      },
+      "BBB": {
+        "fold": 0.45934713932285365,
+        "call": 0.5406528606771455
+      },
+      "BBx": {
+        "fold": 0.31249123201234563,
+        "call": 0.6875087679876558
+      },
+      "K/Qx dis": {
+        "fold": 0.47898572296465414,
+        "call": 0.521014277035344
+      },
+      "K/Qx con": {
+        "fold": 0.4495947581930552,
+        "call": 0.5504052418069421
+      },
+      "[J-8]x dis": {
+        "fold": 0.4046451181718734,
+        "call": 0.5953548818281332
+      },
+      "[J-8]x con": {
+        "fold": 0.385665383191825,
+        "call": 0.6143346168081792
+      },
+      "[7-4]x": {
+        "fold": 0.3175487845496727,
+        "call": 0.6824512154503247
+      }
+    },
+    "policy_cell_counts": {
+      "F": 34,
+      "C": 88,
+      "F/C": 13
+    }
+  },
+  "smoothed": {
+    "root_loss_bb": 0.0020641222023995544,
+    "node_loss_bb": 0.030316462875273637,
+    "reach_sum": 902425.8135980049,
+    "solver_frequencies": {
+      "fold": 0.39234128334358354,
+      "call": 0.6076587169676121
+    },
+    "simplified_frequencies": {
+      "fold": 0.39888183121426773,
+      "call": 0.6011181687857202
+    },
+    "class_frequencies": {
+      "ABB": {
+        "fold": 0.39948184524893093,
+        "call": 0.6005181547510676
+      },
+      "A[K/Q]x": {
+        "fold": 0.3705554752999108,
+        "call": 0.6294445247000883
+      },
+      "A[J-T][9-5]": {
+        "fold": 0.2342166077970157,
+        "call": 0.7657833922029846
+      },
+      "A[J-T][4-2]": {
+        "fold": 0.25945453137069113,
+        "call": 0.7405454686293085
+      },
+      "A[9-7]x": {
+        "fold": 0.46098101023328136,
+        "call": 0.5390189897667157
+      },
+      "A[6-2]x": {
+        "fold": 0.4416902064769507,
+        "call": 0.5583097935230464
+      },
+      "BBB": {
+        "fold": 0.37913066244295013,
+        "call": 0.620869337557049
+      },
+      "BBx": {
+        "fold": 0.31249123201234563,
+        "call": 0.6875087679876558
+      },
+      "K/Qx dis": {
+        "fold": 0.4863312795993889,
+        "call": 0.5136687204006085
+      },
+      "K/Qx con": {
+        "fold": 0.4495947581930552,
+        "call": 0.5504052418069421
+      },
+      "[J-8]x dis": {
+        "fold": 0.43559792783379514,
+        "call": 0.56440207216621
+      },
+      "[J-8]x con": {
+        "fold": 0.385665383191825,
+        "call": 0.6143346168081792
+      },
+      "[7-4]x": {
+        "fold": 0.31868585583794,
+        "call": 0.6813141441620572
+      }
+    },
+    "policy_cell_counts": {
+      "C": 90,
+      "F": 40,
+      "F/C": 5
+    }
+  },
+  "global_action_drift": 0.00861886212561791,
+  "max_b13_class_action_drift": 0.14766848878195993,
+  "incremental_root_loss_bb": -0.00031207219140404197,
+  "rows": {
+    "Two pair+": {
+      "raw_blocks": 1,
+      "smoothed_blocks": 1,
+      "policy_distance": 0.0
+    },
+    "Overpair": {
+      "raw_blocks": 1,
+      "smoothed_blocks": 1,
+      "policy_distance": 0.0
+    },
+    "Top pair": {
+      "raw_blocks": 1,
+      "smoothed_blocks": 1,
+      "policy_distance": 0.0
+    },
+    "Second pair": {
+      "raw_blocks": 6,
+      "smoothed_blocks": 3,
+      "policy_distance": 0.017543859649122806
+    },
+    "Third pair": {
+      "raw_blocks": 4,
+      "smoothed_blocks": 2,
+      "policy_distance": 0.007662835249042145
+    },
+    "Underpair": {
+      "raw_blocks": 3,
+      "smoothed_blocks": 3,
+      "policy_distance": 0.0
+    },
+    "Weak pair": {
+      "raw_blocks": 9,
+      "smoothed_blocks": 3,
+      "policy_distance": 0.2679324894514768
+    },
+    "2 overcards": {
+      "raw_blocks": 1,
+      "smoothed_blocks": 1,
+      "policy_distance": 0.0
+    },
+    "2 overcards + draw": {
+      "raw_blocks": 1,
+      "smoothed_blocks": 1,
+      "policy_distance": 0.0
+    },
+    "A-high": {
+      "raw_blocks": 1,
+      "smoothed_blocks": 1,
+      "policy_distance": 0.0
+    },
+    "A-high + draw": {
+      "raw_blocks": 3,
+      "smoothed_blocks": 3,
+      "policy_distance": 0.0
+    },
+    "Air": {
+      "raw_blocks": 4,
+      "smoothed_blocks": 2,
+      "policy_distance": 0.1182170542635659
+    },
+    "Air + draw": {
+      "raw_blocks": 5,
+      "smoothed_blocks": 3,
+      "policy_distance": 0.011194029850746268
+    }
+  }
+}

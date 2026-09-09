@@ -1,0 +1,14 @@
+﻿hand_category,raw_blocks,smoothed_blocks,policy_distance,pure_cells_changed,mix_cells_changed,raw_pattern,smoothed_pattern
+Two pair+,4,2,0.017482517482517484,0,1,X | X | X | X | X | X/D | X | X | X | X | X | X | X/D,X | X | X | X | X | X | X | X | X | X | X | X | X/D
+Overpair,2,2,0.0,0,0,X | X | X/D,X | X | X/D
+Top pair,2,2,0.0,0,0,X | X | X | X | X | X | X | X | X | X | X | X | X/D,X | X | X | X | X | X | X | X | X | X | X | X | X/D
+Second pair,2,2,0.0,0,0,X | X | X | X | X | X | X | X | X | X | X | X | X/D,X | X | X | X | X | X | X | X | X | X | X | X | X/D
+Third pair,2,2,0.0,0,0,X | X | X | X | X | X | X | X | X | X | X | X | X/D,X | X | X | X | X | X | X | X | X | X | X | X | X/D
+Underpair,2,2,0.0,0,0,X | X | X | X | X | X | X | X | X | X/D,X | X | X | X | X | X | X | X | X | X/D
+Weak pair,2,2,0.0,0,0,X | X | X | X | X | X | X | X | X | X | X | X | X/D,X | X | X | X | X | X | X | X | X | X | X | X | X/D
+2 overcards,1,1,0.0,0,0,X | X | X | X | X,X | X | X | X | X
+2 overcards + draw,2,2,0.0,0,0,X | X | X | X/D,X | X | X | X/D
+A-high,2,2,0.0,0,0,X | X | X | X | X | X/D,X | X | X | X | X | X/D
+A-high + draw,2,2,0.0,0,0,X | X | X | X | X | X | X/D,X | X | X | X | X | X | X/D
+Air,1,1,0.0,0,0,X | X | X | X | X | X | X | X | X | X | X | X | X,X | X | X | X | X | X | X | X | X | X | X | X | X
+Air + draw,2,2,0.0,0,0,X | X | X | X | X | X | X | X | X | X | X | X | X/D,X | X | X | X | X | X | X | X | X | X | X | X | X/D

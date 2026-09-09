@@ -1,0 +1,14 @@
+﻿hand_category,raw_blocks,smoothed_blocks,policy_distance,pure_cells_changed,mix_cells_changed,raw_pattern,smoothed_pattern
+Two pair+,3,3,0.0,0,0,R | R | R | R | C/R | C/R | C/R | R | R | R | R | R | R,R | R | R | R | C/R | C/R | C/R | R | R | R | R | R | R
+Overpair,3,3,0.0,0,0,R | C/R | C/R | C | C | C | C,R | C/R | C/R | C | C | C | C
+Top pair,4,2,0.006993006993006993,0,1,C/R | C/R | C | C | C | C | C/R | C | C | C | C | C | C,C/R | C/R | C | C | C | C | C | C | C | C | C | C | C
+Second pair,4,3,0.010526315789473684,0,1,C/R | F/C | F/C | F/C | C/R | C/R | C/R | C/R | C/R | C/R | C | C | C,F/C | F/C | F/C | F/C | C/R | C/R | C/R | C/R | C/R | C/R | C | C | C
+Third pair,8,3,0.03787878787878788,0,3,F/R | R | C/R | R | C/R | C/R | F/R | C/R | C/R | C/R | C/R | C | C,R | R | R | R | C/R | C/R | C/R | C/R | C/R | C/R | C/R | C | C
+Underpair,5,3,0.06136363636363636,0,2,C/R | C | C | C | C | C | R | C/R | C | C | C | C | C,C | C | C | C | C | C | R | C | C | C | C | C | C
+Weak pair,10,3,0.18181818181818182,1,4,F | F/C | F | F/C | F/C | C | F | F/C | C/R | F/C | C | C | C,F | F | F | F | F | F | F | F/C | F/C | F/C | C | C | C
+2 overcards,2,2,0.0,0,0,F/C | F/C | F/C | F | F,F/C | F/C | F/C | F | F
+2 overcards + draw,4,3,0.0701219512195122,0,1,C/R | C | C | C/R | C | C,C | C | C | C/R | C | C
+A-high,4,3,0.017326732673267328,0,1,F | F | F | F/C | F | F/C,F | F | F | F/C | F | F
+A-high + draw,3,3,0.0,0,0,F/R | C/R | C/R | C/R | C/R | C/R | C,F/R | C/R | C/R | C/R | C/R | C/R | C
+Air,3,3,0.0,0,0,F | F | F | F | F | F | F | F | F/C | F/C | F/C | F/C | C,F | F | F | F | F | F | F | F | F/C | F/C | F/C | F/C | C
+Air + draw,4,3,0.007462686567164179,0,1,C/R | C/R | C/R | C/R | C | C | F/R | C/R | C/R | C/R | C/R | C/R | C/R,C/R | C/R | C/R | C/R | C | C | C/R | C/R | C/R | C/R | C/R | C/R | C/R
