@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "model": "11 hand categories x 8 flop categories",
+  "model": "12 hand categories x 8 flop categories",
   "source": "4 tracked STU004 aggregate combo datasets",
   "pure_threshold": 0.65,
   "mix_rule": "strict 50/50 top two actions; more frequent action displayed first",
@@ -12,6 +12,7 @@
     "Second pair",
     "Third pair",
     "Weak pair",
+    "Low pocket pair",
     "OESD",
     "Gutshot",
     "2 overcards + BDFD",
@@ -48,28 +49,28 @@
         "csv_rows": 80553,
         "active_rows": 80553,
         "zero_reach_rows": 0,
-        "hand_categories": 11,
-        "populated_cells": 81,
+        "hand_categories": 12,
+        "populated_cells": 88,
         "reach_sum": 5317406.443316044,
-        "weighted_loss_native": 88498.95300011736,
-        "mean_local_loss_bb": 0.0016643255305668827,
+        "weighted_loss_native": 101621.56110901735,
+        "mean_local_loss_bb": 0.001911111407268015,
         "solver_reach_weighted_frequencies": {
           "check": 0.7818941895965043,
           "bet": 0.21810580991967987
         },
         "simplified_reach_weighted_frequencies": {
-          "check": 0.9054356703051984,
-          "bet": 0.09456432969480127
+          "check": 0.9028515959756397,
+          "bet": 0.09714840402435947
         },
         "policy_cell_counts": {
-          "X": 57,
+          "X": 63,
           "B/X": 10,
           "B": 10,
-          "X/B": 4
+          "X/B": 5
         },
         "node_reach_fraction": 1.0000000000000084,
-        "root_loss_bb": 0.0016643255305668965,
-        "incremental_root_loss_vs_B13_bb": 0.00017703704852457228
+        "root_loss_bb": 0.0019111114072680308,
+        "incremental_root_loss_vs_B13_bb": 0.00022872305733493683
       }
     },
     {
@@ -92,28 +93,28 @@
         "csv_rows": 61270,
         "active_rows": 61270,
         "zero_reach_rows": 0,
-        "hand_categories": 11,
-        "populated_cells": 79,
+        "hand_categories": 12,
+        "populated_cells": 86,
         "reach_sum": 4157649.2304500076,
-        "weighted_loss_native": 89108.25534443095,
-        "mean_local_loss_bb": 0.0021432364878647115,
+        "weighted_loss_native": 89613.39980924153,
+        "mean_local_loss_bb": 0.002155386249347979,
         "solver_reach_weighted_frequencies": {
           "check": 0.5114943170311302,
           "bet": 0.48850568132156436
         },
         "simplified_reach_weighted_frequencies": {
-          "check": 0.49877203170662,
-          "bet": 0.5012279682933838
+          "check": 0.4959798462055015,
+          "bet": 0.5040201537945024
         },
         "policy_cell_counts": {
-          "X": 18,
+          "X": 21,
           "B": 38,
-          "B/X": 14,
-          "X/B": 9
+          "B/X": 16,
+          "X/B": 11
         },
         "node_reach_fraction": 0.7818941949935365,
-        "root_loss_bb": 0.0016757841683597533,
-        "incremental_root_loss_vs_B13_bb": 5.1656670744196914e-05
+        "root_loss_bb": 0.0016852839963340759,
+        "incremental_root_loss_vs_B13_bb": 5.515519493037532e-05
       }
     },
     {
@@ -138,33 +139,33 @@
         "csv_rows": 61270,
         "active_rows": 61270,
         "zero_reach_rows": 0,
-        "hand_categories": 11,
-        "populated_cells": 79,
+        "hand_categories": 12,
+        "populated_cells": 86,
         "reach_sum": 1159757.2245360112,
-        "weighted_loss_native": 234683.777516576,
-        "mean_local_loss_bb": 0.02023559522213512,
+        "weighted_loss_native": 216413.83249205936,
+        "mean_local_loss_bb": 0.018660270262911356,
         "solver_reach_weighted_frequencies": {
           "fold": 0.34838489403501594,
           "call": 0.524339513024831,
           "raise": 0.12727559372338884
         },
         "simplified_reach_weighted_frequencies": {
-          "fold": 0.3613781381928254,
-          "call": 0.5430777839262803,
-          "raise": 0.09554407788089546
+          "fold": 0.3384886129815265,
+          "call": 0.5659637042977766,
+          "raise": 0.0955476827206943
         },
         "policy_cell_counts": {
-          "F": 7,
+          "F": 11,
           "C": 30,
-          "C/R": 20,
+          "C/R": 21,
           "R/C": 11,
+          "C/F": 4,
           "F/C": 7,
-          "C/F": 2,
           "R": 2
         },
         "node_reach_fraction": 0.21810580720114606,
-        "root_loss_bb": 0.004413500830119436,
-        "incremental_root_loss_vs_B13_bb": 0.0002328066611855719
+        "root_loss_bb": 0.004069913308283823,
+        "incremental_root_loss_vs_B13_bb": 0.00044134699951448725
       }
     },
     {
@@ -189,33 +190,33 @@
         "csv_rows": 80553,
         "active_rows": 80002,
         "zero_reach_rows": 551,
-        "hand_categories": 11,
-        "populated_cells": 81,
+        "hand_categories": 12,
+        "populated_cells": 88,
         "reach_sum": 2031035.2577260016,
-        "weighted_loss_native": 422711.59496516094,
-        "mean_local_loss_bb": 0.020812617277675402,
+        "weighted_loss_native": 325178.06700104865,
+        "mean_local_loss_bb": 0.016010458989526664,
         "solver_reach_weighted_frequencies": {
           "fold": 0.4002241196909749,
           "call": 0.48097007902222483,
           "raise": 0.11880580070415275
         },
         "simplified_reach_weighted_frequencies": {
-          "fold": 0.4594729858364643,
-          "call": 0.46337078650554975,
+          "fold": 0.44249653175284326,
+          "call": 0.48034724058917194,
           "raise": 0.07715622765798427
         },
         "policy_cell_counts": {
-          "F": 12,
-          "C": 41,
+          "F": 15,
+          "C": 44,
           "R/C": 10,
+          "F/C": 4,
           "C/R": 4,
-          "C/F": 2,
-          "F/C": 3,
-          "R": 9
+          "R": 9,
+          "C/F": 2
         },
         "node_reach_fraction": 0.3819597541352177,
-        "root_loss_bb": 0.00794958217829128,
-        "incremental_root_loss_vs_B13_bb": -8.647266760723402e-05
+        "root_loss_bb": 0.00611535097923159,
+        "incremental_root_loss_vs_B13_bb": -4.096079718920141e-05
       }
     }
   ]

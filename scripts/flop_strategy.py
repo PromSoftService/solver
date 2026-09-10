@@ -20,7 +20,8 @@ B13 = [
 ]
 B13_EXPECTED = dict(zip(B13, [6, 16, 10, 6, 18, 10, 4, 47, 42, 14, 67, 26, 20]))
 BASE_ORDER = ["Two pair+", "Overpair", "Top pair", "Second pair", "Third pair",
-              "Underpair", "Weak pair", "2 overcards", "A-high", "Air"]
+              "Underpair", "Weak pair", "Low pocket pair", "2 overcards",
+              "A-high", "Air"]
 
 ACTION_SHAPES = {
     "CHECK_DONK": {
@@ -125,8 +126,10 @@ def hand_category(board: str, combo: str) -> tuple[str, str, bool, str]:
             base = "Overpair"
         elif board_ranks[0] > pr > board_ranks[1]:
             base = "Underpair"
-        else:
+        elif board_ranks[1] > pr > board_ranks[2]:
             base = "Weak pair"
+        else:
+            base = "Low pocket pair"
     elif board_ranks[0] in hole_ranks:
         base = "Top pair"
     elif board_ranks[1] in hole_ranks:

@@ -150,8 +150,8 @@ the affected CSV files were regenerated from them.
 The first strict table retained too many base/draw combinations for practical
 study. An initial data-backed merge produced 13 displayed hand rows. A later
 raw-frequency audit simplified the unmade part without translating displayed
-labels back into invented frequencies. The active table has 11 rows: seven
-made-hand bases, OESD, Gutshot, 2 overcards plus BDFD, and Air. Made hands keep
+labels back into invented frequencies. At that point the active table had 11
+rows: seven made-hand bases, OESD, Gutshot, 2 overcards plus BDFD, and Air. Made hands keep
 their base; for unmade hands direct draws take priority, and BDFD stays
 explicit only with exactly two overcards and no direct straight draw.
 
@@ -163,8 +163,8 @@ are ever needed for diagnosis.
 
 The accepted replacement does not smooth displayed labels. It recalculates
 cells directly from source solver combo frequencies at two flop resolutions:
-B13 and eight broader, mutually exclusive categories. Both use the same 11
-hand rows, a pure threshold strictly above 65%, otherwise an exact top-two
+B13 and eight broader, mutually exclusive categories. Both initially used the
+same 11 hand rows, a pure threshold strictly above 65%, otherwise an exact top-two
 50/50 mix. EV is a reach-weighted local-regret audit only. The complete active
 contract is now `docs/FLOP_STRATEGY_WORKFLOW.md`.
 
@@ -182,3 +182,13 @@ human tables as STU002. The classifier and workbook builders were generalized
 instead of copied. Once STU004 was complete, the superseded STU003 package and
 compact pilot evidence were removed from active `main`; Git history preserves
 them. STU004 launchers use `scripts/run-flop-study-*.ps1` directly.
+
+## 13. Pocket-pair split in the human strategy
+
+The former `Weak pair` row combined two strategically different pocket-pair
+bands. It was split without another GPU solve. `Weak pair` now means a pocket
+pair strictly between the middle and low flop ranks; `Low pocket pair` means a
+pocket pair below the low flop rank. `Underpair` remains strictly between the
+top and middle ranks. Pocket pairs matching a board rank remain `Two pair+`
+because they make a set. The B13 and eight-category workbooks now have 12 hand
+rows and are rebuilt directly from the original tracked combo frequencies.

@@ -7,31 +7,31 @@
   "csv_rows": 80553,
   "active_rows": 80002,
   "zero_reach_rows": 551,
-  "hand_categories": 11,
-  "populated_cells": 81,
+  "hand_categories": 12,
+  "populated_cells": 88,
   "reach_sum": 2031035.2577260016,
-  "weighted_loss_native": 422711.59496516094,
-  "mean_local_loss_bb": 0.020812617277675402,
+  "weighted_loss_native": 325178.06700104865,
+  "mean_local_loss_bb": 0.016010458989526664,
   "solver_reach_weighted_frequencies": {
     "fold": 0.4002241196909749,
     "call": 0.48097007902222483,
     "raise": 0.11880580070415275
   },
   "simplified_reach_weighted_frequencies": {
-    "fold": 0.4594729858364643,
-    "call": 0.46337078650554975,
+    "fold": 0.44249653175284326,
+    "call": 0.48034724058917194,
     "raise": 0.07715622765798427
   },
   "policy_cell_counts": {
-    "F": 12,
-    "C": 41,
+    "F": 15,
+    "C": 44,
     "R/C": 10,
+    "F/C": 4,
     "C/R": 4,
-    "C/F": 2,
-    "F/C": 3,
-    "R": 9
+    "R": 9,
+    "C/F": 2
   },
   "node_reach_fraction": 0.3819597541352177,
-  "root_loss_bb": 0.00794958217829128,
-  "incremental_root_loss_vs_B13_bb": -8.647266760723402e-05
+  "root_loss_bb": 0.00611535097923159,
+  "incremental_root_loss_vs_B13_bb": -4.096079718920141e-05
 }

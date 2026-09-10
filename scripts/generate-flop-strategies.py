@@ -32,6 +32,7 @@ HAND_ORDER = [
     "Second pair",
     "Third pair",
     "Weak pair",
+    "Low pocket pair",
     "OESD",
     "Gutshot",
     "2 overcards + BDFD",
@@ -103,7 +104,7 @@ GROUP_BY_B13 = {
 
 
 def remap_hand(row: dict) -> dict:
-    """Map strict base/direct/BDFD data to the accepted 11 learnable rows.
+    """Map strict base/direct/BDFD data to the accepted 12 learnable rows.
 
     Made hands always keep their base.  Unmade hands use direct draw strength
     before overcards/BDFD: OESD, then Gutshot, then exactly two overcards with
@@ -113,7 +114,7 @@ def remap_hand(row: dict) -> dict:
     base = row["base"]
     if base in {
         "Two pair+", "Overpair", "Top pair", "Second pair", "Third pair",
-        "Underpair", "Weak pair",
+        "Underpair", "Weak pair", "Low pocket pair",
     }:
         label = base
     elif row["direct"] == "OESD":
@@ -330,6 +331,50 @@ def validate_board_partition() -> dict:
     return {"boards": len(boards), "b13_counts": b13_counts, "group_counts": group_counts}
 
 
+def validate_pocket_pair_partition() -> dict:
+    """Exhaustively verify the four pocket-pair bands on every BRD001 flop."""
+    boards = [
+        line.strip()
+        for line in analysis.BOARD_FILE.read_text(encoding="utf-8-sig").splitlines()
+        if line.strip() and not line.lstrip().startswith("#")
+    ]
+    suits = "shdc"
+    counts = Counter()
+    checked = 0
+    for board in boards:
+        board_cards = set(analysis.cards(board))
+        top, middle, low = sorted(
+            (analysis.rank(card) for card in board_cards), reverse=True
+        )
+        for rank_char, pair_rank in analysis.RANK_VALUE.items():
+            available = [rank_char + suit for suit in suits if rank_char + suit not in board_cards]
+            for first_index in range(len(available)):
+                for second_index in range(first_index + 1, len(available)):
+                    combo = available[first_index] + available[second_index]
+                    base, _, _, _ = analysis.hand_category(board, combo)
+                    if pair_rank in {top, middle, low}:
+                        expected = "Two pair+"
+                    elif pair_rank > top:
+                        expected = "Overpair"
+                    elif top > pair_rank > middle:
+                        expected = "Underpair"
+                    elif middle > pair_rank > low:
+                        expected = "Weak pair"
+                    else:
+                        expected = "Low pocket pair"
+                    if base != expected:
+                        raise RuntimeError(
+                            f"Pocket-pair partition mismatch: {board} {combo} "
+                            f"classified {base}, expected {expected}"
+                        )
+                    counts[base] += 1
+                    checked += 1
+    for required in ("Two pair+", "Overpair", "Underpair", "Weak pair", "Low pocket pair"):
+        if counts[required] == 0:
+            raise RuntimeError(f"Pocket-pair partition has no examples for {required}")
+    return {"status": "PASS", "checked": checked, "base_counts": dict(counts)}
+
+
 def write_analysis_readme(root: Path, study: dict, study_directory: str) -> None:
     code = study["study_id"]
     text = f"""# {code} active strategy outputs
@@ -339,7 +384,7 @@ audits and the two human workbooks for `{study_directory}`.
 
 Human workbooks:
 
-- `{code}_simplified_flop_strategy.xlsx` — 11 hand rows by B13;
+- `{code}_simplified_flop_strategy.xlsx` — 12 hand rows by B13;
 - `{code}_strategy_8_categories.xlsx` — the same hand rows by eight broader
   flop categories.
 
@@ -442,6 +487,7 @@ def main() -> None:
     wide_root = final_root / "strategy-8"
 
     partition = validate_board_partition()
+    pocket_pair_partition = validate_pocket_pair_partition()
     loaded = {}
     validations = {}
     hashes = {}
@@ -470,7 +516,7 @@ def main() -> None:
     root_reach = sum(row["reach"] for row in loaded[branch_ids[0]] if row["reach"] > 0)
     narrow = write_model(
         narrow_root,
-        "11 hand categories x 13 B13 flop categories",
+        "12 hand categories x 13 B13 flop categories",
         source,
         analysis.B13,
         loaded,
@@ -483,7 +529,7 @@ def main() -> None:
     }
     wide = write_model(
         wide_root,
-        "11 hand categories x 8 flop categories",
+        "12 hand categories x 8 flop categories",
         source,
         [group["name"] for group in FLOP_GROUPS],
         loaded,
@@ -502,6 +548,7 @@ def main() -> None:
         "hand_rows": HAND_ORDER,
         "dataset_validation": validations,
         "source_combo_support_consistent": True,
+        "pocket_pair_partition": pocket_pair_partition,
         "classification": (
             "Every source combo has exactly one base category, one direct-draw state, "
             "one BDFD state, and exactly one displayed hand row."
@@ -515,6 +562,7 @@ def main() -> None:
         "dataset_validation": validations,
         "source_combo_support_consistent": dict(support_groups),
         "classification": "PASS: every dataset row received exactly one base/direct/BDFD category",
+        "pocket_pair_partition": pocket_pair_partition,
     }
     final_root.mkdir(parents=True, exist_ok=True)
     (final_root / "SOURCE_VALIDATION.json").write_text(

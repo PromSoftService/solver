@@ -35,6 +35,7 @@ HAND_ORDER = [
     "Second pair",
     "Third pair",
     "Weak pair",
+    "Low pocket pair",
     "OESD",
     "Gutshot",
     "2 overcards + BDFD",
@@ -106,7 +107,7 @@ GROUP_BY_B13 = {
 
 
 def remap_hand(row: dict) -> dict:
-    """Map strict base/direct/BDFD data to the accepted 11 learnable rows.
+    """Map strict base/direct/BDFD data to the accepted 12 learnable rows.
 
     Made hands always keep their base.  Unmade hands use direct draw strength
     before overcards/BDFD: OESD, then Gutshot, then exactly two overcards with
@@ -116,7 +117,7 @@ def remap_hand(row: dict) -> dict:
     base = row["base"]
     if base in {
         "Two pair+", "Overpair", "Top pair", "Second pair", "Third pair",
-        "Underpair", "Weak pair",
+        "Underpair", "Weak pair", "Low pocket pair",
     }:
         label = base
     elif row["direct"] == "OESD":
@@ -347,7 +348,7 @@ def main() -> None:
 
     narrow = write_model(
         NARROW_ROOT,
-        "11 hand categories x 13 B13 flop categories",
+        "12 hand categories x 13 B13 flop categories",
         analysis.B13,
         loaded,
         analysis.flop_class,
@@ -357,7 +358,7 @@ def main() -> None:
     }
     wide = write_model(
         WIDE_ROOT,
-        "11 hand categories x 8 flop categories",
+        "12 hand categories x 8 flop categories",
         [group["name"] for group in FLOP_GROUPS],
         loaded,
         lambda board: GROUP_BY_B13[analysis.flop_class(board)],

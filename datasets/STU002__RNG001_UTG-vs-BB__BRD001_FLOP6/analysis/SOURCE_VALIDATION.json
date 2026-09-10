@@ -158,5 +158,16 @@
       "05_UTG_AFTER_DONK"
     ]
   },
-  "classification": "PASS: every dataset row received exactly one base/direct/BDFD category"
+  "classification": "PASS: every dataset row received exactly one base/direct/BDFD category",
+  "pocket_pair_partition": {
+    "status": "PASS",
+    "checked": 19734,
+    "base_counts": {
+      "Low pocket pair": 4290,
+      "Two pair+": 2574,
+      "Weak pair": 4290,
+      "Underpair": 4290,
+      "Overpair": 4290
+    }
+  }
 }

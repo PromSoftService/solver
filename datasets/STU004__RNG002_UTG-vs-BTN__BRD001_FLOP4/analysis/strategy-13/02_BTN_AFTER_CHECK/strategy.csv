@@ -5,7 +5,8 @@ Top pair,X,X,X,X,X,X,X,X/B,X/B,X/B,B,B,B
 Underpair,B/X,—,X,X,X,X,X/B,X,X,X,X/B,B/X,B/X
 Second pair,X,X,X,X,B/X,B,X,X,B/X,B/X,B/X,B/X,B
 Third pair,X/B,B,B,B,B,B,X,B,X/B,X/B,B/X,B/X,B
-Weak pair,X,X,X,X,X/B,B/X,X,X,X,X,X/B,B/X,B/X
+Weak pair,X/B,X,X,X,X/B,B/X,X,X,X,—,X/B,—,B/X
+Low pocket pair,X,X/B,X,B/X,X/B,X/B,X,X,X/B,X,B/X,B/X,B/X
 OESD,B,B,B,—,B,B,B,B,B,B,B,B,B
 Gutshot,B/X,B,B,B,B,B,X/B,B/X,B,B,B,B,B
 2 overcards + BDFD,—,—,—,—,—,—,—,—,—,—,B,B/X,B/X

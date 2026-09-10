@@ -24,7 +24,7 @@ Keep source inputs and reusable examples in Git. Generated `output/` and `_diagn
 ## Human flop-strategy standard
 
 Every completed production study publishes exactly two workbooks: the B13
-table and the eight-flop-category table. Both use the same 11 displayed hand
+table and the eight-flop-category table. Both use the same 12 displayed hand
 rows and are rebuilt directly from tracked solver combo frequencies. Do not
 infer frequencies from displayed action labels and do not restore discarded
 row-smoothing experiments. Read `docs/FLOP_STRATEGY_WORKFLOW.md` before

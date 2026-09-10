@@ -34,6 +34,7 @@
     "Second pair",
     "Third pair",
     "Weak pair",
+    "Low pocket pair",
     "OESD",
     "Gutshot",
     "2 overcards + BDFD",
@@ -118,6 +119,17 @@
     }
   },
   "source_combo_support_consistent": true,
+  "pocket_pair_partition": {
+    "status": "PASS",
+    "checked": 19734,
+    "base_counts": {
+      "Low pocket pair": 4290,
+      "Two pair+": 2574,
+      "Weak pair": 4290,
+      "Underpair": 4290,
+      "Overpair": 4290
+    }
+  },
   "classification": "Every source combo has exactly one base category, one direct-draw state, one BDFD state, and exactly one displayed hand row.",
   "frequency_source": "raw solver combo action frequencies; never reverse-derived from labels"
 }

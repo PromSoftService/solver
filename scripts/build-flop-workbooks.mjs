@@ -24,7 +24,7 @@ const outputs = [
   {
     key: "strategy-13",
     filename: `${studyCode}_simplified_flop_strategy.xlsx`,
-    subtitle: "11 категорий рук × 13 узких категорий флопов B13. Чистое действие или строгий микс 50/50.",
+    subtitle: "12 категорий рук × 13 узких категорий флопов B13. Чистое действие или строгий микс 50/50.",
     flopHeaders: [
       "ABB (6)", "A[K/Q]x (16)", "A[J-T][9-5] (10)", "A[J-T][4-2] (6)",
       "A[9-7]x (18)", "A[6-2]x (10)", "BBB (4)", "BBx (47)",
@@ -63,7 +63,7 @@ const outputs = [
   {
     key: "strategy-8",
     filename: `${studyCode}_strategy_8_categories.xlsx`,
-    subtitle: "11 категорий рук × 8 категорий флопов. Чистое действие или строгий микс 50/50.",
+    subtitle: "12 категорий рук × 8 категорий флопов. Чистое действие или строгий микс 50/50.",
     flopHeaders: [
       "A-high high (22)", "A-high medium (16)", "A-high low (28)", "Broadway (51)",
       "K/Q-high (56)", "Middle dry (67)", "Middle connected (26)", "Low (20)",
@@ -106,7 +106,7 @@ for (const branch of branchInfo) {
 
 const handOrder = [
   "Two pair+", "Overpair", "Top pair", "Underpair", "Second pair", "Third pair",
-  "Weak pair", "OESD", "Gutshot", "2 overcards + BDFD", "Air",
+  "Weak pair", "Low pocket pair", "OESD", "Gutshot", "2 overcards + BDFD", "Air",
 ];
 
 const colors = {
@@ -306,7 +306,7 @@ function addSummary(workbook, model, loaded) {
   sheet.getRange("F14:J18").values = [
     [model.methodCategory, null, null, null, null],
     ["Каждый реальный флоп внутри итоговой категории получает одинаковый вес.", null, null, null, null],
-    ["11 категорий рук: 7 made, OESD, Gutshot, 2 overcards + BDFD и Air.", null, null, null, null],
+    ["12 категорий рук: 8 made, OESD, Gutshot, 2 overcards + BDFD и Air.", null, null, null, null],
     ["Все значения через / означают только микс 50/50.", null, null, null, null],
     ["EV используется для аудита потерь, но не выбирает действие.", null, null, null, null],
   ];
@@ -382,7 +382,7 @@ function addStrategySheet(workbook, model, branch, loaded) {
     }
   }
   // Visual separators between made hands, unmade draw-capable hands and air.
-  for (const row of [13, 15, 16]) {
+  for (const row of [14, 16, 17]) {
     sheet.getRange(`A${row}:${lastCol}${row}`).format.borders = {
       bottom: { style: "medium", color: colors.divider },
     };
@@ -430,7 +430,8 @@ function addMethod(workbook, model) {
     ["Микс", "Иначе два наиболее частых действия, строго 50/50; первым указано более частое действие солвера"],
     ["Вес диапазона", "Combo с reach_probability >0 участвует независимо от величины reach"],
     ["EV-аудит", "Reach-weighted local regret против solved opponent; не adaptive exploitability"],
-    ["Категории рук", "7 made-категорий; затем OESD; Gutshot; 2 overcards + BDFD; Air"],
+    ["Категории рук", "8 made-категорий; затем OESD; Gutshot; 2 overcards + BDFD; Air"],
+    ["Карманные пары", "Underpair: между top и middle; Weak pair: между middle и low; Low pocket pair: ниже low"],
     ["Приоритет неготовых", "OESD > Gutshot > 2 overcards + BDFD > Air; BDFD без двух оверкарт уходит в Air"],
     ["Категории флопов", model.methodCategory],
     ["Роль исходной B13", model.key === "strategy-8" ? "Только детерминированное описание состава новых групп" : "Итоговые столбцы стратегии"],

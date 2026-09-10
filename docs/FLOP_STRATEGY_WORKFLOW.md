@@ -18,7 +18,7 @@ outputs.
 
 Every completed study publishes two workbooks:
 
-1. `<STU>_simplified_flop_strategy.xlsx`: 11 hand rows by 13 B13 categories;
+1. `<STU>_simplified_flop_strategy.xlsx`: 12 hand rows by 13 B13 categories;
 2. `<STU>_strategy_8_categories.xlsx`: the same rows by eight broad categories.
 
 Every cell is one pure action or an exact 50/50 mix.
@@ -140,14 +140,16 @@ inside its broad group.
 
 Every legal combo receives exactly one made-hand base, in priority order:
 Two pair+, Overpair, Top pair, Second pair, Third pair, Underpair, Weak pair,
-2 overcards, A-high, or Air. `Two pair+` includes made straights. `Underpair`
-is a pocket pair strictly between the top and middle flop ranks.
+Low pocket pair, 2 overcards, A-high, or Air. `Two pair+` includes made
+straights. `Underpair` is a pocket pair strictly between the top and middle
+flop ranks. `Weak pair` is a pocket pair strictly between the middle and low
+flop ranks. `Low pocket pair` is a pocket pair below the low flop rank.
 
 The classifier also assigns exactly one direct-draw state (`none`, `Gutshot`,
 or `OESD`) and one BDFD boolean. Double gutshots count as OESD. On a rainbow
 flop, BDFD requires suited hole cards plus one flop card of that suit.
 
-The strict result is mapped to these 11 learnable rows, in display order:
+The strict result is mapped to these 12 learnable rows, in display order:
 
 1. Two pair+
 2. Overpair
@@ -156,10 +158,11 @@ The strict result is mapped to these 11 learnable rows, in display order:
 5. Second pair
 6. Third pair
 7. Weak pair
-8. OESD
-9. Gutshot
-10. 2 overcards + BDFD
-11. Air
+8. Low pocket pair
+9. OESD
+10. Gutshot
+11. 2 overcards + BDFD
+12. Air
 
 Made-hand variants merge into their base regardless of draw modifiers. Every
 remaining unmade hand follows this priority: OESD; otherwise Gutshot;

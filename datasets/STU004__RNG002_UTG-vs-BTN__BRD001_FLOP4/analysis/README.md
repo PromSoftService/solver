@@ -5,7 +5,7 @@ audits and the two human workbooks for `STU004__RNG002_UTG-vs-BTN__BRD001_FLOP4`
 
 Human workbooks:
 
-- `STU004_simplified_flop_strategy.xlsx` — 11 hand rows by B13;
+- `STU004_simplified_flop_strategy.xlsx` — 12 hand rows by B13;
 - `STU004_strategy_8_categories.xlsx` — the same hand rows by eight broader
   flop categories.
 
