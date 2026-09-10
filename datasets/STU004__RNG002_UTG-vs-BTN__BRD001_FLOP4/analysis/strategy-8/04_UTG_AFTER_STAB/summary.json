@@ -1,0 +1,35 @@
+{
+  "branch": "04_UTG_AFTER_STAB",
+  "acting_player": "UTG",
+  "action_shape": "FOLD_CALL_RAISE",
+  "threshold": 0.65,
+  "mix_rule": "strict 50/50 top two actions",
+  "csv_rows": 80553,
+  "active_rows": 80002,
+  "zero_reach_rows": 551,
+  "hand_categories": 11,
+  "populated_cells": 81,
+  "reach_sum": 2031035.2577260016,
+  "weighted_loss_native": 422711.59496516094,
+  "mean_local_loss_bb": 0.020812617277675402,
+  "solver_reach_weighted_frequencies": {
+    "fold": 0.4002241196909749,
+    "call": 0.48097007902222483,
+    "raise": 0.11880580070415275
+  },
+  "simplified_reach_weighted_frequencies": {
+    "fold": 0.4594729858364643,
+    "call": 0.46337078650554975,
+    "raise": 0.07715622765798427
+  },
+  "policy_cell_counts": {
+    "F": 12,
+    "C": 41,
+    "C/R": 14,
+    "F/C": 5,
+    "R": 9
+  },
+  "node_reach_fraction": 0.3819597541352177,
+  "root_loss_bb": 0.00794958217829128,
+  "incremental_root_loss_vs_B13_bb": -8.647266760723402e-05
+}

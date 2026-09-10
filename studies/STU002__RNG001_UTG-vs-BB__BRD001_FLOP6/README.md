@@ -56,10 +56,10 @@ The completed compact datasets are already tracked. Rebuilding the strategy
 does not run the solver again:
 
 ```text
-python scripts/generate-stu002-strategies.py
-node scripts/build-stu002-workbooks.mjs
+python scripts/generate-flop-strategies.py STU002__RNG001_UTG-vs-BB__BRD001_FLOP6
+node scripts/build-flop-workbooks.mjs STU002__RNG001_UTG-vs-BB__BRD001_FLOP6
 ```
 
 The first command produces both the B13 and eight-flop-category policies from
 raw combo frequencies. The second produces the two approved Excel workbooks.
-See `docs/STU002_STRATEGY_WORKFLOW.md` for the complete frozen algorithm.
+See `docs/FLOP_STRATEGY_WORKFLOW.md` for the complete frozen algorithm.

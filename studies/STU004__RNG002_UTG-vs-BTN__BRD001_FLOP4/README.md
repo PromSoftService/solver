@@ -33,3 +33,16 @@ The four branches run sequentially. Raw node output remains under ignored
 `output/`; compact validated reports are written below `datasets/STU004.../`.
 Use `-Resume` only with unchanged config and the same output root. The runner
 reuses complete boards and retries only missing or failed ones.
+
+## Build the human strategy
+
+The completed compact dataset is tracked. Rebuilding the strategy requires no
+new solver run:
+
+```text
+python scripts/generate-flop-strategies.py STU004__RNG002_UTG-vs-BTN__BRD001_FLOP4 --run run-20260909-221703Z
+node scripts/build-flop-workbooks.mjs STU004__RNG002_UTG-vs-BTN__BRD001_FLOP4
+```
+
+This produces both approved tables from source solver combo frequencies. See
+`docs/FLOP_STRATEGY_WORKFLOW.md` for the fixed algorithm.

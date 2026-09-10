@@ -1,0 +1,34 @@
+{
+  "branch": "03_BTN_AFTER_CBET",
+  "acting_player": "BTN",
+  "action_shape": "FOLD_CALL_RAISE",
+  "threshold": 0.65,
+  "mix_rule": "strict 50/50 top two actions",
+  "csv_rows": 61270,
+  "active_rows": 61270,
+  "zero_reach_rows": 0,
+  "hand_categories": 11,
+  "populated_cells": 122,
+  "reach_sum": 1159757.2245360112,
+  "weighted_loss_native": 222304.50111422554,
+  "mean_local_loss_bb": 0.019168192826146336,
+  "solver_reach_weighted_frequencies": {
+    "fold": 0.34838489403501594,
+    "call": 0.524339513024831,
+    "raise": 0.12727559372338884
+  },
+  "simplified_reach_weighted_frequencies": {
+    "fold": 0.3791879993409317,
+    "call": 0.5468053715545705,
+    "raise": 0.0740066291044988
+  },
+  "policy_cell_counts": {
+    "F": 16,
+    "C": 53,
+    "C/R": 40,
+    "F/C": 11,
+    "R": 2
+  },
+  "node_reach_fraction": 0.21810580720114606,
+  "root_loss_bb": 0.004180694168933864
+}

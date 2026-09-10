@@ -1,0 +1,123 @@
+{
+  "status": "PASS",
+  "boards": 286,
+  "b13_counts": {
+    "ABB": 6,
+    "A[K/Q]x": 16,
+    "A[J-T][9-5]": 10,
+    "A[J-T][4-2]": 6,
+    "A[9-7]x": 18,
+    "A[6-2]x": 10,
+    "BBB": 4,
+    "BBx": 47,
+    "K/Qx dis": 42,
+    "K/Qx con": 14,
+    "[J-8]x dis": 67,
+    "[J-8]x con": 26,
+    "[7-4]x": 20
+  },
+  "eight_group_counts": {
+    "A-high high": 22,
+    "A-high medium": 16,
+    "A-high low": 28,
+    "Broadway": 51,
+    "K/Q-high": 56,
+    "Middle dry": 67,
+    "Middle connected": 26,
+    "Low": 20
+  },
+  "hand_rows": [
+    "Two pair+",
+    "Overpair",
+    "Top pair",
+    "Underpair",
+    "Second pair",
+    "Third pair",
+    "Weak pair",
+    "OESD",
+    "Gutshot",
+    "2 overcards + BDFD",
+    "Air"
+  ],
+  "dataset_validation": {
+    "01_UTG_FIRST": {
+      "boards": 286,
+      "done": 286,
+      "failed": 0,
+      "validation_rows": 286,
+      "validation_pass": 286,
+      "solve_start_calls": [
+        1
+      ],
+      "current_street_export_calls": [
+        1
+      ],
+      "forbidden_full_tree_calls": 0,
+      "combo_rows_reported": 80553,
+      "csv_rows": 80553,
+      "zero_reach_rows": 0,
+      "classified_rows": 80553,
+      "run": "run-20260909-221703Z"
+    },
+    "02_BTN_AFTER_CHECK": {
+      "boards": 286,
+      "done": 286,
+      "failed": 0,
+      "validation_rows": 286,
+      "validation_pass": 286,
+      "solve_start_calls": [
+        1
+      ],
+      "current_street_export_calls": [
+        1
+      ],
+      "forbidden_full_tree_calls": 0,
+      "combo_rows_reported": 61270,
+      "csv_rows": 61270,
+      "zero_reach_rows": 0,
+      "classified_rows": 61270,
+      "run": "run-20260909-221703Z"
+    },
+    "03_BTN_AFTER_CBET": {
+      "boards": 286,
+      "done": 286,
+      "failed": 0,
+      "validation_rows": 286,
+      "validation_pass": 286,
+      "solve_start_calls": [
+        1
+      ],
+      "current_street_export_calls": [
+        1
+      ],
+      "forbidden_full_tree_calls": 0,
+      "combo_rows_reported": 61270,
+      "csv_rows": 61270,
+      "zero_reach_rows": 0,
+      "classified_rows": 61270,
+      "run": "run-20260909-221703Z"
+    },
+    "04_UTG_AFTER_STAB": {
+      "boards": 286,
+      "done": 286,
+      "failed": 0,
+      "validation_rows": 286,
+      "validation_pass": 286,
+      "solve_start_calls": [
+        1
+      ],
+      "current_street_export_calls": [
+        1
+      ],
+      "forbidden_full_tree_calls": 0,
+      "combo_rows_reported": 80553,
+      "csv_rows": 80553,
+      "zero_reach_rows": 551,
+      "classified_rows": 80553,
+      "run": "run-20260909-221703Z"
+    }
+  },
+  "source_combo_support_consistent": true,
+  "classification": "Every source combo has exactly one base category, one direct-draw state, one BDFD state, and exactly one displayed hand row.",
+  "frequency_source": "raw solver combo action frequencies; never reverse-derived from labels"
+}

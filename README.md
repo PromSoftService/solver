@@ -65,16 +65,13 @@ stock jobs that cover the complete normal-action UTG-vs-BB flop interaction
 over BRD001. Each board/branch still performs its own solve and exactly one
 current-street export.
 
-`studies/STU003__RNG002_UTG-vs-BTN__5FLOP_FLOP4/` is the five-flop pilot for
-UTG open / BTN call. It runs four selected flop decisions (20 solves total),
-deliberately omits both responses after a flop raise, and records total
-wall-clock time through validation and combo parsing.
-
-STU002's completed compact datasets feed two approved human-strategy tables:
-11 hand rows by B13 and the same hand rows by eight broader flop categories.
-The exact range provenance, classifiers, aggregation rule, EV audit and rebuild
-commands are fixed in `docs/STU002_STRATEGY_WORKFLOW.md`.
-
 `studies/STU004__RNG002_UTG-vs-BTN__BRD001_FLOP4/` is the production form of
 the STU003 pilot: the same four selected UTG-vs-BTN flop decisions over all
 286 canonical BRD001 flops.
+
+STU002 and STU004 completed compact datasets each feed two approved
+human-strategy tables: 11 hand rows by B13 and the same rows by eight broader
+flop categories. The exact range provenance, classifiers, aggregation rule,
+EV audit and generic rebuild commands are fixed in
+`docs/FLOP_STRATEGY_WORKFLOW.md`. STU003 remains only as a small reproducible
+pilot fixture and is not an active strategy source.

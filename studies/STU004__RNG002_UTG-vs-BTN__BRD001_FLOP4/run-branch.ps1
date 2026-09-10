@@ -10,5 +10,6 @@ param(
 )
 
 $ErrorActionPreference = 'Stop'
-$pilotLauncher = Join-Path $PSScriptRoot '..\STU003__RNG002_UTG-vs-BTN__5FLOP_FLOP4\run-branch.ps1'
-& $pilotLauncher @PSBoundParameters -StudyDirectory $PSScriptRoot
+$repoRoot = (Resolve-Path (Join-Path $PSScriptRoot '..\..')).Path
+$launcher = Join-Path $repoRoot 'scripts\run-flop-study-branch.ps1'
+& $launcher @PSBoundParameters -StudyDirectory $PSScriptRoot

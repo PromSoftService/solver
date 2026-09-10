@@ -1,0 +1,217 @@
+{
+  "schema_version": 1,
+  "model": "11 hand categories x 13 B13 flop categories",
+  "source": "4 tracked STU004 aggregate combo datasets",
+  "pure_threshold": 0.65,
+  "mix_rule": "strict 50/50 top two actions",
+  "hand_categories": [
+    "Two pair+",
+    "Overpair",
+    "Top pair",
+    "Underpair",
+    "Second pair",
+    "Third pair",
+    "Weak pair",
+    "OESD",
+    "Gutshot",
+    "2 overcards + BDFD",
+    "Air"
+  ],
+  "flop_categories": [
+    "ABB",
+    "A[K/Q]x",
+    "A[J-T][9-5]",
+    "A[J-T][4-2]",
+    "A[9-7]x",
+    "A[6-2]x",
+    "BBB",
+    "BBx",
+    "K/Qx dis",
+    "K/Qx con",
+    "[J-8]x dis",
+    "[J-8]x con",
+    "[7-4]x"
+  ],
+  "branches": [
+    {
+      "branch": "01_UTG_FIRST",
+      "actor": "UTG",
+      "actions": [
+        "check",
+        "bet"
+      ],
+      "labels": {
+        "check": "X",
+        "bet": "B"
+      },
+      "summary": {
+        "branch": "01_UTG_FIRST",
+        "acting_player": "UTG",
+        "action_shape": "CHECK_BET",
+        "threshold": 0.65,
+        "mix_rule": "strict 50/50 top two actions",
+        "csv_rows": 80553,
+        "active_rows": 80553,
+        "zero_reach_rows": 0,
+        "hand_categories": 11,
+        "populated_cells": 128,
+        "reach_sum": 5317406.443316044,
+        "weighted_loss_native": 79085.17357481527,
+        "mean_local_loss_bb": 0.0014872884820423117,
+        "solver_reach_weighted_frequencies": {
+          "check": 0.7818941895965043,
+          "bet": 0.21810580991967987
+        },
+        "simplified_reach_weighted_frequencies": {
+          "check": 0.9100824168207062,
+          "bet": 0.08991758317929689
+        },
+        "policy_cell_counts": {
+          "X": 84,
+          "B": 18,
+          "X/B": 26
+        },
+        "node_reach_fraction": 1.0000000000000084,
+        "root_loss_bb": 0.0014872884820423243
+      }
+    },
+    {
+      "branch": "02_BTN_AFTER_CHECK",
+      "actor": "BTN",
+      "actions": [
+        "check",
+        "bet"
+      ],
+      "labels": {
+        "check": "X",
+        "bet": "B"
+      },
+      "summary": {
+        "branch": "02_BTN_AFTER_CHECK",
+        "acting_player": "BTN",
+        "action_shape": "CHECK_BET",
+        "threshold": 0.65,
+        "mix_rule": "strict 50/50 top two actions",
+        "csv_rows": 61270,
+        "active_rows": 61270,
+        "zero_reach_rows": 0,
+        "hand_categories": 11,
+        "populated_cells": 122,
+        "reach_sum": 4157649.2304500076,
+        "weighted_loss_native": 86361.4602058765,
+        "mean_local_loss_bb": 0.0020771704253783113,
+        "solver_reach_weighted_frequencies": {
+          "check": 0.5114943170311302,
+          "bet": 0.48850568132156436
+        },
+        "simplified_reach_weighted_frequencies": {
+          "check": 0.5033649344472229,
+          "bet": 0.49663506555278075
+        },
+        "policy_cell_counts": {
+          "X": 37,
+          "X/B": 35,
+          "B": 50
+        },
+        "node_reach_fraction": 0.7818941949935365,
+        "root_loss_bb": 0.0016241274976155563
+      }
+    },
+    {
+      "branch": "03_BTN_AFTER_CBET",
+      "actor": "BTN",
+      "actions": [
+        "fold",
+        "call",
+        "raise"
+      ],
+      "labels": {
+        "fold": "F",
+        "call": "C",
+        "raise": "R"
+      },
+      "summary": {
+        "branch": "03_BTN_AFTER_CBET",
+        "acting_player": "BTN",
+        "action_shape": "FOLD_CALL_RAISE",
+        "threshold": 0.65,
+        "mix_rule": "strict 50/50 top two actions",
+        "csv_rows": 61270,
+        "active_rows": 61270,
+        "zero_reach_rows": 0,
+        "hand_categories": 11,
+        "populated_cells": 122,
+        "reach_sum": 1159757.2245360112,
+        "weighted_loss_native": 222304.50111422554,
+        "mean_local_loss_bb": 0.019168192826146336,
+        "solver_reach_weighted_frequencies": {
+          "fold": 0.34838489403501594,
+          "call": 0.524339513024831,
+          "raise": 0.12727559372338884
+        },
+        "simplified_reach_weighted_frequencies": {
+          "fold": 0.3791879993409317,
+          "call": 0.5468053715545705,
+          "raise": 0.0740066291044988
+        },
+        "policy_cell_counts": {
+          "F": 16,
+          "C": 53,
+          "C/R": 40,
+          "F/C": 11,
+          "R": 2
+        },
+        "node_reach_fraction": 0.21810580720114606,
+        "root_loss_bb": 0.004180694168933864
+      }
+    },
+    {
+      "branch": "04_UTG_AFTER_STAB",
+      "actor": "UTG",
+      "actions": [
+        "fold",
+        "call",
+        "raise"
+      ],
+      "labels": {
+        "fold": "F",
+        "call": "C",
+        "raise": "R"
+      },
+      "summary": {
+        "branch": "04_UTG_AFTER_STAB",
+        "acting_player": "UTG",
+        "action_shape": "FOLD_CALL_RAISE",
+        "threshold": 0.65,
+        "mix_rule": "strict 50/50 top two actions",
+        "csv_rows": 80553,
+        "active_rows": 80002,
+        "zero_reach_rows": 551,
+        "hand_categories": 11,
+        "populated_cells": 128,
+        "reach_sum": 2031035.2577260016,
+        "weighted_loss_native": 427309.6981642152,
+        "mean_local_loss_bb": 0.02103900936917471,
+        "solver_reach_weighted_frequencies": {
+          "fold": 0.4002241196909749,
+          "call": 0.48097007902222483,
+          "raise": 0.11880580070415275
+        },
+        "simplified_reach_weighted_frequencies": {
+          "fold": 0.4618627927679478,
+          "call": 0.46138647426814844,
+          "raise": 0.0767507329639029
+        },
+        "policy_cell_counts": {
+          "F": 23,
+          "C": 66,
+          "R": 14,
+          "C/R": 18,
+          "F/C": 7
+        },
+        "node_reach_fraction": 0.3819597541352177,
+        "root_loss_bb": 0.008036054845898514
+      }
+    }
+  ]
+}

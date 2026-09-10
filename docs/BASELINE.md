@@ -33,10 +33,10 @@ A full reconstruction was technically proven through repeated stock current-stre
 - `example/config.json` plus `example/boards.txt`: documented five-board, one-flop-sizing example.
 - `studies/STU001__RNG001_UTG-vs-BB__5FLOP_50-50/`: explicitly approved five-board performance study and report launcher.
 - `studies/STU002__RNG001_UTG-vs-BB__BRD001_FLOP6/`: six independent selected-branch jobs covering the normal-action flop interaction over BRD001.
-- `studies/STU003__RNG002_UTG-vs-BTN__5FLOP_FLOP4/`: four selected UTG-vs-BTN flop decisions over five pilot boards, with end-to-end timing through parsing.
-- `docs/STU002_STRATEGY_WORKFLOW.md`: the accepted post-processing contract and
-  the two active human-strategy workbooks derived from the completed STU002
-  compact datasets.
+- `studies/STU003__RNG002_UTG-vs-BTN__5FLOP_FLOP4/`: retained historical five-board pilot fixture; not an active strategy source.
+- `studies/STU004__RNG002_UTG-vs-BTN__BRD001_FLOP4/`: four selected UTG-vs-BTN flop decisions over BRD001.
+- `docs/FLOP_STRATEGY_WORKFLOW.md`: the accepted generic post-processing
+  contract and two human-strategy workbooks per completed production study.
 - `ranges/`: RNG001 and RNG002 source ranges.
 - `boards/BRD001...txt`: 286 canonical source flops; never use it for routine runner smoke tests.
 
@@ -56,5 +56,5 @@ The batch root contains `batch-summary.json` and `batch-summary.csv`. Raw runtim
 - Native schema compatibility is tied to TexasSolverGPU v0.2.0.
 - `-Resume` assumes the config itself has not changed; use a fresh output directory when changing ranges/tree/solve settings.
 - If the host exits before export, the solved in-memory state cannot be restored.
-- The STU002 branch presets add only verified history navigation before the one
+- Study branch presets add only verified history navigation before the one
   stock current-street export; they do not change the solve/export boundary.

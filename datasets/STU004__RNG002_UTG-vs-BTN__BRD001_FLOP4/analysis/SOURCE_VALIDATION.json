@@ -1,0 +1,122 @@
+{
+  "board_count": 286,
+  "b13_counts": {
+    "ABB": 6,
+    "A[K/Q]x": 16,
+    "A[J-T][9-5]": 10,
+    "A[J-T][4-2]": 6,
+    "A[9-7]x": 18,
+    "A[6-2]x": 10,
+    "BBB": 4,
+    "BBx": 47,
+    "K/Qx dis": 42,
+    "K/Qx con": 14,
+    "[J-8]x dis": 67,
+    "[J-8]x con": 26,
+    "[7-4]x": 20
+  },
+  "b13_expected": {
+    "ABB": 6,
+    "A[K/Q]x": 16,
+    "A[J-T][9-5]": 10,
+    "A[J-T][4-2]": 6,
+    "A[9-7]x": 18,
+    "A[6-2]x": 10,
+    "BBB": 4,
+    "BBx": 47,
+    "K/Qx dis": 42,
+    "K/Qx con": 14,
+    "[J-8]x dis": 67,
+    "[J-8]x con": 26,
+    "[7-4]x": 20
+  },
+  "dataset_validation": {
+    "01_UTG_FIRST": {
+      "boards": 286,
+      "done": 286,
+      "failed": 0,
+      "validation_rows": 286,
+      "validation_pass": 286,
+      "solve_start_calls": [
+        1
+      ],
+      "current_street_export_calls": [
+        1
+      ],
+      "forbidden_full_tree_calls": 0,
+      "combo_rows_reported": 80553,
+      "csv_rows": 80553,
+      "zero_reach_rows": 0,
+      "classified_rows": 80553,
+      "run": "run-20260909-221703Z"
+    },
+    "02_BTN_AFTER_CHECK": {
+      "boards": 286,
+      "done": 286,
+      "failed": 0,
+      "validation_rows": 286,
+      "validation_pass": 286,
+      "solve_start_calls": [
+        1
+      ],
+      "current_street_export_calls": [
+        1
+      ],
+      "forbidden_full_tree_calls": 0,
+      "combo_rows_reported": 61270,
+      "csv_rows": 61270,
+      "zero_reach_rows": 0,
+      "classified_rows": 61270,
+      "run": "run-20260909-221703Z"
+    },
+    "03_BTN_AFTER_CBET": {
+      "boards": 286,
+      "done": 286,
+      "failed": 0,
+      "validation_rows": 286,
+      "validation_pass": 286,
+      "solve_start_calls": [
+        1
+      ],
+      "current_street_export_calls": [
+        1
+      ],
+      "forbidden_full_tree_calls": 0,
+      "combo_rows_reported": 61270,
+      "csv_rows": 61270,
+      "zero_reach_rows": 0,
+      "classified_rows": 61270,
+      "run": "run-20260909-221703Z"
+    },
+    "04_UTG_AFTER_STAB": {
+      "boards": 286,
+      "done": 286,
+      "failed": 0,
+      "validation_rows": 286,
+      "validation_pass": 286,
+      "solve_start_calls": [
+        1
+      ],
+      "current_street_export_calls": [
+        1
+      ],
+      "forbidden_full_tree_calls": 0,
+      "combo_rows_reported": 80553,
+      "csv_rows": 80553,
+      "zero_reach_rows": 551,
+      "classified_rows": 80553,
+      "run": "run-20260909-221703Z"
+    }
+  },
+  "source_combo_support_consistent": {
+    "UTG": [
+      "01_UTG_FIRST",
+      "04_UTG_AFTER_STAB"
+    ],
+    "BTN": [
+      "02_BTN_AFTER_CHECK",
+      "03_BTN_AFTER_CBET"
+    ]
+  },
+  "classification": "PASS: every dataset row received exactly one base/direct/BDFD category"
+}

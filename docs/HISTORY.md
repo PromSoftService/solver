@@ -166,4 +166,19 @@ cells directly from source solver combo frequencies at two flop resolutions:
 B13 and eight broader, mutually exclusive categories. Both use the same 11
 hand rows, a pure threshold strictly above 65%, otherwise an exact top-two
 50/50 mix. EV is a reach-weighted local-regret audit only. The complete active
-contract is `docs/STU002_STRATEGY_WORKFLOW.md`.
+contract is now `docs/FLOP_STRATEGY_WORKFLOW.md`.
+
+## 12. STU003 pilot and STU004 production study
+
+STU003 validated the RNG002 UTG-open / BTN-call configuration and four selected
+flop decisions on five boards. STU004 expanded the identical configuration to
+all 286 BRD001 flops. After transient WebView2 failures were retried with the
+standard resume path, all four branches completed: 1,144/1,144 boards, zero
+failed, 286 PASS validations per branch, one solve and one current-street
+export per board, and zero forbidden full-tree calls.
+
+The successful compact STU004 evidence became active input for the same two
+human tables as STU002. The classifier and workbook builders were generalized
+instead of copied. STU003 remains as a small historical pilot fixture, not an
+active strategy source. Both STU003 and STU004 launchers now use the reusable
+`scripts/run-flop-study-*.ps1` implementation directly.

@@ -19,6 +19,8 @@ jobs:
             'studies/STU001__RNG001_UTG-vs-BB__5FLOP_50-50/run.ps1',
             'studies/STU002__RNG001_UTG-vs-BB__BRD001_FLOP6/run-branch.ps1',
             'studies/STU002__RNG001_UTG-vs-BB__BRD001_FLOP6/run-all.ps1',
+            'scripts/run-flop-study-branch.ps1',
+            'scripts/run-flop-study-all.ps1',
             'studies/STU003__RNG002_UTG-vs-BTN__5FLOP_FLOP4/run-branch.ps1',
             'studies/STU003__RNG002_UTG-vs-BTN__5FLOP_FLOP4/run-all.ps1',
             'studies/STU004__RNG002_UTG-vs-BTN__BRD001_FLOP4/run-branch.ps1',
@@ -85,61 +87,56 @@ jobs:
           if (@($study2Config.config.ipRange).Count -ne 1326 -or @($study2Config.config.oopRange).Count -ne 1326) { throw 'STU002 range lengths invalid' }
           if ((ConvertTo-Json @($study2Config.config.ipRange) -Compress) -ne (ConvertTo-Json @($studyConfig.config.ipRange) -Compress)) { throw 'STU002 IP range differs from proven RNG001 input' }
           if ((ConvertTo-Json @($study2Config.config.oopRange) -Compress) -ne (ConvertTo-Json @($studyConfig.config.oopRange) -Compress)) { throw 'STU002 OOP range differs from proven RNG001 input' }
-          $study3Path = 'studies/STU003__RNG002_UTG-vs-BTN__5FLOP_FLOP4'
-          $study3 = Get-Content "$study3Path/study.json" -Raw | ConvertFrom-Json
-          $study3Config = Get-Content "$study3Path/config.json" -Raw | ConvertFrom-Json
-          $study3Boards = @(Get-Content "$study3Path/boards.txt" | Where-Object { $_.Trim() -and -not $_.Trim().StartsWith('#') })
-          $expectedStudy3Branches = @('UTG_OOP_CBET','BTN_STAB','BTN_RESPONSE','UTG_RESPONSE')
-          $actualStudy3Branches = @($study3.branches | ForEach-Object { $_.decision_node })
-          if ($study3.study_id -ne 'STU003' -or $study3Boards.Count -ne 5 -or $actualStudy3Branches.Count -ne 4) { throw 'STU003 manifest/boards invalid' }
-          foreach ($decision in $expectedStudy3Branches) {
-            if ($actualStudy3Branches -notcontains $decision) { throw "STU003 is missing $decision" }
-            if (-not $worker.Contains("'$decision'")) { throw "Worker is missing STU003 preset $decision" }
-            if (-not $batch.Contains("'$decision'")) { throw "Batch is missing STU003 preset $decision" }
-          }
-          if ([int]$study3Config.config.startingPot -ne 65 -or [int]$study3Config.config.effectiveStack -ne 975) { throw 'STU003 pot/stack invalid' }
-          if ($study3Config.config.ipFlopBet -ne '50' -or $study3Config.config.oopFlopBet -ne '50' -or [int]$study3Config.config.maxRaiseNumber -ne 2) { throw 'STU003 flop abstraction invalid' }
-          if (@($study3Config.config.ipRange).Count -ne 1326 -or @($study3Config.config.oopRange).Count -ne 1326) { throw 'STU003 range lengths invalid' }
           . ./scripts/Range-Utils.ps1
           $expectedBtn = @(Convert-TexasSolverRangeTo1326 -Path 'ranges/RNG002__TSGPU020_6M100_UTG-O2p5_BTN-C__V1__BTN.txt')
           $expectedUtg = @(Convert-TexasSolverRangeTo1326 -Path 'ranges/RNG002__TSGPU020_6M100_UTG-O2p5_BTN-C__V1__UTG.txt')
-          for ($i = 0; $i -lt 1326; $i++) {
-            if ([Math]::Abs([double]$study3Config.config.ipRange[$i] - [double]$expectedBtn[$i]) -gt 1e-12) { throw "STU003 IP range differs from RNG002 BTN source at combo $i" }
-            if ([Math]::Abs([double]$study3Config.config.oopRange[$i] - [double]$expectedUtg[$i]) -gt 1e-12) { throw "STU003 OOP range differs from RNG002 UTG source at combo $i" }
-          }
           $study4Path = 'studies/STU004__RNG002_UTG-vs-BTN__BRD001_FLOP4'
           $study4 = Get-Content "$study4Path/study.json" -Raw | ConvertFrom-Json
           $study4Config = Get-Content "$study4Path/config.json" -Raw | ConvertFrom-Json
           $study4Boards = @(Get-Content $study4.board_file | Where-Object { $_.Trim() -and -not $_.Trim().StartsWith('#') })
           $actualStudy4Branches = @($study4.branches | ForEach-Object { $_.decision_node })
-          if ($study4.study_id -ne 'STU004' -or $study4Boards.Count -ne 286 -or [int]$study4.expected_boards -ne 286) { throw 'STU004 manifest/boards invalid' }
-          if ((ConvertTo-Json $actualStudy4Branches -Compress) -ne (ConvertTo-Json $actualStudy3Branches -Compress)) { throw 'STU004 branch set differs from proven STU003 pilot' }
-          if ((ConvertTo-Json $study4Config -Depth 100 -Compress) -ne (ConvertTo-Json $study3Config -Depth 100 -Compress)) { throw 'STU004 config differs from proven STU003 pilot' }
-          if (-not (Test-Path datasets/README.md)) { throw 'Tracked dataset policy is missing' }
-          $strategyRoot = 'datasets/STU002__RNG001_UTG-vs-BB__BRD001_FLOP6/analysis'
-          foreach ($required in @(
-            "$strategyRoot/STU002_simplified_flop_strategy.xlsx",
-            "$strategyRoot/STU002_strategy_8_categories.xlsx",
-            "$strategyRoot/strategy-13/manifest.json",
-            "$strategyRoot/strategy-8/manifest.json",
-            'docs/STU002_STRATEGY_WORKFLOW.md',
-            'scripts/generate-stu002-strategies.py',
-            'scripts/build-stu002-workbooks.mjs'
-          )) {
-            if (-not (Test-Path $required -PathType Leaf)) { throw "Missing STU002 strategy standard file: $required" }
+          $expectedStudy4Branches = @('UTG_OOP_CBET','BTN_STAB','BTN_RESPONSE','UTG_RESPONSE')
+          if ($study4.study_id -ne 'STU004' -or $study4Boards.Count -ne 286 -or [int]$study4.expected_boards -ne 286 -or $actualStudy4Branches.Count -ne 4) { throw 'STU004 manifest/boards invalid' }
+          foreach ($decision in $expectedStudy4Branches) {
+            if ($actualStudy4Branches -notcontains $decision) { throw "STU004 is missing $decision" }
+            if (-not $worker.Contains("'$decision'")) { throw "Worker is missing STU004 preset $decision" }
+            if (-not $batch.Contains("'$decision'")) { throw "Batch is missing STU004 preset $decision" }
           }
-          foreach ($obsolete in @('clustered-13-smooth-v2','layered-smooth-12')) {
-            if (Test-Path "$strategyRoot/$obsolete") { throw "Rejected STU002 smoothing output is active: $obsolete" }
+          if ([int]$study4Config.config.startingPot -ne 65 -or [int]$study4Config.config.effectiveStack -ne 975) { throw 'STU004 pot/stack invalid' }
+          if ($study4Config.config.ipFlopBet -ne '50' -or $study4Config.config.oopFlopBet -ne '50' -or [int]$study4Config.config.maxRaiseNumber -ne 2) { throw 'STU004 flop abstraction invalid' }
+          if (@($study4Config.config.ipRange).Count -ne 1326 -or @($study4Config.config.oopRange).Count -ne 1326) { throw 'STU004 range lengths invalid' }
+          for ($i = 0; $i -lt 1326; $i++) {
+            if ([Math]::Abs([double]$study4Config.config.ipRange[$i] - [double]$expectedBtn[$i]) -gt 1e-12) { throw "STU004 IP range differs from RNG002 BTN source at combo $i" }
+            if ([Math]::Abs([double]$study4Config.config.oopRange[$i] - [double]$expectedUtg[$i]) -gt 1e-12) { throw "STU004 OOP range differs from RNG002 UTG source at combo $i" }
+          }
+          if (-not (Test-Path datasets/README.md)) { throw 'Tracked dataset policy is missing' }
+          foreach ($studyId in @('STU002__RNG001_UTG-vs-BB__BRD001_FLOP6','STU004__RNG002_UTG-vs-BTN__BRD001_FLOP4')) {
+            $strategyRoot = "datasets/$studyId/analysis"
+            $shortId = $studyId.Split('__')[0]
+            foreach ($required in @(
+              "$strategyRoot/${shortId}_simplified_flop_strategy.xlsx",
+              "$strategyRoot/${shortId}_strategy_8_categories.xlsx",
+              "$strategyRoot/strategy-13/manifest.json",
+              "$strategyRoot/strategy-8/manifest.json"
+            )) {
+              if (-not (Test-Path $required -PathType Leaf)) { throw "Missing strategy standard file: $required" }
+            }
+            foreach ($obsolete in @('clustered-13-smooth-v2','layered-smooth-12')) {
+              if (Test-Path "$strategyRoot/$obsolete") { throw "Rejected smoothing output is active: $obsolete" }
+            }
+          }
+          foreach ($required in @('docs/FLOP_STRATEGY_WORKFLOW.md','scripts/flop_strategy.py','scripts/generate-flop-strategies.py','scripts/build-flop-workbooks.mjs')) {
+            if (-not (Test-Path $required -PathType Leaf)) { throw "Missing generic strategy file: $required" }
           }
           Write-Host 'PASS: proven v015 selected current-street production runner.'
-      - name: Rebuild and validate STU002 strategy data
+      - name: Rebuild and validate strategy data
         shell: pwsh
         run: |
-          python -m py_compile scripts/analyze-stu002.py scripts/generate-stu002-strategies.py
-          node --check scripts/build-stu002-workbooks.mjs
-          node --check scripts/generate-stu003-config.mjs
-          node scripts/generate-stu003-config.mjs
-          git diff --exit-code -- studies/STU003__RNG002_UTG-vs-BTN__5FLOP_FLOP4/config.json studies/STU004__RNG002_UTG-vs-BTN__BRD001_FLOP4/config.json
-          python scripts/analyze-stu002.py
-          python scripts/generate-stu002-strategies.py
-          git diff --exit-code -- datasets/STU002__RNG001_UTG-vs-BB__BRD001_FLOP6/analysis
+          python -m py_compile scripts/flop_strategy.py scripts/generate-flop-strategies.py
+          node --check scripts/build-flop-workbooks.mjs
+          node --check scripts/generate-stu004-config.mjs
+          node scripts/generate-stu004-config.mjs
+          git diff --exit-code -- studies/STU004__RNG002_UTG-vs-BTN__BRD001_FLOP4/config.json
+          python scripts/generate-flop-strategies.py STU002__RNG001_UTG-vs-BB__BRD001_FLOP6
+          python scripts/generate-flop-strategies.py STU004__RNG002_UTG-vs-BTN__BRD001_FLOP4 --run run-20260909-221703Z
+          git diff --exit-code -- datasets/STU002__RNG001_UTG-vs-BB__BRD001_FLOP6/analysis datasets/STU004__RNG002_UTG-vs-BTN__BRD001_FLOP4/analysis

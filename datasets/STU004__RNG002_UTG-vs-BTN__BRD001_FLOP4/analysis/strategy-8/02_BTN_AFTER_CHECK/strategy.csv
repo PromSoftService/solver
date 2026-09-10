@@ -1,0 +1,12 @@
+﻿hand_category,A-high high,A-high medium,A-high low,Broadway,K/Q-high,Middle dry,Middle connected,Low
+Two pair+,B,B,B,B,B,B,B,B
+Overpair,—,—,—,B,—,B,B,B
+Top pair,X,X,X,X/B,X/B,B,B,B
+Underpair,X/B,X,X,X,X,X/B,X/B,X/B
+Second pair,X,X,B,X,X/B,X/B,X/B,B
+Third pair,B,B,B,B,X/B,X/B,X/B,B
+Weak pair,X,X,X/B,X,X,X/B,X/B,X/B
+OESD,B,B,B,B,B,B,B,B
+Gutshot,B,B,B,X/B,B,B,B,B
+2 overcards + BDFD,—,—,—,—,—,B,X/B,X/B
+Air,X,X,X,X,X/B,X/B,X/B,X/B

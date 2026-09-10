@@ -6,7 +6,8 @@
   "board_set_id": "BRD001",
   "board_file": "boards/BRD001__FLOP_UNPAIRED_RAINBOW__ISO286__V1.txt",
   "expected_boards": 286,
-  "pilot_study": "STU003__RNG002_UTG-vs-BTN__5FLOP_FLOP4",
+  "strategy_title": "STU004 — стратегия флопа UTG vs BTN",
+  "strategy_range_note": "RNG002: UTG open 2.5 bb / BTN call из библиотеки TexasSolverGPU v0.2.0",
   "execution_model": "Each branch is a separate stock job: one board, one GPU solve, one history, one current-street export.",
   "normal_sizings_pct": {
     "flop": { "oop_bet": 50, "ip_bet": 50, "raise_native": 60 },
@@ -28,6 +29,8 @@
       "history": "flop root",
       "actions": "Check / Bet 50%",
       "action_shape": "CHECK_BET",
+      "strategy_sheet": "01 UTG cbet",
+      "strategy_title": "UTG: чек или c-bet 50%",
       "expected_bet_amount": 33,
       "expected_raise_amount": 0
     },
@@ -38,6 +41,8 @@
       "history": "UTG Check",
       "actions": "Check / Bet 50%",
       "action_shape": "CHECK_BET",
+      "strategy_sheet": "02 BTN stab",
+      "strategy_title": "BTN после чека UTG",
       "expected_bet_amount": 33,
       "expected_raise_amount": 0
     },
@@ -48,6 +53,8 @@
       "history": "UTG Bet 50%",
       "actions": "Fold / Call / Raise 60 native",
       "action_shape": "FOLD_CALL_RAISE",
+      "strategy_sheet": "03 BTN vs cbet",
+      "strategy_title": "BTN против c-bet UTG 50%",
       "expected_bet_amount": 33,
       "expected_raise_amount": 112
     },
@@ -58,6 +65,8 @@
       "history": "UTG Check -> BTN Bet 50%",
       "actions": "Fold / Call / Raise 60 native",
       "action_shape": "FOLD_CALL_RAISE",
+      "strategy_sheet": "04 UTG vs stab",
+      "strategy_title": "UTG против stab BTN 50%",
       "expected_bet_amount": 33,
       "expected_raise_amount": 112
     }

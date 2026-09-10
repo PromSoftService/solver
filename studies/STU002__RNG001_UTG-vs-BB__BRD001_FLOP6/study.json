@@ -5,6 +5,9 @@
   "range_id": "RNG001",
   "board_set_id": "BRD001",
   "board_file": "boards/BRD001__FLOP_UNPAIRED_RAINBOW__ISO286__V1.txt",
+  "expected_boards": 286,
+  "strategy_title": "STU002 — стратегия флопа UTG vs BB",
+  "strategy_range_note": "RNG001: UTG open 2.5 bb / BB call из библиотеки TexasSolverGPU v0.2.0",
   "execution_model": "Each branch is a separate stock job: one board, one GPU solve, one history, one current-street export.",
   "normal_sizings_pct": {
     "flop": { "oop_bet_or_donk": 50, "ip_bet": 50, "raise_native": 60 },
@@ -22,6 +25,8 @@
       "history": "flop root",
       "actions": "Check / Donk 50%",
       "action_shape": "CHECK_DONK",
+      "strategy_sheet": "01 BB first",
+      "strategy_title": "BB: чек или донк 50%",
       "expected_bet_amount": 28,
       "expected_raise_amount": 0
     },
@@ -32,6 +37,8 @@
       "history": "BB Check",
       "actions": "Check / Bet 50%",
       "action_shape": "CHECK_BET",
+      "strategy_sheet": "02 UTG cbet",
+      "strategy_title": "UTG после чека BB",
       "expected_bet_amount": 28,
       "expected_raise_amount": 0
     },
@@ -42,6 +49,8 @@
       "history": "BB Check -> UTG Bet 50%",
       "actions": "Fold / Call / Raise 60 native",
       "action_shape": "FOLD_CALL_RAISE",
+      "strategy_sheet": "03 BB vs cbet",
+      "strategy_title": "BB против c-bet UTG 50%",
       "expected_bet_amount": 28,
       "expected_raise_amount": 95
     },
@@ -52,6 +61,8 @@
       "history": "BB Check -> UTG Bet 50% -> BB Raise 60 native",
       "actions": "Fold / Call",
       "action_shape": "FOLD_CALL",
+      "strategy_sheet": "04 UTG vs XR",
+      "strategy_title": "UTG против check-raise BB",
       "expected_bet_amount": 28,
       "expected_raise_amount": 95
     },
@@ -62,6 +73,8 @@
       "history": "BB Donk 50%",
       "actions": "Fold / Call / Raise 60 native",
       "action_shape": "FOLD_CALL_RAISE",
+      "strategy_sheet": "05 UTG vs donk",
+      "strategy_title": "UTG против донка BB 50%",
       "expected_bet_amount": 28,
       "expected_raise_amount": 95
     },
@@ -72,6 +85,8 @@
       "history": "BB Donk 50% -> UTG Raise 60 native",
       "actions": "Fold / Call",
       "action_shape": "FOLD_CALL",
+      "strategy_sheet": "06 BB vs donk R",
+      "strategy_title": "BB против рейза UTG после донка",
       "expected_bet_amount": 28,
       "expected_raise_amount": 95
     }

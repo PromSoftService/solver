@@ -1,0 +1,31 @@
+{
+  "branch": "01_UTG_FIRST",
+  "acting_player": "UTG",
+  "action_shape": "CHECK_BET",
+  "threshold": 0.65,
+  "mix_rule": "strict 50/50 top two actions",
+  "csv_rows": 80553,
+  "active_rows": 80553,
+  "zero_reach_rows": 0,
+  "hand_categories": 11,
+  "populated_cells": 81,
+  "reach_sum": 5317406.443316044,
+  "weighted_loss_native": 88498.95300011736,
+  "mean_local_loss_bb": 0.0016643255305668827,
+  "solver_reach_weighted_frequencies": {
+    "check": 0.7818941895965043,
+    "bet": 0.21810580991967987
+  },
+  "simplified_reach_weighted_frequencies": {
+    "check": 0.9054356703051984,
+    "bet": 0.09456432969480127
+  },
+  "policy_cell_counts": {
+    "X": 57,
+    "X/B": 14,
+    "B": 10
+  },
+  "node_reach_fraction": 1.0000000000000084,
+  "root_loss_bb": 0.0016643255305668965,
+  "incremental_root_loss_vs_B13_bb": 0.00017703704852457228
+}
