@@ -1,0 +1,47 @@
+﻿{
+    "schema_version":  1,
+    "study_id":  "STU004",
+    "operation":  "4 branches by 286 flops, including validation and parsing",
+    "started_at_utc":  "2026-09-10T05:40:09.0593720Z",
+    "ended_at_utc":  "2026-09-10T05:42:06.0657965Z",
+    "success":  true,
+    "resumed":  true,
+    "branches_expected":  4,
+    "branches_completed":  4,
+    "boards_expected_total":  1144,
+    "boards_completed_total":  1144,
+    "total_wall_ms_including_all_parsing":  117005,
+    "raw_output_root":  "D:\\current\\manuals\\покер\\sotf\\tsgpu-batch-production-v012\\output\\STU004__RNG002_UTG-vs-BTN__BRD001_FLOP4\\run-20260909-221703Z",
+    "dataset_root":  "D:\\current\\manuals\\покер\\sotf\\tsgpu-batch-production-v012\\datasets\\STU004__RNG002_UTG-vs-BTN__BRD001_FLOP4\\run-20260909-221703Z",
+    "branches":  [
+                     {
+                         "branch_id":  "01_UTG_FIRST",
+                         "decision_node":  "UTG_OOP_CBET",
+                         "boards_done":  286,
+                         "elapsed_ms_including_parsing":  9395,
+                         "result":  "PASS"
+                     },
+                     {
+                         "branch_id":  "02_BTN_AFTER_CHECK",
+                         "decision_node":  "BTN_STAB",
+                         "boards_done":  286,
+                         "elapsed_ms_including_parsing":  7475,
+                         "result":  "PASS"
+                     },
+                     {
+                         "branch_id":  "03_BTN_AFTER_CBET",
+                         "decision_node":  "BTN_RESPONSE",
+                         "boards_done":  286,
+                         "elapsed_ms_including_parsing":  8297,
+                         "result":  "PASS"
+                     },
+                     {
+                         "branch_id":  "04_UTG_AFTER_STAB",
+                         "decision_node":  "UTG_RESPONSE",
+                         "boards_done":  286,
+                         "elapsed_ms_including_parsing":  91609,
+                         "result":  "PASS"
+                     }
+                 ],
+    "error":  ""
+}
