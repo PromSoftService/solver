@@ -19,8 +19,8 @@ B13 = [
     "K/Qx dis", "K/Qx con", "[J-8]x dis", "[J-8]x con", "[7-4]x",
 ]
 B13_EXPECTED = dict(zip(B13, [6, 16, 10, 6, 18, 10, 4, 47, 42, 14, 67, 26, 20]))
-BASE_ORDER = ["Two pair+", "Overpair", "Top pair", "Second pair", "Third pair",
-              "Underpair", "Weak pair", "Low pocket pair", "2 overcards",
+BASE_ORDER = ["Two pair+", "Overpair", "Top pair", "Underpair", "Second pair",
+              "Weak pair", "Third pair", "Low pocket pair", "2 overcards",
               "A-high", "Air"]
 
 ACTION_SHAPES = {

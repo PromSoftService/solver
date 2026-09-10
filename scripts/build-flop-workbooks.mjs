@@ -105,8 +105,8 @@ for (const branch of branchInfo) {
 }
 
 const handOrder = [
-  "Two pair+", "Overpair", "Top pair", "Underpair", "Second pair", "Third pair",
-  "Weak pair", "Low pocket pair", "OESD", "Gutshot", "2 overcards + BDFD", "Air",
+  "Two pair+", "Overpair", "Top pair", "Underpair", "Second pair", "Weak pair",
+  "Third pair", "Low pocket pair", "OESD", "Gutshot", "2 overcards + BDFD", "Air",
 ];
 
 const colors = {

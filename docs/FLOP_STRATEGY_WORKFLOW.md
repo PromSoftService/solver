@@ -138,9 +138,9 @@ inside its broad group.
 
 ## 6. Strict hand classifier and displayed rows
 
-Every legal combo receives exactly one made-hand base, in priority order:
-Two pair+, Overpair, Top pair, Second pair, Third pair, Underpair, Weak pair,
-Low pocket pair, 2 overcards, A-high, or Air. `Two pair+` includes made
+Every legal combo receives exactly one made-hand base. In display order these
+are Two pair+, Overpair, Top pair, Underpair, Second pair, Weak pair, Third
+pair, Low pocket pair, 2 overcards, A-high, and Air. `Two pair+` includes made
 straights. `Underpair` is a pocket pair strictly between the top and middle
 flop ranks. `Weak pair` is a pocket pair strictly between the middle and low
 flop ranks. `Low pocket pair` is a pocket pair below the low flop rank.
@@ -156,8 +156,8 @@ The strict result is mapped to these 12 learnable rows, in display order:
 3. Top pair
 4. Underpair
 5. Second pair
-6. Third pair
-7. Weak pair
+6. Weak pair
+7. Third pair
 8. Low pocket pair
 9. OESD
 10. Gutshot
