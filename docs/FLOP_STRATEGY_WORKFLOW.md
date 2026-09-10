@@ -180,7 +180,10 @@ For one branch, hand row, and target flop category:
 3. Take the ordinary mean of those board means across all real boards on which
    the row is present. Every board has equal weight.
 4. If the largest action mean is strictly greater than 65%, choose it pure.
-5. Otherwise choose the two most frequent actions as an exact 50/50 mix.
+5. Otherwise choose the two most frequent actions as an exact 50/50 mix. In
+   the displayed label, put the more frequent solver action first (`C/R`
+   means call was more frequent than raise). If their means are exactly tied,
+   use the fixed native action order.
 6. If no combo is present for that range/node/category, display `—`.
 
 The B13 and broad tables run this independently from the same raw solver

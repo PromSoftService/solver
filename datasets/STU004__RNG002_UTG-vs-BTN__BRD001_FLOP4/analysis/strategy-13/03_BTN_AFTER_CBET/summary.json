@@ -3,7 +3,7 @@
   "acting_player": "BTN",
   "action_shape": "FOLD_CALL_RAISE",
   "threshold": 0.65,
-  "mix_rule": "strict 50/50 top two actions",
+  "mix_rule": "strict 50/50 top two actions; more frequent action displayed first",
   "csv_rows": 61270,
   "active_rows": 61270,
   "zero_reach_rows": 0,
@@ -25,8 +25,10 @@
   "policy_cell_counts": {
     "F": 16,
     "C": 53,
-    "C/R": 40,
-    "F/C": 11,
+    "R/C": 16,
+    "C/R": 24,
+    "C/F": 3,
+    "F/C": 8,
     "R": 2
   },
   "node_reach_fraction": 0.21810580720114606,

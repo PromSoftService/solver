@@ -427,7 +427,7 @@ function addMethod(workbook, model) {
     ["Диапазоны", studyManifest.strategy_range_note],
     ["Частоты", "Равное среднее по concrete combo на флопе, затем равное среднее по реальным флопам категории"],
     ["Чистое действие", "Наибольшая средняя частота строго >65%"],
-    ["Микс", "Иначе два наиболее частых действия, строго 50/50"],
+    ["Микс", "Иначе два наиболее частых действия, строго 50/50; первым указано более частое действие солвера"],
     ["Вес диапазона", "Combo с reach_probability >0 участвует независимо от величины reach"],
     ["EV-аудит", "Reach-weighted local regret против solved opponent; не adaptive exploitability"],
     ["Категории рук", "7 made-категорий; затем OESD; Gutshot; 2 overcards + BDFD; Air"],

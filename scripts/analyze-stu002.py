@@ -175,8 +175,9 @@ def choose_policy(means: dict[str, float], actions: list[str]) -> tuple[str, dic
 
 
 def display_policy(policy: str, labels: dict[str, str]) -> str:
-    selected = set(policy.split("/"))
-    return "/".join(label for action, label in labels.items() if action in selected)
+    # Preserve the frequency ranking produced by choose_policy.  The first
+    # action in a displayed 50/50 mix is the more frequent solver action.
+    return "/".join(labels[action] for action in policy.split("/"))
 
 
 def latest_run(branch: str) -> Path:

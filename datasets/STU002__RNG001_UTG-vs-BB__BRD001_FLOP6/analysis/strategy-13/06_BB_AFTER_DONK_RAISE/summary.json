@@ -3,7 +3,7 @@
   "acting_player": "BB",
   "action_shape": "FOLD_CALL",
   "threshold": 0.65,
-  "mix_rule": "strict 50/50 top two actions",
+  "mix_rule": "strict 50/50 top two actions; more frequent action displayed first",
   "csv_rows": 106381,
   "active_rows": 57240,
   "zero_reach_rows": 49141,
@@ -22,8 +22,9 @@
   },
   "policy_cell_counts": {
     "C": 73,
-    "F/C": 12,
-    "F": 29
+    "F/C": 5,
+    "F": 29,
+    "C/F": 7
   },
   "node_reach_fraction": 0.008244586404636283,
   "root_loss_bb": 0.0005282706232337096

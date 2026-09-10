@@ -177,8 +177,11 @@ def choose_policy(means: dict[str, float], actions: list[str]) -> tuple[str, dic
 
 
 def display_policy(policy: str, labels: dict[str, str]) -> str:
-    selected = set(policy.split("/"))
-    return "/".join(label for action, label in labels.items() if action in selected)
+    # ``choose_policy`` already ranks mixed actions by their original solver
+    # frequency.  Preserve that order in the human-readable label: C/R means
+    # call was more frequent than raise, while the prescribed mix is still
+    # executed as an exact 50/50 split.
+    return "/".join(labels[action] for action in policy.split("/"))
 
 
 def validate_dataset_run(run: Path) -> dict:

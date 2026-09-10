@@ -3,7 +3,7 @@
   "model": "11 hand categories x 8 flop categories",
   "source": "4 tracked STU004 aggregate combo datasets",
   "pure_threshold": 0.65,
-  "mix_rule": "strict 50/50 top two actions",
+  "mix_rule": "strict 50/50 top two actions; more frequent action displayed first",
   "hand_categories": [
     "Two pair+",
     "Overpair",
@@ -44,7 +44,7 @@
         "acting_player": "UTG",
         "action_shape": "CHECK_BET",
         "threshold": 0.65,
-        "mix_rule": "strict 50/50 top two actions",
+        "mix_rule": "strict 50/50 top two actions; more frequent action displayed first",
         "csv_rows": 80553,
         "active_rows": 80553,
         "zero_reach_rows": 0,
@@ -63,8 +63,9 @@
         },
         "policy_cell_counts": {
           "X": 57,
-          "X/B": 14,
-          "B": 10
+          "B/X": 10,
+          "B": 10,
+          "X/B": 4
         },
         "node_reach_fraction": 1.0000000000000084,
         "root_loss_bb": 0.0016643255305668965,
@@ -87,7 +88,7 @@
         "acting_player": "BTN",
         "action_shape": "CHECK_BET",
         "threshold": 0.65,
-        "mix_rule": "strict 50/50 top two actions",
+        "mix_rule": "strict 50/50 top two actions; more frequent action displayed first",
         "csv_rows": 61270,
         "active_rows": 61270,
         "zero_reach_rows": 0,
@@ -107,7 +108,8 @@
         "policy_cell_counts": {
           "X": 18,
           "B": 38,
-          "X/B": 23
+          "B/X": 14,
+          "X/B": 9
         },
         "node_reach_fraction": 0.7818941949935365,
         "root_loss_bb": 0.0016757841683597533,
@@ -132,7 +134,7 @@
         "acting_player": "BTN",
         "action_shape": "FOLD_CALL_RAISE",
         "threshold": 0.65,
-        "mix_rule": "strict 50/50 top two actions",
+        "mix_rule": "strict 50/50 top two actions; more frequent action displayed first",
         "csv_rows": 61270,
         "active_rows": 61270,
         "zero_reach_rows": 0,
@@ -154,8 +156,10 @@
         "policy_cell_counts": {
           "F": 7,
           "C": 30,
-          "C/R": 31,
-          "F/C": 9,
+          "C/R": 20,
+          "R/C": 11,
+          "F/C": 7,
+          "C/F": 2,
           "R": 2
         },
         "node_reach_fraction": 0.21810580720114606,
@@ -181,7 +185,7 @@
         "acting_player": "UTG",
         "action_shape": "FOLD_CALL_RAISE",
         "threshold": 0.65,
-        "mix_rule": "strict 50/50 top two actions",
+        "mix_rule": "strict 50/50 top two actions; more frequent action displayed first",
         "csv_rows": 80553,
         "active_rows": 80002,
         "zero_reach_rows": 551,
@@ -203,8 +207,10 @@
         "policy_cell_counts": {
           "F": 12,
           "C": 41,
-          "C/R": 14,
-          "F/C": 5,
+          "R/C": 10,
+          "C/R": 4,
+          "C/F": 2,
+          "F/C": 3,
           "R": 9
         },
         "node_reach_fraction": 0.3819597541352177,

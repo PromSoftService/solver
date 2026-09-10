@@ -3,7 +3,7 @@
   "acting_player": "UTG",
   "action_shape": "FOLD_CALL_RAISE",
   "threshold": 0.65,
-  "mix_rule": "strict 50/50 top two actions",
+  "mix_rule": "strict 50/50 top two actions; more frequent action displayed first",
   "csv_rows": 80553,
   "active_rows": 80553,
   "zero_reach_rows": 0,
@@ -23,9 +23,11 @@
     "raise": 0.059904477840174594
   },
   "policy_cell_counts": {
-    "F/C": 5,
-    "C/R": 25,
+    "F/C": 3,
+    "C/R": 12,
     "F": 8,
+    "C/F": 2,
+    "R/C": 13,
     "R": 11,
     "C": 32
   },

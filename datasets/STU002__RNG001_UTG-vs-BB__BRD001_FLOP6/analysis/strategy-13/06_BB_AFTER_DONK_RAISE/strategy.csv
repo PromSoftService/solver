@@ -2,11 +2,11 @@
 Two pair+,C,C,C,C,C,C,C,C,C,C,C,C,C
 Overpair,—,—,—,—,—,—,—,—,—,—,C,C,C
 Top pair,C,C,C,C,C,C,C,C,C,C,C,C,C
-Underpair,—,—,F,F,F/C,F,—,C,C,F/C,C,C,C
-Second pair,C,C,F,F/C,F/C,F,C,C,C,C,C,C,C
-Third pair,F/C,F,F,F,F,F,F/C,F/C,C,C,C,C,C
-Weak pair,F,F,F,F,F,F,C,F/C,F,F,F,F,F/C
+Underpair,—,—,F,F,F/C,F,—,C,C,C/F,C,C,C
+Second pair,C,C,F,F/C,C/F,F,C,C,C,C,C,C,C
+Third pair,F/C,F,F,F,F,F,F/C,C/F,C,C,C,C,C
+Weak pair,F,F,F,F,F,F,C,C/F,F,F,F,F,F/C
 OESD,C,C,C,—,C,C,C,C,C,C,C,C,C
-Gutshot,C,C,C,F/C,C,C,C,F/C,C,C,C,C,C
-2 overcards + BDFD,—,—,—,—,—,—,—,—,—,—,C,F/C,F
+Gutshot,C,C,C,C/F,C,C,C,C/F,C,C,C,C,C
+2 overcards + BDFD,—,—,—,—,—,—,—,—,—,—,C,C/F,F
 Air,—,—,—,—,F,F,—,F,F,F,F,F,F

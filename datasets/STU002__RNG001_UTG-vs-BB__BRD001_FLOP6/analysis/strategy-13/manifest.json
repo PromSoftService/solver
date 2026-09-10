@@ -3,7 +3,7 @@
   "model": "11 hand categories x 13 B13 flop categories",
   "source": "six tracked STU002 aggregate combo datasets",
   "pure_threshold": 0.65,
-  "mix_rule": "strict 50/50 top two actions",
+  "mix_rule": "strict 50/50 top two actions; more frequent action displayed first",
   "hand_categories": [
     "Two pair+",
     "Overpair",
@@ -49,7 +49,7 @@
         "acting_player": "BB",
         "action_shape": "CHECK_DONK",
         "threshold": 0.65,
-        "mix_rule": "strict 50/50 top two actions",
+        "mix_rule": "strict 50/50 top two actions; more frequent action displayed first",
         "csv_rows": 106381,
         "active_rows": 106381,
         "zero_reach_rows": 0,
@@ -68,7 +68,8 @@
         },
         "policy_cell_counts": {
           "X": 107,
-          "X/D": 12
+          "X/D": 8,
+          "D/X": 4
         },
         "node_reach_fraction": 0.9999999999999555,
         "root_loss_bb": 0.0002112026739190689
@@ -90,7 +91,7 @@
         "acting_player": "UTG",
         "action_shape": "CHECK_BET",
         "threshold": 0.65,
-        "mix_rule": "strict 50/50 top two actions",
+        "mix_rule": "strict 50/50 top two actions; more frequent action displayed first",
         "csv_rows": 80553,
         "active_rows": 80553,
         "zero_reach_rows": 0,
@@ -109,7 +110,8 @@
         },
         "policy_cell_counts": {
           "B": 68,
-          "X/B": 41,
+          "B/X": 27,
+          "X/B": 14,
           "X": 19
         },
         "node_reach_fraction": 0.9362318512398661,
@@ -134,7 +136,7 @@
         "acting_player": "BB",
         "action_shape": "FOLD_CALL_RAISE",
         "threshold": 0.65,
-        "mix_rule": "strict 50/50 top two actions",
+        "mix_rule": "strict 50/50 top two actions; more frequent action displayed first",
         "csv_rows": 106381,
         "active_rows": 106308,
         "zero_reach_rows": 73,
@@ -155,10 +157,12 @@
         },
         "policy_cell_counts": {
           "F": 24,
-          "F/C": 14,
+          "C/F": 10,
           "C": 44,
-          "C/R": 18,
-          "R": 19
+          "R/C": 10,
+          "F/C": 4,
+          "R": 19,
+          "C/R": 8
         },
         "node_reach_fraction": 0.5234294621087887,
         "root_loss_bb": 0.010089241730006164
@@ -180,7 +184,7 @@
         "acting_player": "UTG",
         "action_shape": "FOLD_CALL",
         "threshold": 0.65,
-        "mix_rule": "strict 50/50 top two actions",
+        "mix_rule": "strict 50/50 top two actions; more frequent action displayed first",
         "csv_rows": 80553,
         "active_rows": 75236,
         "zero_reach_rows": 5317,
@@ -200,7 +204,8 @@
         "policy_cell_counts": {
           "F": 24,
           "C": 90,
-          "F/C": 14
+          "F/C": 6,
+          "C/F": 8
         },
         "node_reach_fraction": 0.06808585193106646,
         "root_loss_bb": 0.002280700316208889
@@ -224,7 +229,7 @@
         "acting_player": "UTG",
         "action_shape": "FOLD_CALL_RAISE",
         "threshold": 0.65,
-        "mix_rule": "strict 50/50 top two actions",
+        "mix_rule": "strict 50/50 top two actions; more frequent action displayed first",
         "csv_rows": 80553,
         "active_rows": 80553,
         "zero_reach_rows": 0,
@@ -245,11 +250,14 @@
         },
         "policy_cell_counts": {
           "F": 13,
-          "C/R": 40,
-          "F/R": 3,
+          "R/C": 22,
+          "C/R": 18,
+          "R/F": 2,
           "R": 18,
-          "F/C": 11,
-          "C": 43
+          "F/C": 6,
+          "C/F": 5,
+          "C": 43,
+          "F/R": 1
         },
         "node_reach_fraction": 0.06376814359634854,
         "root_loss_bb": 0.0010140072590698063
@@ -271,7 +279,7 @@
         "acting_player": "BB",
         "action_shape": "FOLD_CALL",
         "threshold": 0.65,
-        "mix_rule": "strict 50/50 top two actions",
+        "mix_rule": "strict 50/50 top two actions; more frequent action displayed first",
         "csv_rows": 106381,
         "active_rows": 57240,
         "zero_reach_rows": 49141,
@@ -290,8 +298,9 @@
         },
         "policy_cell_counts": {
           "C": 73,
-          "F/C": 12,
-          "F": 29
+          "F/C": 5,
+          "F": 29,
+          "C/F": 7
         },
         "node_reach_fraction": 0.008244586404636283,
         "root_loss_bb": 0.0005282706232337096

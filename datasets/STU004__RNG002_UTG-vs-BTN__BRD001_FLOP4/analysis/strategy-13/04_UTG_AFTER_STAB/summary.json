@@ -3,7 +3,7 @@
   "acting_player": "UTG",
   "action_shape": "FOLD_CALL_RAISE",
   "threshold": 0.65,
-  "mix_rule": "strict 50/50 top two actions",
+  "mix_rule": "strict 50/50 top two actions; more frequent action displayed first",
   "csv_rows": 80553,
   "active_rows": 80002,
   "zero_reach_rows": 551,
@@ -26,8 +26,10 @@
     "F": 23,
     "C": 66,
     "R": 14,
-    "C/R": 18,
-    "F/C": 7
+    "C/R": 7,
+    "C/F": 3,
+    "F/C": 4,
+    "R/C": 11
   },
   "node_reach_fraction": 0.3819597541352177,
   "root_loss_bb": 0.008036054845898514
