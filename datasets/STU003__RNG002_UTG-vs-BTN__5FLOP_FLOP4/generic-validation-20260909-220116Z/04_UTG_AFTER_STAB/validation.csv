@@ -1,6 +1,0 @@
-﻿"board","output_directory","decision_node","acting_player","actions","combos","solve_start_calls","current_street_export_calls","forbidden_full_tree_calls","result"
-"As Kh 7d","0001_As_Kh_7d","UTG_RESPONSE","UTG","Fold / Call / Raise 112","261","1","1","0","PASS"
-"Ks Qh 8d","0002_Ks_Qh_8d","UTG_RESPONSE","UTG","Fold / Call / Raise 112","266","1","1","0","PASS"
-"Js Th 9d","0003_Js_Th_9d","UTG_RESPONSE","UTG","Fold / Call / Raise 112","274","1","1","0","PASS"
-"Ts 7h 6d","0004_Ts_7h_6d","UTG_RESPONSE","UTG","Fold / Call / Raise 112","285","1","1","0","PASS"
-"7s 5h 4d","0005_7s_5h_4d","UTG_RESPONSE","UTG","Fold / Call / Raise 112","299","1","1","0","PASS"

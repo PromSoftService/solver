@@ -1,5 +1,0 @@
-﻿"branch_id","decision_node","boards_done","elapsed_ms_including_parsing","result"
-"01_UTG_FIRST","UTG_OOP_CBET","5","85625","PASS"
-"02_BTN_AFTER_CHECK","BTN_STAB","5","78301","PASS"
-"03_BTN_AFTER_CBET","BTN_RESPONSE","5","77981","PASS"
-"04_UTG_AFTER_STAB","UTG_RESPONSE","5","76952","PASS"

@@ -179,6 +179,6 @@ export per board, and zero forbidden full-tree calls.
 
 The successful compact STU004 evidence became active input for the same two
 human tables as STU002. The classifier and workbook builders were generalized
-instead of copied. STU003 remains as a small historical pilot fixture, not an
-active strategy source. Both STU003 and STU004 launchers now use the reusable
-`scripts/run-flop-study-*.ps1` implementation directly.
+instead of copied. Once STU004 was complete, the superseded STU003 package and
+compact pilot evidence were removed from active `main`; Git history preserves
+them. STU004 launchers use `scripts/run-flop-study-*.ps1` directly.

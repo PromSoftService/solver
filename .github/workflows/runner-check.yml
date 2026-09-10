@@ -21,8 +21,6 @@ jobs:
             'studies/STU002__RNG001_UTG-vs-BB__BRD001_FLOP6/run-all.ps1',
             'scripts/run-flop-study-branch.ps1',
             'scripts/run-flop-study-all.ps1',
-            'studies/STU003__RNG002_UTG-vs-BTN__5FLOP_FLOP4/run-branch.ps1',
-            'studies/STU003__RNG002_UTG-vs-BTN__5FLOP_FLOP4/run-all.ps1',
             'studies/STU004__RNG002_UTG-vs-BTN__BRD001_FLOP4/run-branch.ps1',
             'studies/STU004__RNG002_UTG-vs-BTN__BRD001_FLOP4/run-all.ps1'
           )
