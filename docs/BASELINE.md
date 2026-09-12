@@ -35,7 +35,7 @@ A full reconstruction was technically proven through repeated stock current-stre
 - `studies/STU002__RNG001_UTG-vs-BB__BRD001_FLOP6/`: six independent selected-branch jobs covering the normal-action flop interaction over BRD001.
 - `studies/STU004__RNG002_UTG-vs-BTN__BRD001_FLOP4/`: four selected UTG-vs-BTN flop decisions over BRD001.
 - `docs/FLOP_STRATEGY_WORKFLOW.md`: the accepted generic post-processing
-  contract and two human-strategy workbooks per completed production study.
+  contract and one ten-flop-category workbook per completed production study.
 - `ranges/`: RNG001 and RNG002 source ranges.
 - `boards/BRD001...txt`: 286 canonical source flops; never use it for routine runner smoke tests.
 

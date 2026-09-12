@@ -1,0 +1,237 @@
+{
+  "schema_version": 1,
+  "model": "12 hand categories x 10 final flop categories",
+  "source": "4 tracked STU004 aggregate combo datasets",
+  "pure_threshold": 0.65,
+  "mix_rule": "strict 50/50 top two actions; more frequent action displayed first",
+  "bdfd_rule": "BDFD means fold without BDFD and call with BDFD; no-BDFD fold and BDFD continue must each exceed 65%, and the call-only continuation must not add reach-weighted EV loss versus the ordinary cell policy",
+  "hand_categories": [
+    "Two pair+",
+    "Overpair",
+    "Top pair",
+    "Underpair",
+    "Second pair",
+    "Weak pair",
+    "Third pair",
+    "Low pocket pair",
+    "OESD",
+    "Gutshot",
+    "2 overcards + BDFD",
+    "Air"
+  ],
+  "flop_categories": [
+    "ABB",
+    "A[K/Q]x",
+    "A[J-T]x",
+    "A[9-2]x",
+    "BBB",
+    "BBx",
+    "K/Qx",
+    "[J-8]x dis",
+    "[J-8]x con",
+    "[7-4]x"
+  ],
+  "branches": [
+    {
+      "branch": "01_UTG_FIRST",
+      "actor": "UTG",
+      "actions": [
+        "check",
+        "bet"
+      ],
+      "labels": {
+        "check": "X",
+        "bet": "B"
+      },
+      "summary": {
+        "branch": "01_UTG_FIRST",
+        "acting_player": "UTG",
+        "action_shape": "CHECK_BET",
+        "threshold": 0.65,
+        "mix_rule": "strict 50/50 top two actions; more frequent action displayed first",
+        "bdfd_rule": "BDFD = fold without BDFD, call with BDFD; requires >65% fold/continue split and EV safety",
+        "csv_rows": 80553,
+        "active_rows": 80553,
+        "zero_reach_rows": 0,
+        "hand_categories": 12,
+        "populated_cells": 103,
+        "bdfd_cells": 0,
+        "bdfd_candidates_rejected_by_ev": 0,
+        "reach_sum": 5317406.443316044,
+        "weighted_loss_native": 93033.69975764416,
+        "mean_local_loss_bb": 0.0017496067067543255,
+        "solver_reach_weighted_frequencies": {
+          "check": 0.7818941895965043,
+          "bet": 0.21810580991967987
+        },
+        "simplified_reach_weighted_frequencies": {
+          "check": 0.9008026787835581,
+          "bet": 0.09919732121644223
+        },
+        "policy_cell_counts": {
+          "X": 76,
+          "X/B": 6,
+          "B/X": 10,
+          "B": 11
+        },
+        "node_reach_fraction": 1.0000000000000084,
+        "root_loss_bb": 0.0017496067067543405
+      }
+    },
+    {
+      "branch": "02_BTN_AFTER_CHECK",
+      "actor": "BTN",
+      "actions": [
+        "check",
+        "bet"
+      ],
+      "labels": {
+        "check": "X",
+        "bet": "B"
+      },
+      "summary": {
+        "branch": "02_BTN_AFTER_CHECK",
+        "acting_player": "BTN",
+        "action_shape": "CHECK_BET",
+        "threshold": 0.65,
+        "mix_rule": "strict 50/50 top two actions; more frequent action displayed first",
+        "bdfd_rule": "BDFD = fold without BDFD, call with BDFD; requires >65% fold/continue split and EV safety",
+        "csv_rows": 61270,
+        "active_rows": 61270,
+        "zero_reach_rows": 0,
+        "hand_categories": 12,
+        "populated_cells": 100,
+        "bdfd_cells": 0,
+        "bdfd_candidates_rejected_by_ev": 0,
+        "reach_sum": 4157649.2304500076,
+        "weighted_loss_native": 89977.30820805655,
+        "mean_local_loss_bb": 0.0021641389934743908,
+        "solver_reach_weighted_frequencies": {
+          "check": 0.5114943170311302,
+          "bet": 0.48850568132156436
+        },
+        "simplified_reach_weighted_frequencies": {
+          "check": 0.48752274287112607,
+          "bet": 0.5124772571288773
+        },
+        "policy_cell_counts": {
+          "X": 29,
+          "X/B": 19,
+          "B/X": 13,
+          "B": 39
+        },
+        "node_reach_fraction": 0.7818941949935365,
+        "root_loss_bb": 0.0016921277161567813
+      }
+    },
+    {
+      "branch": "03_BTN_AFTER_CBET",
+      "actor": "BTN",
+      "actions": [
+        "fold",
+        "call",
+        "raise"
+      ],
+      "labels": {
+        "fold": "F",
+        "call": "C",
+        "raise": "R"
+      },
+      "summary": {
+        "branch": "03_BTN_AFTER_CBET",
+        "acting_player": "BTN",
+        "action_shape": "FOLD_CALL_RAISE",
+        "threshold": 0.65,
+        "mix_rule": "strict 50/50 top two actions; more frequent action displayed first",
+        "bdfd_rule": "BDFD = fold without BDFD, call with BDFD; requires >65% fold/continue split and EV safety",
+        "csv_rows": 61270,
+        "active_rows": 61270,
+        "zero_reach_rows": 0,
+        "hand_categories": 12,
+        "populated_cells": 100,
+        "bdfd_cells": 3,
+        "bdfd_candidates_rejected_by_ev": 0,
+        "reach_sum": 1159757.2245360112,
+        "weighted_loss_native": 205134.23257313107,
+        "mean_local_loss_bb": 0.017687687408474644,
+        "solver_reach_weighted_frequencies": {
+          "fold": 0.34838489403501594,
+          "call": 0.524339513024831,
+          "raise": 0.12727559372338884
+        },
+        "simplified_reach_weighted_frequencies": {
+          "fold": 0.3669093417048928,
+          "call": 0.5637723493738919,
+          "raise": 0.06931830892121627
+        },
+        "policy_cell_counts": {
+          "F": 16,
+          "C": 37,
+          "BDFD": 3,
+          "R/C": 12,
+          "C/R": 19,
+          "F/C": 7,
+          "C/F": 4,
+          "F/R": 1,
+          "R": 1
+        },
+        "node_reach_fraction": 0.21810580720114606,
+        "root_loss_bb": 0.00385778733974691
+      }
+    },
+    {
+      "branch": "04_UTG_AFTER_STAB",
+      "actor": "UTG",
+      "actions": [
+        "fold",
+        "call",
+        "raise"
+      ],
+      "labels": {
+        "fold": "F",
+        "call": "C",
+        "raise": "R"
+      },
+      "summary": {
+        "branch": "04_UTG_AFTER_STAB",
+        "acting_player": "UTG",
+        "action_shape": "FOLD_CALL_RAISE",
+        "threshold": 0.65,
+        "mix_rule": "strict 50/50 top two actions; more frequent action displayed first",
+        "bdfd_rule": "BDFD = fold without BDFD, call with BDFD; requires >65% fold/continue split and EV safety",
+        "csv_rows": 80553,
+        "active_rows": 80002,
+        "zero_reach_rows": 551,
+        "hand_categories": 12,
+        "populated_cells": 103,
+        "bdfd_cells": 2,
+        "bdfd_candidates_rejected_by_ev": 0,
+        "reach_sum": 2031035.2577260016,
+        "weighted_loss_native": 320248.94437649776,
+        "mean_local_loss_bb": 0.01576776883406035,
+        "solver_reach_weighted_frequencies": {
+          "fold": 0.4002241196909749,
+          "call": 0.48097007902222483,
+          "raise": 0.11880580070415275
+        },
+        "simplified_reach_weighted_frequencies": {
+          "fold": 0.45101278075551554,
+          "call": 0.4714747334741666,
+          "raise": 0.07751248577031748
+        },
+        "policy_cell_counts": {
+          "F": 26,
+          "BDFD": 2,
+          "C": 49,
+          "R": 9,
+          "C/R": 5,
+          "R/C": 9,
+          "C/F": 2,
+          "F/C": 1
+        },
+        "node_reach_fraction": 0.3819597541352177,
+        "root_loss_bb": 0.006022653107118639
+      }
+    }
+  ]
+}

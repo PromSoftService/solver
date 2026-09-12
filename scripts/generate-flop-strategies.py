@@ -40,62 +40,16 @@ HAND_ORDER = [
 ]
 
 FLOP_GROUPS = [
-    {
-        "name": "A-high high",
-        "count": 22,
-        "members": ["ABB", "A[K/Q]x"],
-        "short": "ABB A[K/Q]x",
-        "definition": "A with two broadway cards, or A with K/Q and a lower card",
-    },
-    {
-        "name": "A-high medium",
-        "count": 16,
-        "members": ["A[J-T][9-5]", "A[J-T][4-2]"],
-        "short": "A[J-T]x",
-        "definition": "A with J/T",
-    },
-    {
-        "name": "A-high low",
-        "count": 28,
-        "members": ["A[9-7]x", "A[6-2]x"],
-        "short": "A[9-2]x",
-        "definition": "A with a middle card of 9 or lower",
-    },
-    {
-        "name": "Broadway",
-        "count": 51,
-        "members": ["BBB", "BBx"],
-        "short": "BBB BBx",
-        "definition": "No A; at least two broadway cards",
-    },
-    {
-        "name": "K/Q-high",
-        "count": 56,
-        "members": ["K/Qx dis", "K/Qx con"],
-        "short": "K/Qx",
-        "definition": "Top card K/Q, excluding BBx",
-    },
-    {
-        "name": "Middle dry",
-        "count": 67,
-        "members": ["[J-8]x dis"],
-        "short": "[J-8]x dis",
-        "definition": "Top card J/T/9/8; lower two ranks are not adjacent",
-    },
-    {
-        "name": "Middle connected",
-        "count": 26,
-        "members": ["[J-8]x con"],
-        "short": "[J-8]x con",
-        "definition": "Top card J/T/9/8; lower two ranks are adjacent; includes JT9",
-    },
-    {
-        "name": "Low",
-        "count": 20,
-        "members": ["[7-4]x"],
-        "short": "[7-4]x",
-        "definition": "Top card 7 or lower",
-    },
+    {"name": "ABB", "count": 6, "members": ["ABB"], "definition": "A with two broadway cards"},
+    {"name": "A[K/Q]x", "count": 16, "members": ["A[K/Q]x"], "definition": "A with K/Q and a card 9 or lower"},
+    {"name": "A[J-T]x", "count": 16, "members": ["A[J-T][9-5]", "A[J-T][4-2]"], "definition": "A with J/T"},
+    {"name": "A[9-2]x", "count": 28, "members": ["A[9-7]x", "A[6-2]x"], "definition": "A with a middle card 9 or lower"},
+    {"name": "BBB", "count": 4, "members": ["BBB"], "definition": "No A; three broadway cards"},
+    {"name": "BBx", "count": 47, "members": ["BBx"], "definition": "No A; two broadway cards and a card 9 or lower"},
+    {"name": "K/Qx", "count": 56, "members": ["K/Qx dis", "K/Qx con"], "definition": "Top card K/Q, excluding BBx"},
+    {"name": "[J-8]x dis", "count": 67, "members": ["[J-8]x dis"], "definition": "Top card J/T/9/8; lower two ranks are not adjacent"},
+    {"name": "[J-8]x con", "count": 26, "members": ["[J-8]x con"], "definition": "Top card J/T/9/8; lower two ranks are adjacent; includes JT9"},
+    {"name": "[7-4]x", "count": 20, "members": ["[7-4]x"], "definition": "Top card 7 or lower"},
 ]
 
 GROUP_BY_B13 = {
@@ -106,21 +60,21 @@ GROUP_BY_B13 = {
 def remap_hand(row: dict) -> dict:
     """Map strict base/direct/BDFD data to the accepted 12 learnable rows.
 
-    Made hands always keep their base.  Unmade hands use direct draw strength
-    before overcards/BDFD: OESD, then Gutshot, then exactly two overcards with
-    a BDFD, otherwise Air.
+    Direct straight draws take priority over every made-hand base: OESD, then
+    Gutshot.  Without a direct draw, made hands keep their base; the remaining
+    unmade hands become exactly two overcards with BDFD or Air.
     """
     mapped = dict(row)
     base = row["base"]
-    if base in {
+    if row["direct"] == "OESD":
+        label = "OESD"
+    elif row["direct"] == "Gutshot":
+        label = "Gutshot"
+    elif base in {
         "Two pair+", "Overpair", "Top pair", "Second pair", "Third pair",
         "Underpair", "Weak pair", "Low pocket pair",
     }:
         label = base
-    elif row["direct"] == "OESD":
-        label = "OESD"
-    elif row["direct"] == "Gutshot":
-        label = "Gutshot"
     elif base == "2 overcards" and row["bdfd"]:
         label = "2 overcards + BDFD"
     elif base in {"2 overcards", "A-high", "Air"}:
@@ -133,48 +87,113 @@ def remap_hand(row: dict) -> dict:
 
 def aggregate(rows: list[dict], meta: dict, flop_categories: list[str],
               flop_category_for_board) -> dict:
-    """Build cells from raw solver frequencies without reverse-engineering policies.
+    """Aggregate cells and optionally encode fold/call dependence on BDFD.
 
-    Stage 1 is an equal mean across active concrete combos on one board and one
-    displayed hand row.  Stage 2 is an equal mean across actual boards in the
-    displayed flop category.  reach_probability is only a support filter here.
+    Policy frequencies use equal combo means per board followed by equal board
+    means per displayed flop category. Reach is only a support filter for
+    policy selection and is used as the weight for the EV safety audit.
     """
     actions = meta["actions"]
     active = [row for row in rows if row["reach"] > 0]
 
     board_hand = defaultdict(lambda: {"count": 0, "sums": defaultdict(float)})
+    board_hand_bdfd = defaultdict(lambda: {"count": 0, "sums": defaultdict(float)})
     for row in active:
         key = (row["board"], row["hand_category"])
-        board_hand[key]["count"] += 1
-        for action in actions:
-            board_hand[key]["sums"][action] += row["freqs"][action]
+        split_key = (row["board"], row["hand_category"], row["bdfd"])
+        for target in (board_hand[key], board_hand_bdfd[split_key]):
+            target["count"] += 1
+            for action in actions:
+                target["sums"][action] += row["freqs"][action]
 
-    cells = defaultdict(lambda: {"boards": 0, "sums": defaultdict(float)})
-    for (board, hand), item in board_hand.items():
-        flop_category = flop_category_for_board(board)
-        cell = cells[(flop_category, hand)]
-        cell["boards"] += 1
-        for action in actions:
-            cell["sums"][action] += item["sums"][action] / item["count"]
+    def collapse(source, split: bool):
+        result = defaultdict(lambda: {"boards": 0, "sums": defaultdict(float)})
+        for key, item in source.items():
+            board, hand = key[:2]
+            suffix = key[2:] if split else ()
+            cell = result[(flop_category_for_board(board), hand, *suffix)]
+            cell["boards"] += 1
+            for action in actions:
+                cell["sums"][action] += item["sums"][action] / item["count"]
+        return result
 
-    policies: dict[tuple[str, str], tuple[str, dict[str, float]]] = {}
+    cells = collapse(board_hand, False)
+    split_cells = collapse(board_hand_bdfd, True)
+    policies = {}
     details = []
+    bdfd_candidates = set()
+
     for (flop_category, hand), item in cells.items():
+        key = (flop_category, hand)
         means = {action: item["sums"][action] / item["boards"] for action in actions}
         policy, probs = analysis.choose_policy(means, actions)
-        policies[(flop_category, hand)] = (policy, probs)
-        details.append({
+        detail = {
             "flop_category": flop_category,
             "hand_category": hand,
             "boards_present": item["boards"],
             **{f"mean_{action}_frequency": means[action] for action in actions},
             "policy": analysis.display_policy(policy, meta["labels"]),
+            "bdfd_rule": False,
+            "bdfd_boards_present": 0,
+            "no_bdfd_boards_present": 0,
+            "bdfd_mean_continue_frequency": "",
+            "no_bdfd_mean_fold_frequency": "",
             "active_combos": 0,
             "reach_sum": 0.0,
             "weighted_loss_native": 0.0,
             "max_combo_loss_native": 0.0,
-        })
+        }
+        policies[key] = {"default": probs, "bdfd_rule": False}
+
+        if "fold" in actions and "call" in actions:
+            with_draw = split_cells.get((flop_category, hand, True))
+            without_draw = split_cells.get((flop_category, hand, False))
+            if with_draw and without_draw:
+                bdfd_means = {
+                    action: with_draw["sums"][action] / with_draw["boards"]
+                    for action in actions
+                }
+                no_bdfd_means = {
+                    action: without_draw["sums"][action] / without_draw["boards"]
+                    for action in actions
+                }
+                bdfd_continue = sum(
+                    bdfd_means[action] for action in actions if action != "fold"
+                )
+                detail["bdfd_boards_present"] = with_draw["boards"]
+                detail["no_bdfd_boards_present"] = without_draw["boards"]
+                detail["bdfd_mean_continue_frequency"] = bdfd_continue
+                detail["no_bdfd_mean_fold_frequency"] = no_bdfd_means["fold"]
+                if (
+                    bdfd_continue > analysis.PURE_THRESHOLD
+                    and no_bdfd_means["fold"] > analysis.PURE_THRESHOLD
+                ):
+                    bdfd_candidates.add(key)
+        details.append(detail)
+
     detail_by_key = {(d["flop_category"], d["hand_category"]): d for d in details}
+
+    # BDFD means fold without BDFD and call with BDFD. Keep the conditional
+    # rule only if it is no worse than the ordinary policy in the EV audit.
+    default_loss = defaultdict(float)
+    bdfd_loss = defaultdict(float)
+    for row in active:
+        key = (flop_category_for_board(row["board"]), row["hand_category"])
+        if key not in bdfd_candidates:
+            continue
+        default_probs = policies[key]["default"]
+        conditional_action = "call" if row["bdfd"] else "fold"
+        default_ev = sum(default_probs[action] * row["evs"][action] for action in actions)
+        default_loss[key] += row["reach"] * max(0.0, row["mixed_ev"] - default_ev)
+        bdfd_loss[key] += row["reach"] * max(
+            0.0, row["mixed_ev"] - row["evs"][conditional_action]
+        )
+
+    for key in bdfd_candidates:
+        if bdfd_loss[key] <= default_loss[key] + 1e-9:
+            policies[key]["bdfd_rule"] = True
+            detail_by_key[key]["bdfd_rule"] = True
+            detail_by_key[key]["policy"] = "BDFD"
 
     branch_reach = 0.0
     branch_loss = 0.0
@@ -182,7 +201,12 @@ def aggregate(rows: list[dict], meta: dict, flop_categories: list[str],
     simplified_weighted = defaultdict(float)
     for row in active:
         key = (flop_category_for_board(row["board"]), row["hand_category"])
-        _, probs = policies[key]
+        selected = policies[key]
+        if selected["bdfd_rule"]:
+            chosen = "call" if row["bdfd"] else "fold"
+            probs = {action: float(action == chosen) for action in actions}
+        else:
+            probs = selected["default"]
         simple_ev = sum(probs[action] * row["evs"][action] for action in actions)
         loss = max(0.0, row["mixed_ev"] - simple_ev)
         detail = detail_by_key[key]
@@ -221,11 +245,14 @@ def aggregate(rows: list[dict], meta: dict, flop_categories: list[str],
         "action_shape": meta["shape"],
         "threshold": analysis.PURE_THRESHOLD,
         "mix_rule": "strict 50/50 top two actions; more frequent action displayed first",
+        "bdfd_rule": "BDFD = fold without BDFD, call with BDFD; requires >65% fold/continue split and EV safety",
         "csv_rows": len(rows),
         "active_rows": len(active),
         "zero_reach_rows": len(rows) - len(active),
         "hand_categories": len(HAND_ORDER),
         "populated_cells": len(details),
+        "bdfd_cells": sum(d["bdfd_rule"] for d in details),
+        "bdfd_candidates_rejected_by_ev": len(bdfd_candidates) - sum(d["bdfd_rule"] for d in details),
         "reach_sum": branch_reach,
         "weighted_loss_native": branch_loss,
         "mean_local_loss_bb": branch_loss / branch_reach / analysis.EV_SCALE_PER_BB,
@@ -259,7 +286,6 @@ def write_model(
     branch_metas: dict,
     root_reach: float,
     flop_category_for_board,
-    baseline_loss: dict | None = None,
 ) -> dict:
     root.mkdir(parents=True, exist_ok=True)
     manifest = {
@@ -268,6 +294,11 @@ def write_model(
         "source": source,
         "pure_threshold": analysis.PURE_THRESHOLD,
         "mix_rule": "strict 50/50 top two actions; more frequent action displayed first",
+        "bdfd_rule": (
+            "BDFD means fold without BDFD and call with BDFD; no-BDFD fold and "
+            "BDFD continue must each exceed 65%, and the call-only continuation "
+            "must not add reach-weighted EV loss versus the ordinary cell policy"
+        ),
         "hand_categories": HAND_ORDER,
         "flop_categories": flop_categories,
         "branches": [],
@@ -281,11 +312,6 @@ def write_model(
         summary["root_loss_bb"] = (
             summary["weighted_loss_native"] / root_reach / analysis.EV_SCALE_PER_BB
         )
-        if baseline_loss is not None:
-            summary["incremental_root_loss_vs_B13_bb"] = (
-                summary["root_loss_bb"] - baseline_loss[branch]
-            )
-
         branch_root = root / branch
         write_csv(
             branch_root / "strategy.csv",
@@ -295,7 +321,11 @@ def write_model(
         detail_fields = [
             "flop_category", "hand_category", "boards_present", "active_combos", "reach_sum",
         ] + [f"mean_{action}_frequency" for action in meta["actions"]]
-        detail_fields += ["policy", "mean_local_loss_bb", "max_combo_loss_bb"]
+        detail_fields += [
+            "policy", "bdfd_rule", "bdfd_boards_present", "no_bdfd_boards_present",
+            "bdfd_mean_continue_frequency", "no_bdfd_mean_fold_frequency",
+            "mean_local_loss_bb", "max_combo_loss_bb",
+        ]
         write_csv(branch_root / "cell-details.csv", result["details"], detail_fields)
         (branch_root / "summary.json").write_text(
             json.dumps(summary, indent=2, ensure_ascii=False), encoding="utf-8"
@@ -327,7 +357,7 @@ def validate_board_partition() -> dict:
     group_counts = Counter(GROUP_BY_B13[analysis.flop_class(board)] for board in boards)
     expected = {group["name"]: group["count"] for group in FLOP_GROUPS}
     if dict(group_counts) != expected:
-        raise RuntimeError(f"Eight-group mismatch: {dict(group_counts)} != {expected}")
+        raise RuntimeError(f"Ten-group mismatch: {dict(group_counts)} != {expected}")
     return {"boards": len(boards), "b13_counts": b13_counts, "group_counts": group_counts}
 
 
@@ -380,34 +410,32 @@ def write_analysis_readme(root: Path, study: dict, study_directory: str) -> None
     text = f"""# {code} active strategy outputs
 
 This directory contains the reproducible machine-readable strategy, validation
-audits and the two human workbooks for `{study_directory}`.
+audits and one human workbook for `{study_directory}`.
 
-Human workbooks:
+Human workbook:
 
-- `{code}_simplified_flop_strategy.xlsx` — 12 hand rows by B13;
-- `{code}_strategy_8_categories.xlsx` — the same hand rows by eight broader
-  flop categories.
+- `{code}_flop_strategy.xlsx` — 12 hand rows by the final 10 flop categories.
 
 Machine-readable outputs:
 
-- `strategy-13/`;
-- `strategy-8/`;
+- `strategy-10/`;
 - `SOURCE_VALIDATION.json`;
 - `FINAL_VALIDATION.json`;
 - `FLOP_GROUPS.json`.
 
-Rebuild the numeric strategy directly from the tracked solver combo frequencies:
+Rebuild the numeric strategy directly from tracked solver combo frequencies:
 
 ```text
 python scripts/generate-flop-strategies.py {study_directory}
 ```
 
-Build the two workbooks with the approved colors and layout:
+Build the workbook with the approved colors and layout:
 
 ```text
 node scripts/build-flop-workbooks.mjs {study_directory}
 ```
 
+`BDFD` in a cell means fold without a backdoor flush draw and call with one.
 The full method and range provenance are in `docs/FLOP_STRATEGY_WORKFLOW.md`.
 Rejected horizontal smoothing experiments remain only in Git history.
 """
@@ -416,7 +444,7 @@ Rejected horizontal smoothing experiments remain only in Git history.
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Build B13 and eight-category human flop strategies from solver combos."
+        description="Build the final ten-category human flop strategy from solver combos."
     )
     parser.add_argument(
         "study",
@@ -483,8 +511,7 @@ def main() -> None:
     branch_metas = {branch["id"]: analysis.branch_meta(branch) for branch in branches}
     branch_runs, run_labels = resolve_branch_runs(dataset_root, branch_ids, args.run)
     final_root = dataset_root / "analysis"
-    narrow_root = final_root / "strategy-13"
-    wide_root = final_root / "strategy-8"
+    model_root = final_root / "strategy-10"
 
     partition = validate_board_partition()
     pocket_pair_partition = validate_pocket_pair_partition()
@@ -508,50 +535,47 @@ def main() -> None:
             if hashes[branch] != hashes[group[0]]:
                 raise RuntimeError(f"Combo support mismatch: {group[0]} vs {branch}")
 
-    source = (
-        "six tracked STU002 aggregate combo datasets"
-        if study["study_id"] == "STU002"
-        else f"{len(branch_ids)} tracked {study['study_id']} aggregate combo datasets"
-    )
+    source = f"{len(branch_ids)} tracked {study['study_id']} aggregate combo datasets"
     root_reach = sum(row["reach"] for row in loaded[branch_ids[0]] if row["reach"] > 0)
-    narrow = write_model(
-        narrow_root,
-        "12 hand categories x 13 B13 flop categories",
-        source,
-        analysis.B13,
-        loaded,
-        branch_metas,
-        root_reach,
-        analysis.flop_class,
-    )
-    narrow_loss = {
-        item["branch"]: item["summary"]["root_loss_bb"] for item in narrow["branches"]
-    }
-    wide = write_model(
-        wide_root,
-        "12 hand categories x 8 flop categories",
+    model = write_model(
+        model_root,
+        "12 hand categories x 10 final flop categories",
         source,
         [group["name"] for group in FLOP_GROUPS],
         loaded,
         branch_metas,
         root_reach,
         lambda board: GROUP_BY_B13[analysis.flop_class(board)],
-        baseline_loss=narrow_loss,
     )
+    branch_audit = {
+        item["branch"]: {
+            "populated_cells": item["summary"]["populated_cells"],
+            "bdfd_cells": item["summary"]["bdfd_cells"],
+            "bdfd_candidates_rejected_by_ev": item["summary"]["bdfd_candidates_rejected_by_ev"],
+            "root_loss_bb": item["summary"]["root_loss_bb"],
+        }
+        for item in model["branches"]
+    }
     audit = {
         "status": "PASS",
         "boards": partition["boards"],
         "b13_counts": {name: partition["b13_counts"][name] for name in analysis.B13},
-        "eight_group_counts": {
+        "ten_group_counts": {
             group["name"]: partition["group_counts"][group["name"]] for group in FLOP_GROUPS
         },
         "hand_rows": HAND_ORDER,
         "dataset_validation": validations,
         "source_combo_support_consistent": True,
         "pocket_pair_partition": pocket_pair_partition,
+        "branch_strategy_audit": branch_audit,
         "classification": (
             "Every source combo has exactly one base category, one direct-draw state, "
-            "one BDFD state, and exactly one displayed hand row."
+            "one BDFD state, and exactly one displayed hand row. Display priority is "
+            "OESD, Gutshot, made hand, two overcards plus BDFD, Air."
+        ),
+        "bdfd_cell_rule": (
+            "BDFD means fold without BDFD and call with BDFD. No-BDFD fold and "
+            "BDFD continue must each exceed 65%; then call-only continuation must pass the EV audit."
         ),
         "frequency_source": "raw solver combo action frequencies; never reverse-derived from labels",
     }
@@ -578,13 +602,13 @@ def main() -> None:
     print(json.dumps({
         "status": "PASS",
         "study": args.study,
-        "narrow": narrow_root.as_posix(),
-        "wide": wide_root.as_posix(),
-        "wide_mix_cells": sum(
+        "model": model_root.as_posix(),
+        "mix_cells": sum(
             sum(count for policy, count in item["summary"]["policy_cell_counts"].items() if "/" in policy)
-            for item in wide["branches"]
+            for item in model["branches"]
         ),
-        "wide_populated_cells": sum(item["summary"]["populated_cells"] for item in wide["branches"]),
+        "bdfd_cells": sum(item["summary"]["bdfd_cells"] for item in model["branches"]),
+        "populated_cells": sum(item["summary"]["populated_cells"] for item in model["branches"]),
     }, ensure_ascii=False))
 
 

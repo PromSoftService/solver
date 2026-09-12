@@ -22,72 +22,35 @@ const analysisRoot = path.join(repo, "datasets", study, "analysis");
 
 const outputs = [
   {
-    key: "strategy-13",
-    filename: `${studyCode}_simplified_flop_strategy.xlsx`,
-    subtitle: "12 категорий рук × 13 узких категорий флопов B13. Чистое действие или строгий микс 50/50.",
+    key: "strategy-10",
+    filename: `${studyCode}_flop_strategy.xlsx`,
+    subtitle: "12 категорий рук × 10 итоговых категорий флопов. Чистое действие, строгий микс 50/50 или BDFD.",
     flopHeaders: [
-      "ABB (6)", "A[K/Q]x (16)", "A[J-T][9-5] (10)", "A[J-T][4-2] (6)",
-      "A[9-7]x (18)", "A[6-2]x (10)", "BBB (4)", "BBx (47)",
-      "K/Qx dis (42)", "K/Qx con (14)", "[J-8]x dis (67)",
-      "[J-8]x con (26)", "[7-4]x (20)",
+      "ABB (6)", "A[K/Q]x (16)", "A[J-T]x (16)", "A[9-2]x (28)", "BBB (4)",
+      "BBx (47)", "K/Qx (56)", "[J-8]x dis (67)", "[J-8]x con (26)", "[7-4]x (20)",
     ],
     csvHeaders: [
-      "ABB", "A[K/Q]x", "A[J-T][9-5]", "A[J-T][4-2]", "A[9-7]x", "A[6-2]x",
-      "BBB", "BBx", "K/Qx dis", "K/Qx con", "[J-8]x dis", "[J-8]x con", "[7-4]x",
-    ],
-    explanations: [
-      "A + 2×B", "A + K/Q + ≤9", "A + J/T + 9…5", "A + J/T + 4…2",
-      "A + 9/8/7 + x", "A + 6…2 + x", "3×B без A", "2×B + ≤9",
-      "K/Q; low gap >1", "K/Q; low gap =1", "J…8; low gap >1",
-      "J…8; low gap =1", "top ≤7",
-    ],
-    dividerAfter: [2, 4, 6, 8, 10, 11, 12, 13],
-    methodFlops: "286 canonical unpaired rainbow flops, B13: 13 взаимоисключающих категорий",
-    methodCategory: "B13 — итоговые категории этой таблицы",
-    categoryRows: [
-      ["ABB", "A + две broadway-карты", 6, "B = T/J/Q/K; A отдельно"],
-      ["A[K/Q]x", "A + K/Q + карта 9 и ниже", 16, "ABB исключён"],
-      ["A[J-T][9-5]", "A + J/T + карта 9…5", 10, ""],
-      ["A[J-T][4-2]", "A + J/T + карта 4…2", 6, ""],
-      ["A[9-7]x", "A + 9/8/7 + более низкая", 18, ""],
-      ["A[6-2]x", "A + 6…3 + более низкая", 10, ""],
-      ["BBB", "Без A; три broadway-карты", 4, ""],
-      ["BBx", "Без A; две broadway + карта ≤9", 47, "JT9 исключён"],
-      ["K/Qx dis", "Старшая K/Q; lower gap >1", 42, "Не BBx"],
-      ["K/Qx con", "Старшая K/Q; lower gap =1", 14, "Не BBx"],
-      ["[J-8]x dis", "Старшая J/T/9/8; lower gap >1", 67, ""],
-      ["[J-8]x con", "Старшая J/T/9/8; lower gap =1", 26, "Включает JT9"],
-      ["[7-4]x", "Старшая карта 7 или ниже", 20, ""],
-    ],
-  },
-  {
-    key: "strategy-8",
-    filename: `${studyCode}_strategy_8_categories.xlsx`,
-    subtitle: "12 категорий рук × 8 категорий флопов. Чистое действие или строгий микс 50/50.",
-    flopHeaders: [
-      "A-high high (22)", "A-high medium (16)", "A-high low (28)", "Broadway (51)",
-      "K/Q-high (56)", "Middle dry (67)", "Middle connected (26)", "Low (20)",
-    ],
-    csvHeaders: [
-      "A-high high", "A-high medium", "A-high low", "Broadway", "K/Q-high",
-      "Middle dry", "Middle connected", "Low",
-    ],
-    explanations: [
-      "ABB A[K/Q]x", "A[J-T]x", "A[9-2]x", "BBB BBx", "K/Qx",
+      "ABB", "A[K/Q]x", "A[J-T]x", "A[9-2]x", "BBB", "BBx", "K/Qx",
       "[J-8]x dis", "[J-8]x con", "[7-4]x",
     ],
-    dividerAfter: [3, 4, 5, 6, 7, 8],
-    methodFlops: "286 canonical unpaired rainbow flops, 8 итоговых категорий",
-    methodCategory: "Восемь групп — итоговые категории; B13 только детерминированно задаёт их состав",
+    explanations: [
+      "A + 2×B", "A + K/Q + ≤9", "A + J/T", "A + 9…2", "3×B без A",
+      "2×B + ≤9", "K/Q high", "J…8 dry", "J…8 connected", "top ≤7",
+    ],
+    dividerAfter: [2, 4, 6, 7, 8, 9, 10],
+    methodFlops: "286 canonical unpaired rainbow flops, 10 итоговых взаимоисключающих категорий",
+    methodCategory: "10 итоговых категорий; B13 используется только для однозначного разбиения",
     categoryRows: [
-      ["A-high high", "ABB (6) + A[K/Q]x (16)", 22, "A с двумя broadway или с K/Q и младшей картой"],
-      ["A-high medium", "A[J-T][9-5] (10) + A[J-T][4-2] (6)", 16, "A с J/T"],
-      ["A-high low", "A[9-7]x (18) + A[6-2]x (10)", 28, "A со средней картой 9 или ниже"],
-      ["Broadway", "BBB (4) + BBx (47)", 51, "Без A; минимум две broadway-карты"],
-      ["K/Q-high", "K/Qx dis (42) + K/Qx con (14)", 56, "Старшая K/Q, но не BBx"],
-      ["Middle dry", "[J-8]x dis (67)", 67, "Старшая J/T/9/8; две младшие не соседние"],
-      ["Middle connected", "[J-8]x con (26)", 26, "Старшая J/T/9/8; две младшие соседние; включает JT9"],
-      ["Low", "[7-4]x (20)", 20, "Старшая карта 7 или ниже"],
+      ["ABB", "ABB", 6, "A + две broadway-карты"],
+      ["A[K/Q]x", "A[K/Q]x", 16, "A + K/Q + карта 9 и ниже"],
+      ["A[J-T]x", "A[J-T][9-5] + A[J-T][4-2]", 16, "A с J/T"],
+      ["A[9-2]x", "A[9-7]x + A[6-2]x", 28, "A со средней картой 9 или ниже"],
+      ["BBB", "BBB", 4, "Без A; три broadway-карты"],
+      ["BBx", "BBx", 47, "Без A; две broadway + карта 9 и ниже; JT9 исключён"],
+      ["K/Qx", "K/Qx dis + K/Qx con", 56, "Старшая K/Q, но не BBx"],
+      ["[J-8]x dis", "[J-8]x dis", 67, "Старшая J/T/9/8; две младшие не соседние"],
+      ["[J-8]x con", "[J-8]x con", 26, "Старшая J/T/9/8; две младшие соседние; включает JT9"],
+      ["[7-4]x", "[7-4]x", 20, "Старшая карта 7 или ниже"],
     ],
   },
 ];
@@ -177,7 +140,8 @@ function branchRule(labels) {
     const names = { check: "check", donk: "donk", bet: "bet", fold: "fold", call: "call", raise: "raise" };
     return `${code} = ${names[action]}`;
   }).join(", ");
-  return `${explanation}. Код через / — ровно 50/50. Bet и donk = 50% банка.`;
+  const bdfd = labels.fold && labels.call ? " BDFD = fold без BDFD, call с BDFD." : "";
+  return `${explanation}. Код через / — ровно 50/50.${bdfd} Bet и donk = 50% банка.`;
 }
 
 function styleBase(sheet, lastCol, lastRow) {
@@ -197,7 +161,7 @@ function styleActionCell(cell, value) {
   else if (value === "B") fill = colors.b;
   else if (value === "D") fill = colors.d;
   else if (value === "F") fill = colors.f;
-  else if (value === "C") fill = colors.c;
+  else if (value === "C" || value === "BDFD") fill = colors.c;
   else if (value === "R") fill = colors.r;
   cell.format = {
     fill,
@@ -229,7 +193,7 @@ async function readModel(model) {
 function addSummary(workbook, model, loaded) {
   const sheet = workbook.worksheets.add("Summary");
   const lastCol = "J";
-  styleBase(sheet, lastCol, 22);
+  styleBase(sheet, lastCol, 23);
   sheet.mergeCells("A2:J2");
   sheet.mergeCells("A3:J3");
   sheet.getRange("A2").values = [[strategyTitle]];
@@ -246,7 +210,7 @@ function addSummary(workbook, model, loaded) {
   };
   const headers = [
     "Ситуация", "Игрок", "Reach узла", "Solver frequencies", "Стратегия",
-    "Loss в узле, bb", "Loss от root, bb", "Добавка к B13, bb",
+    "Loss в узле, bb", "Loss от root, bb", "BDFD ячеек",
     "Комбо reach > 0", "Ячеек",
   ];
   sheet.getRange("A5:J5").values = [headers];
@@ -264,8 +228,7 @@ function addSummary(workbook, model, loaded) {
       branch.title, branch.actor, s.node_reach_fraction,
       frequencyText(s.solver_reach_weighted_frequencies, info.labels),
       frequencyText(s.simplified_reach_weighted_frequencies, info.labels),
-      s.mean_local_loss_bb, s.root_loss_bb,
-      s.incremental_root_loss_vs_B13_bb ?? 0,
+      s.mean_local_loss_bb, s.root_loss_bb, s.bdfd_cells,
       s.active_rows, s.populated_cells,
     ];
   });
@@ -278,8 +241,8 @@ function addSummary(workbook, model, loaded) {
     wrapText: true,
   };
   sheet.getRange(`C6:C${lastBranchRow}`).format.numberFormat = "0.0%";
-  sheet.getRange(`F6:H${lastBranchRow}`).format.numberFormat = "0.000000";
-  sheet.getRange(`I6:J${lastBranchRow}`).format.numberFormat = "0";
+  sheet.getRange(`F6:G${lastBranchRow}`).format.numberFormat = "0.000000";
+  sheet.getRange(`H6:J${lastBranchRow}`).format.numberFormat = "0";
 
   sheet.getRange("A13:D13").values = [["Код", "Действие", "Цвет", "Правило"]];
   sheet.getRange("F13:J13").values = [["Категории флопов", null, null, null, null]];
@@ -294,33 +257,41 @@ function addSummary(workbook, model, loaded) {
     ["X", "Check", "синий", null], ["B", "Bet 50%", "зелёный", null],
     ["D", "Donk 50%", "оранжевый", null], ["F", "Fold", "красный", null],
     ["C", "Call", "голубой", null], ["R", "Raise", "фиолетовый", null],
+    ["BDFD", "Call только с BDFD", "голубой", "без BDFD — fold"],
     ["X/B, F/C и т. п.", "Два действия", "жёлтый", "строго 50/50"],
     ["—", "Нет категории", "серый", "в диапазоне/классе отсутствует"],
   ];
-  sheet.getRange("A14:D21").values = legend;
-  sheet.getRange("A14:D21").format = {
+  sheet.getRange("A14:D22").values = legend;
+  sheet.getRange("A14:D22").format = {
     fill: colors.background,
     font: { name: "Aptos", size: 10, color: colors.text },
     borders: { preset: "all", style: "thin", color: colors.borderLight },
   };
-  sheet.getRange("F14:J18").values = [
-    [model.methodCategory, null, null, null, null],
-    ["Каждый реальный флоп внутри итоговой категории получает одинаковый вес.", null, null, null, null],
-    ["12 категорий рук: 8 made, OESD, Gutshot, 2 overcards + BDFD и Air.", null, null, null, null],
-    ["Все значения через / означают только микс 50/50.", null, null, null, null],
-    ["EV используется для аудита потерь, но не выбирает действие.", null, null, null, null],
+  const notes = [
+    model.methodCategory,
+    "Каждый реальный флоп внутри итоговой категории получает одинаковый вес.",
+    "12 категорий рук; OESD и Gutshot имеют приоритет над made hand.",
+    "Все значения через / означают только микс 50/50.",
+    "EV аудирует потери; только для BDFD служит safety-фильтром.",
   ];
+  notes.forEach((note, index) => {
+    const row = 14 + index;
+    sheet.mergeCells(`F${row}:J${row}`);
+    sheet.getRange(`F${row}`).values = [[note]];
+  });
   sheet.getRange("F14:J18").format = {
     fill: colors.background,
     font: { name: "Aptos", size: 10, color: colors.text },
     wrapText: true,
   };
-  sheet.getRange("A1:A22").format.columnWidth = 27;
-  sheet.getRange("B1:B22").format.columnWidth = 11;
-  sheet.getRange("C1:C22").format.columnWidth = 12;
-  sheet.getRange("D1:E22").format.columnWidth = 23;
-  sheet.getRange("F1:H22").format.columnWidth = 16;
-  sheet.getRange("I1:J22").format.columnWidth = 13;
+  sheet.getRange("A14:D22").format.wrapText = true;
+  sheet.getRange("14:22").format.rowHeight = 26;
+  sheet.getRange("A1:A23").format.columnWidth = 27;
+  sheet.getRange("B1:B23").format.columnWidth = 11;
+  sheet.getRange("C1:C23").format.columnWidth = 12;
+  sheet.getRange("D1:E23").format.columnWidth = 23;
+  sheet.getRange("F1:H23").format.columnWidth = 16;
+  sheet.getRange("I1:J23").format.columnWidth = 13;
   sheet.getRange("5:5").format.rowHeight = 36;
   sheet.freezePanes.freezeRows(5);
 }
@@ -387,7 +358,7 @@ function addStrategySheet(workbook, model, branch, loaded) {
       bottom: { style: "medium", color: colors.divider },
     };
   }
-  // Visual separators between the agreed broader flop families on the B13 sheet.
+  // Visual separators between the agreed final flop families.
   for (const offset of model.dividerAfter) {
     const col = colName(1 + offset);
     sheet.getRange(`${col}5:${col}${lastDataRow}`).format.borders = {
@@ -396,7 +367,7 @@ function addStrategySheet(workbook, model, branch, loaded) {
   }
   sheet.getRange(`A1:A${lastDataRow}`).format.columnWidth = 23;
   for (let col = 2; col <= totalCols; col += 1) {
-    sheet.getRange(`${colName(col)}1:${colName(col)}${lastDataRow}`).format.columnWidth = model.key === "strategy-13" ? 12 : 16;
+    sheet.getRange(`${colName(col)}1:${colName(col)}${lastDataRow}`).format.columnWidth = 16;
   }
   sheet.getRange("5:5").format.rowHeight = 34;
   sheet.getRange("6:6").format.rowHeight = 30;
@@ -407,7 +378,7 @@ function addStrategySheet(workbook, model, branch, loaded) {
 
 function addMethod(workbook, model) {
   const sheet = workbook.worksheets.add("Method");
-  const lastRow = 20 + model.categoryRows.length;
+  const lastRow = 21 + model.categoryRows.length;
   styleBase(sheet, "D", lastRow);
   sheet.mergeCells("A2:D2");
   sheet.getRange("A2").values = [["Методика"]];
@@ -429,13 +400,14 @@ function addMethod(workbook, model) {
     ["Чистое действие", "Наибольшая средняя частота строго >65%"],
     ["Микс", "Иначе два наиболее частых действия, строго 50/50; первым указано более частое действие солвера"],
     ["Вес диапазона", "Combo с reach_probability >0 участвует независимо от величины reach"],
-    ["EV-аудит", "Reach-weighted local regret против solved opponent; не adaptive exploitability"],
-    ["Категории рук", "8 made-категорий; затем OESD; Gutshot; 2 overcards + BDFD; Air"],
+    ["EV-аудит", "Reach-weighted local regret против solved opponent; не adaptive exploitability. Обычное действие выбирают частоты; EV только отклоняет невыгодный BDFD-rule"],
+    ["Категории рук", "8 made-категорий, OESD, Gutshot, 2 overcards + BDFD и Air"],
     ["Карманные пары", "Underpair: между top и middle; Weak pair: между middle и low; Low pocket pair: ниже low"],
-    ["Приоритет неготовых", "OESD > Gutshot > 2 overcards + BDFD > Air; BDFD без двух оверкарт уходит в Air"],
+    ["Приоритет классификации", "OESD > Gutshot > made hand > 2 overcards + BDFD > Air"],
+    ["BDFD в ячейке", "Без BDFD fold >65%; с BDFD суммарный continue >65%, который упрощается до call; затем правило проходит EV safety audit"],
     ["Категории флопов", model.methodCategory],
-    ["Роль исходной B13", model.key === "strategy-8" ? "Только детерминированное описание состава новых групп" : "Итоговые столбцы стратегии"],
-    ["JT9", "Исходная B13 = [J-8]x con; в 8-групповой таблице = Middle connected"],
+    ["Роль исходной B13", "Только однозначное внутреннее разбиение 286 флопов на 10 итоговых групп"],
+    ["JT9", "Исходная B13 = [J-8]x con; итоговая категория = [J-8]x con"],
   ];
   const methodEnd = 4 + rows.length;
   sheet.getRange(`A5:B${methodEnd}`).values = rows;
@@ -465,7 +437,8 @@ function addMethod(workbook, model) {
   sheet.getRange(`B1:B${lastRow}`).format.columnWidth = 52;
   sheet.getRange(`C1:C${lastRow}`).format.columnWidth = 12;
   sheet.getRange(`D1:D${lastRow}`).format.columnWidth = 54;
-  sheet.getRange(`5:${lastRow}`).format.rowHeight = 27;
+  sheet.getRange("5:18").format.rowHeight = 42;
+  sheet.getRange(`22:${lastRow}`).format.rowHeight = 30;
 }
 
 async function build(model) {

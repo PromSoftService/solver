@@ -1,0 +1,41 @@
+{
+  "branch": "03_BTN_AFTER_CBET",
+  "acting_player": "BTN",
+  "action_shape": "FOLD_CALL_RAISE",
+  "threshold": 0.65,
+  "mix_rule": "strict 50/50 top two actions; more frequent action displayed first",
+  "bdfd_rule": "BDFD = fold without BDFD, call with BDFD; requires >65% fold/continue split and EV safety",
+  "csv_rows": 61270,
+  "active_rows": 61270,
+  "zero_reach_rows": 0,
+  "hand_categories": 12,
+  "populated_cells": 100,
+  "bdfd_cells": 3,
+  "bdfd_candidates_rejected_by_ev": 0,
+  "reach_sum": 1159757.2245360112,
+  "weighted_loss_native": 205134.23257313107,
+  "mean_local_loss_bb": 0.017687687408474644,
+  "solver_reach_weighted_frequencies": {
+    "fold": 0.34838489403501594,
+    "call": 0.524339513024831,
+    "raise": 0.12727559372338884
+  },
+  "simplified_reach_weighted_frequencies": {
+    "fold": 0.3669093417048928,
+    "call": 0.5637723493738919,
+    "raise": 0.06931830892121627
+  },
+  "policy_cell_counts": {
+    "F": 16,
+    "C": 37,
+    "BDFD": 3,
+    "R/C": 12,
+    "C/R": 19,
+    "F/C": 7,
+    "C/F": 4,
+    "F/R": 1,
+    "R": 1
+  },
+  "node_reach_fraction": 0.21810580720114606,
+  "root_loss_bb": 0.00385778733974691
+}

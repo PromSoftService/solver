@@ -1,0 +1,42 @@
+{
+  "branch": "05_UTG_AFTER_DONK",
+  "acting_player": "UTG",
+  "action_shape": "FOLD_CALL_RAISE",
+  "threshold": 0.65,
+  "mix_rule": "strict 50/50 top two actions; more frequent action displayed first",
+  "bdfd_rule": "BDFD = fold without BDFD, call with BDFD; requires >65% fold/continue split and EV safety",
+  "csv_rows": 80553,
+  "active_rows": 80553,
+  "zero_reach_rows": 0,
+  "hand_categories": 12,
+  "populated_cells": 103,
+  "bdfd_cells": 4,
+  "bdfd_candidates_rejected_by_ev": 0,
+  "reach_sum": 845197.8969849964,
+  "weighted_loss_native": 109051.57954813546,
+  "mean_local_loss_bb": 0.01290249064002005,
+  "solver_reach_weighted_frequencies": {
+    "fold": 0.28043412654921046,
+    "call": 0.590275828368219,
+    "raise": 0.12929004818488346
+  },
+  "simplified_reach_weighted_frequencies": {
+    "fold": 0.3834712531558194,
+    "call": 0.5433401484683924,
+    "raise": 0.07318859837579311
+  },
+  "policy_cell_counts": {
+    "F": 12,
+    "R/C": 18,
+    "F/C": 4,
+    "F/R": 2,
+    "R": 12,
+    "C/R": 12,
+    "C/F": 6,
+    "C": 32,
+    "BDFD": 4,
+    "R/F": 1
+  },
+  "node_reach_fraction": 0.06376814359634854,
+  "root_loss_bb": 0.0008227678758833415
+}

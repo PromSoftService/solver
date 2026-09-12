@@ -1,79 +1,85 @@
 [
   {
-    "name": "A-high high",
-    "count": 22,
+    "name": "ABB",
+    "count": 6,
     "members": [
-      "ABB",
-      "A[K/Q]x"
+      "ABB"
     ],
-    "short": "ABB A[K/Q]x",
-    "definition": "A with two broadway cards, or A with K/Q and a lower card"
+    "definition": "A with two broadway cards"
   },
   {
-    "name": "A-high medium",
+    "name": "A[K/Q]x",
+    "count": 16,
+    "members": [
+      "A[K/Q]x"
+    ],
+    "definition": "A with K/Q and a card 9 or lower"
+  },
+  {
+    "name": "A[J-T]x",
     "count": 16,
     "members": [
       "A[J-T][9-5]",
       "A[J-T][4-2]"
     ],
-    "short": "A[J-T]x",
     "definition": "A with J/T"
   },
   {
-    "name": "A-high low",
+    "name": "A[9-2]x",
     "count": 28,
     "members": [
       "A[9-7]x",
       "A[6-2]x"
     ],
-    "short": "A[9-2]x",
-    "definition": "A with a middle card of 9 or lower"
+    "definition": "A with a middle card 9 or lower"
   },
   {
-    "name": "Broadway",
-    "count": 51,
+    "name": "BBB",
+    "count": 4,
     "members": [
-      "BBB",
+      "BBB"
+    ],
+    "definition": "No A; three broadway cards"
+  },
+  {
+    "name": "BBx",
+    "count": 47,
+    "members": [
       "BBx"
     ],
-    "short": "BBB BBx",
-    "definition": "No A; at least two broadway cards"
+    "definition": "No A; two broadway cards and a card 9 or lower"
   },
   {
-    "name": "K/Q-high",
+    "name": "K/Qx",
     "count": 56,
     "members": [
       "K/Qx dis",
       "K/Qx con"
     ],
-    "short": "K/Qx",
     "definition": "Top card K/Q, excluding BBx"
   },
   {
-    "name": "Middle dry",
+    "name": "[J-8]x dis",
     "count": 67,
     "members": [
       "[J-8]x dis"
     ],
-    "short": "[J-8]x dis",
     "definition": "Top card J/T/9/8; lower two ranks are not adjacent"
   },
   {
-    "name": "Middle connected",
+    "name": "[J-8]x con",
     "count": 26,
     "members": [
       "[J-8]x con"
     ],
-    "short": "[J-8]x con",
     "definition": "Top card J/T/9/8; lower two ranks are adjacent; includes JT9"
   },
   {
-    "name": "Low",
+    "name": "[7-4]x",
     "count": 20,
     "members": [
       "[7-4]x"
     ],
-    "short": "[7-4]x",
     "definition": "Top card 7 or lower"
   }
 ]

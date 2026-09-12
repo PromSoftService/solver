@@ -190,5 +190,22 @@ bands. It was split without another GPU solve. `Weak pair` now means a pocket
 pair strictly between the middle and low flop ranks; `Low pocket pair` means a
 pocket pair below the low flop rank. `Underpair` remains strictly between the
 top and middle ranks. Pocket pairs matching a board rank remain `Two pair+`
-because they make a set. The B13 and eight-category workbooks now have 12 hand
-rows and are rebuilt directly from the original tracked combo frequencies.
+because they make a set. At that stage the B13 and eight-category workbooks had
+12 hand rows and were rebuilt directly from the original tracked combo
+frequencies.
+
+## 14. Final ten-category strategy consolidation
+
+The two intermediate category layouts were replaced by one final ten-category
+table per study, rebuilt directly from the same tracked solver combo
+frequencies. The universal generator now gives OESD priority over Gutshot,
+Gutshot priority over made hands, and made hands priority over two overcards
+plus BDFD and Air. Thus pair-plus-draw hands live in their direct-draw row.
+
+A conditional `BDFD` cell means fold without BDFD and call with BDFD. It is
+allowed only when no-BDFD fold and BDFD total continuation each exceed 65%,
+and when the call-only conditional policy does not add reach-weighted EV loss
+versus the ordinary cell policy. STU002 and STU004 now publish only
+`strategy-10` and one `<STU>_flop_strategy.xlsx` workbook; the superseded
+B13/eight-category outputs and STU002-specific duplicate generators were
+removed from active `main`.

@@ -23,9 +23,10 @@ Keep source inputs and reusable examples in Git. Generated `output/` and `_diagn
 
 ## Human flop-strategy standard
 
-Every completed production study publishes exactly two workbooks: the B13
-table and the eight-flop-category table. Both use the same 12 displayed hand
-rows and are rebuilt directly from tracked solver combo frequencies. Do not
+Every completed production study publishes exactly one workbook: 12 displayed
+hand rows by the final ten flop categories. It is rebuilt directly from tracked
+solver combo frequencies. OESD and Gutshot take priority over made hands.
+`BDFD` in a response cell means fold without BDFD and call with BDFD. Do not
 infer frequencies from displayed action labels and do not restore discarded
 row-smoothing experiments. Read `docs/FLOP_STRATEGY_WORKFLOW.md` before
 changing classification, aggregation, thresholds, or workbooks.

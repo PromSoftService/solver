@@ -16,15 +16,17 @@
     "[J-8]x con": 26,
     "[7-4]x": 20
   },
-  "eight_group_counts": {
-    "A-high high": 22,
-    "A-high medium": 16,
-    "A-high low": 28,
-    "Broadway": 51,
-    "K/Q-high": 56,
-    "Middle dry": 67,
-    "Middle connected": 26,
-    "Low": 20
+  "ten_group_counts": {
+    "ABB": 6,
+    "A[K/Q]x": 16,
+    "A[J-T]x": 16,
+    "A[9-2]x": 28,
+    "BBB": 4,
+    "BBx": 47,
+    "K/Qx": 56,
+    "[J-8]x dis": 67,
+    "[J-8]x con": 26,
+    "[7-4]x": 20
   },
   "hand_rows": [
     "Two pair+",
@@ -130,6 +132,33 @@
       "Overpair": 4290
     }
   },
-  "classification": "Every source combo has exactly one base category, one direct-draw state, one BDFD state, and exactly one displayed hand row.",
+  "branch_strategy_audit": {
+    "01_UTG_FIRST": {
+      "populated_cells": 103,
+      "bdfd_cells": 0,
+      "bdfd_candidates_rejected_by_ev": 0,
+      "root_loss_bb": 0.0017496067067543405
+    },
+    "02_BTN_AFTER_CHECK": {
+      "populated_cells": 100,
+      "bdfd_cells": 0,
+      "bdfd_candidates_rejected_by_ev": 0,
+      "root_loss_bb": 0.0016921277161567813
+    },
+    "03_BTN_AFTER_CBET": {
+      "populated_cells": 100,
+      "bdfd_cells": 3,
+      "bdfd_candidates_rejected_by_ev": 0,
+      "root_loss_bb": 0.00385778733974691
+    },
+    "04_UTG_AFTER_STAB": {
+      "populated_cells": 103,
+      "bdfd_cells": 2,
+      "bdfd_candidates_rejected_by_ev": 0,
+      "root_loss_bb": 0.006022653107118639
+    }
+  },
+  "classification": "Every source combo has exactly one base category, one direct-draw state, one BDFD state, and exactly one displayed hand row. Display priority is OESD, Gutshot, made hand, two overcards plus BDFD, Air.",
+  "bdfd_cell_rule": "BDFD means fold without BDFD and call with BDFD. No-BDFD fold and BDFD continue must each exceed 65%; then call-only continuation must pass the EV audit.",
   "frequency_source": "raw solver combo action frequencies; never reverse-derived from labels"
 }

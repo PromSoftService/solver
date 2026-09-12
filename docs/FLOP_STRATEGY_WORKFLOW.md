@@ -16,12 +16,11 @@ exports and analyzes one configured flop decision only. Turn and river remain
 in the tree so flop EVs have a valid continuation; they are not current study
 outputs.
 
-Every completed study publishes two workbooks:
+Every completed study publishes one workbook:
 
-1. `<STU>_simplified_flop_strategy.xlsx`: 12 hand rows by 13 B13 categories;
-2. `<STU>_strategy_8_categories.xlsx`: the same rows by eight broad categories.
+- `<STU>_flop_strategy.xlsx`: 12 hand rows by 10 final flop categories.
 
-Every cell is one pure action or an exact 50/50 mix.
+Every cell is one pure action, an exact 50/50 mix, `BDFD`, or `—`.
 
 ## 2. Range provenance
 
@@ -94,8 +93,8 @@ A branch is complete only when it has:
   `solver.export.currentStreet` per board;
 - zero forbidden full-tree calls.
 
-Once compact evidence is complete, rebuilding either strategy table requires
-no new GPU solve.
+Once compact evidence is complete, rebuilding the final strategy table
+requires no new GPU solve.
 
 ## 5. Flop categories
 
@@ -121,20 +120,23 @@ exclusive and exhaustive:
 `B` means T/J/Q/K; ace is separate. For `con`, the two lower ranks are
 adjacent. `JT9` belongs to `[J-8]x con`, not BBx.
 
-| Final group | B13 members | Count |
+| Final category | B13 members | Count |
 |---|---|---:|
-| A-high high | ABB + A[K/Q]x | 22 |
-| A-high medium | A[J-T][9-5] + A[J-T][4-2] | 16 |
-| A-high low | A[9-7]x + A[6-2]x | 28 |
-| Broadway | BBB + BBx | 51 |
-| K/Q-high | K/Qx dis + K/Qx con | 56 |
-| Middle dry | [J-8]x dis | 67 |
-| Middle connected | [J-8]x con | 26 |
-| Low | [7-4]x | 20 |
+| ABB | ABB | 6 |
+| A[K/Q]x | A[K/Q]x | 16 |
+| A[J-T]x | A[J-T][9-5] + A[J-T][4-2] | 16 |
+| A[9-2]x | A[9-7]x + A[6-2]x | 28 |
+| BBB | BBB | 4 |
+| BBx | BBx | 47 |
+| K/Qx | K/Qx dis + K/Qx con | 56 |
+| [J-8]x dis | [J-8]x dis | 67 |
+| [J-8]x con | [J-8]x con | 26 |
+| [7-4]x | [7-4]x | 20 |
 
-The broad table is recomputed from real board/combo frequencies. It never
+The final table is recomputed from real board/combo frequencies. It never
 averages B13 means or votes on B13 labels; each real board has equal influence
-inside its broad group.
+inside its final category. B13 remains only the deterministic internal
+partition used to assign all 286 boards exactly once.
 
 ## 6. Strict hand classifier and displayed rows
 
@@ -164,10 +166,12 @@ The strict result is mapped to these 12 learnable rows, in display order:
 11. 2 overcards + BDFD
 12. Air
 
-Made-hand variants merge into their base regardless of draw modifiers. Every
-remaining unmade hand follows this priority: OESD; otherwise Gutshot;
-otherwise exactly two overcards plus BDFD; otherwise Air. Naked overcards,
-A-high, A-high plus BDFD, and Air plus BDFD therefore belong to Air.
+Every combo follows this display priority: OESD; otherwise Gutshot;
+otherwise its made-hand base; otherwise exactly two overcards plus BDFD;
+otherwise Air. Therefore a pair plus OESD is displayed as OESD, a pair plus
+Gutshot as Gutshot, and a pair without either direct draw remains in its made
+pair row. Naked overcards, A-high, A-high plus BDFD, and Air plus BDFD belong
+to Air.
 
 ## 7. From solver frequencies to one cell
 
@@ -189,14 +193,29 @@ For one branch, hand row, and target flop category:
    use the fixed native action order.
 6. If no combo is present for that range/node/category, display `—`.
 
-The B13 and broad tables run this independently from the same raw solver
-frequencies. Three-way and non-50/50 mixes are prohibited. The discussed
-three-percentage-point EV tie-break remains deferred.
+The final ten-category table runs this independently for every cell from the
+same raw solver frequencies. Three-way and non-50/50 mixes are prohibited.
+The discussed three-percentage-point EV tie-break remains deferred.
+
+For cells whose native actions include fold and call, a separate BDFD rule is
+tested using the same combo-then-board averaging:
+
+1. the no-BDFD subset must fold strictly more than 65%;
+2. the BDFD subset must continue (call plus any raise frequency) strictly more
+   than 65%;
+3. the candidate display policy is fold without BDFD and call with BDFD;
+4. the candidate is accepted only when its reach-weighted local EV loss is no
+   greater than the ordinary cell policy's loss.
+
+An accepted conditional cell is displayed as `BDFD`. The label deliberately
+means CALL with BDFD even when the solver's continuation subset contains some
+raise frequency.
 
 ## 8. EV audit
 
-EV does not choose the displayed action. After frequency selection, every
-concrete combo is audited against the solved opponent:
+EV does not choose an ordinary displayed action. It is used only as the
+safety veto for a candidate `BDFD` conditional policy. After frequency
+selection, every concrete combo is audited against the solved opponent:
 
 ```text
 local_regret = max(0, solver_mixed_ev - simplified_policy_ev)
@@ -206,7 +225,7 @@ Loss aggregates are weighted by `reach_probability`; native EV is divided by
 ten to report big blinds. This is reach-weighted local regret, not adaptive
 exploitability against an opponent who re-solves after seeing the policy.
 
-## 9. Rebuilding the two outputs
+## 9. Rebuilding the final output
 
 From repository root:
 
@@ -226,10 +245,10 @@ node scripts/build-flop-workbooks.mjs STU004__RNG002_UTG-vs-BTN__BRD001_FLOP4
 ```
 
 The numeric generator validates inputs, board partitions, player support, and
-classification, then writes `strategy-13`, `strategy-8`, and final validation
-artifacts. The workbook builder writes both `.xlsx` files with the approved
-action colors. Both workbooks must be recalculated, scanned for formula errors,
-rendered, and visually checked after regeneration.
+classification, then writes `strategy-10` and final validation artifacts. The
+workbook builder writes the single `.xlsx` file with the approved action
+colors; `BDFD` uses the call-family blue. The workbook must be recalculated,
+scanned for formula errors, rendered, and visually checked after regeneration.
 
 ## 10. Non-goals
 

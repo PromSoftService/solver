@@ -112,15 +112,20 @@ jobs:
             $strategyRoot = "datasets/$studyId/analysis"
             $shortId = $studyId.Split('__')[0]
             foreach ($required in @(
-              "$strategyRoot/${shortId}_simplified_flop_strategy.xlsx",
-              "$strategyRoot/${shortId}_strategy_8_categories.xlsx",
-              "$strategyRoot/strategy-13/manifest.json",
-              "$strategyRoot/strategy-8/manifest.json"
+              "$strategyRoot/${shortId}_flop_strategy.xlsx",
+              "$strategyRoot/strategy-10/manifest.json"
             )) {
               if (-not (Test-Path $required -PathType Leaf)) { throw "Missing strategy standard file: $required" }
             }
-            foreach ($obsolete in @('clustered-13-smooth-v2','layered-smooth-12')) {
-              if (Test-Path "$strategyRoot/$obsolete") { throw "Rejected smoothing output is active: $obsolete" }
+            foreach ($obsolete in @(
+              'clustered-13-smooth-v2',
+              'layered-smooth-12',
+              'strategy-13',
+              'strategy-8',
+              "${shortId}_simplified_flop_strategy.xlsx",
+              "${shortId}_strategy_8_categories.xlsx"
+            )) {
+              if (Test-Path "$strategyRoot/$obsolete") { throw "Obsolete strategy output is active: $obsolete" }
             }
           }
           foreach ($required in @('docs/FLOP_STRATEGY_WORKFLOW.md','scripts/flop_strategy.py','scripts/generate-flop-strategies.py','scripts/build-flop-workbooks.mjs')) {

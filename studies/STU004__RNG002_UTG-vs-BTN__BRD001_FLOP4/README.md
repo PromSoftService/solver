@@ -44,5 +44,6 @@ python scripts/generate-flop-strategies.py STU004__RNG002_UTG-vs-BTN__BRD001_FLO
 node scripts/build-flop-workbooks.mjs STU004__RNG002_UTG-vs-BTN__BRD001_FLOP4
 ```
 
-This produces both approved tables from source solver combo frequencies. See
-`docs/FLOP_STRATEGY_WORKFLOW.md` for the fixed algorithm.
+This produces the final ten-category policy and its single approved workbook
+from source solver combo frequencies. See `docs/FLOP_STRATEGY_WORKFLOW.md` for
+the fixed algorithm.

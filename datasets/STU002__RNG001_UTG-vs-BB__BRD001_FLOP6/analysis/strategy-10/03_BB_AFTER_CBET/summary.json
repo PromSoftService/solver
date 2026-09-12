@@ -1,0 +1,40 @@
+{
+  "branch": "03_BB_AFTER_CBET",
+  "acting_player": "BB",
+  "action_shape": "FOLD_CALL_RAISE",
+  "threshold": 0.65,
+  "mix_rule": "strict 50/50 top two actions; more frequent action displayed first",
+  "bdfd_rule": "BDFD = fold without BDFD, call with BDFD; requires >65% fold/continue split and EV safety",
+  "csv_rows": 106381,
+  "active_rows": 106308,
+  "zero_reach_rows": 73,
+  "hand_categories": 12,
+  "populated_cells": 100,
+  "bdfd_cells": 3,
+  "bdfd_candidates_rejected_by_ev": 0,
+  "reach_sum": 6937656.57339394,
+  "weighted_loss_native": 1745428.1540959328,
+  "mean_local_loss_bb": 0.025158756932271438,
+  "solver_reach_weighted_frequencies": {
+    "fold": 0.478993331523032,
+    "call": 0.3909302086799,
+    "raise": 0.13007645935020065
+  },
+  "simplified_reach_weighted_frequencies": {
+    "fold": 0.5237470517368782,
+    "call": 0.3710712474369598,
+    "raise": 0.10518170082617916
+  },
+  "policy_cell_counts": {
+    "F": 28,
+    "C": 35,
+    "C/F": 7,
+    "R/C": 6,
+    "BDFD": 3,
+    "R": 14,
+    "C/R": 6,
+    "F/C": 1
+  },
+  "node_reach_fraction": 0.5234294621087887,
+  "root_loss_bb": 0.013168834608384597
+}

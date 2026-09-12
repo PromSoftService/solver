@@ -69,9 +69,9 @@ current-street export.
 the STU003 pilot: the same four selected UTG-vs-BTN flop decisions over all
 286 canonical BRD001 flops.
 
-STU002 and STU004 completed compact datasets each feed two approved
-human-strategy tables: 12 hand rows by B13 and the same rows by eight broader
-flop categories. The exact range provenance, classifiers, aggregation rule,
-EV audit and generic rebuild commands are fixed in
+STU002 and STU004 completed compact datasets each feed one approved
+human-strategy workbook: 12 hand rows by ten final flop categories. The exact
+range provenance, classifier priority, BDFD cell rule, aggregation rule, EV
+audit and generic rebuild commands are fixed in
 `docs/FLOP_STRATEGY_WORKFLOW.md`. The completed STU003 pilot was removed from
 the active tree after STU004 superseded it; Git history preserves the proof.
