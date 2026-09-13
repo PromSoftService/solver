@@ -479,11 +479,11 @@ def _save_deterministic(wb: Workbook, output_path: Path) -> None:
         packed_path = Path(temp_dir) / "packed.xlsx"
         wb.save(raw_path)
         with zipfile.ZipFile(raw_path, "r") as source, zipfile.ZipFile(
-            packed_path, "w", compression=zipfile.ZIP_DEFLATED, compresslevel=9
+            packed_path, "w", compression=zipfile.ZIP_STORED
         ) as target:
             for name in sorted(source.namelist()):
                 info = zipfile.ZipInfo(name, date_time=(1980, 1, 1, 0, 0, 0))
-                info.compress_type = zipfile.ZIP_DEFLATED
+                info.compress_type = zipfile.ZIP_STORED
                 info.create_system = 0
                 info.external_attr = 0
                 data = source.read(name)
