@@ -29,7 +29,9 @@ solver combo frequencies. OESD and Gutshot take priority over made hands.
 `BDFD` in a response cell means fold without BDFD and call with BDFD. Do not
 infer frequencies from displayed action labels and do not restore discarded
 row-smoothing experiments. Read `docs/FLOP_STRATEGY_WORKFLOW.md` before
-changing classification, aggregation, thresholds, or workbooks.
+changing classification, aggregation, thresholds, or workbooks. Read
+`docs/HUMAN_STRATEGY_SIMPLIFICATION.md` before proposing or automating any
+further human reduction of a generated workbook.
 
 ## Full-tree research history
 

@@ -57,9 +57,8 @@ does not run the solver again:
 
 ```text
 python scripts/generate-flop-strategies.py STU002__RNG001_UTG-vs-BB__BRD001_FLOP6
-node scripts/build-flop-workbooks.mjs STU002__RNG001_UTG-vs-BB__BRD001_FLOP6
 ```
 
-The first command produces the final ten-category policy directly from raw
-combo frequencies. The second produces the single approved Excel workbook.
+The command produces the final ten-category policy and the single approved
+Excel workbook directly from raw combo frequencies using local Python.
 See `docs/FLOP_STRATEGY_WORKFLOW.md` for the complete frozen algorithm.

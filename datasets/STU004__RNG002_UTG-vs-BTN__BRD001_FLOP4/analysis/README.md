@@ -14,17 +14,15 @@ Machine-readable outputs:
 - `FINAL_VALIDATION.json`;
 - `FLOP_GROUPS.json`.
 
-Rebuild the numeric strategy directly from tracked solver combo frequencies:
+Rebuild the machine-readable strategy, audits and approved workbook directly
+from tracked solver combo frequencies:
 
 ```text
 python scripts/generate-flop-strategies.py STU004__RNG002_UTG-vs-BTN__BRD001_FLOP4
 ```
 
-Build the workbook with the approved colors and layout:
-
-```text
-node scripts/build-flop-workbooks.mjs STU004__RNG002_UTG-vs-BTN__BRD001_FLOP4
-```
+The same command writes the workbook with the approved colors and layout using
+local Python and `openpyxl`; Codex and `@oai/artifact-tool` are not required.
 
 `BDFD` in a cell means fold without a backdoor flush draw and call with one.
 The full method and range provenance are in `docs/FLOP_STRATEGY_WORKFLOW.md`.

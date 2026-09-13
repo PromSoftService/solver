@@ -7,6 +7,8 @@ import json
 from collections import Counter, defaultdict
 from pathlib import Path
 
+from flop_workbook import build_flop_workbook
+
 
 REPO = Path(__file__).resolve().parents[1]
 
@@ -423,17 +425,15 @@ Machine-readable outputs:
 - `FINAL_VALIDATION.json`;
 - `FLOP_GROUPS.json`.
 
-Rebuild the numeric strategy directly from tracked solver combo frequencies:
+Rebuild the machine-readable strategy, audits and approved workbook directly
+from tracked solver combo frequencies:
 
 ```text
 python scripts/generate-flop-strategies.py {study_directory}
 ```
 
-Build the workbook with the approved colors and layout:
-
-```text
-node scripts/build-flop-workbooks.mjs {study_directory}
-```
+The same command writes the workbook with the approved colors and layout using
+local Python and `openpyxl`; Codex and `@oai/artifact-tool` are not required.
 
 `BDFD` in a cell means fold without a backdoor flush draw and call with one.
 The full method and range provenance are in `docs/FLOP_STRATEGY_WORKFLOW.md`.
@@ -599,10 +599,12 @@ def main() -> None:
         json.dumps(FLOP_GROUPS, indent=2, ensure_ascii=False), encoding="utf-8"
     )
     write_analysis_readme(final_root, study, args.study)
+    workbook = build_flop_workbook(REPO, args.study, HAND_ORDER, FLOP_GROUPS)
     print(json.dumps({
         "status": "PASS",
         "study": args.study,
         "model": model_root.as_posix(),
+        "workbook": workbook,
         "mix_cells": sum(
             sum(count for policy, count in item["summary"]["policy_cell_counts"].items() if "/" in policy)
             for item in model["branches"]

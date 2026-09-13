@@ -128,15 +128,15 @@ jobs:
               if (Test-Path "$strategyRoot/$obsolete") { throw "Obsolete strategy output is active: $obsolete" }
             }
           }
-          foreach ($required in @('docs/FLOP_STRATEGY_WORKFLOW.md','scripts/flop_strategy.py','scripts/generate-flop-strategies.py','scripts/build-flop-workbooks.mjs')) {
+          foreach ($required in @('docs/FLOP_STRATEGY_WORKFLOW.md','docs/HUMAN_STRATEGY_SIMPLIFICATION.md','scripts/flop_strategy.py','scripts/flop_workbook.py','scripts/generate-flop-strategies.py')) {
             if (-not (Test-Path $required -PathType Leaf)) { throw "Missing generic strategy file: $required" }
           }
           Write-Host 'PASS: proven v015 selected current-street production runner.'
       - name: Rebuild and validate strategy data
         shell: pwsh
         run: |
-          python -m py_compile scripts/flop_strategy.py scripts/generate-flop-strategies.py
-          node --check scripts/build-flop-workbooks.mjs
+          python -m pip install openpyxl==3.1.5
+          python -m py_compile scripts/flop_strategy.py scripts/flop_workbook.py scripts/generate-flop-strategies.py
           node --check scripts/generate-stu004-config.mjs
           node scripts/generate-stu004-config.mjs
           git diff --exit-code -- studies/STU004__RNG002_UTG-vs-BTN__BRD001_FLOP4/config.json

@@ -209,3 +209,21 @@ versus the ordinary cell policy. STU002 and STU004 now publish only
 `strategy-10` and one `<STU>_flop_strategy.xlsx` workbook; the superseded
 B13/eight-category outputs and STU002-specific duplicate generators were
 removed from active `main`.
+
+## 15. Self-contained workbook generation
+
+The final strategy workflow no longer requires Codex or
+`@oai/artifact-tool`. The universal
+`scripts/generate-flop-strategies.py` command now writes the machine-readable
+strategy, validation artifacts and the single approved workbook through the
+shared `scripts/flop_workbook.py` helper and local `openpyxl`.
+
+The Python workbook writer preserves the approved sheet structure, dimensions,
+action colors and category separators, validates the saved XLSX, and normalizes
+package metadata so repeated builds are byte-for-byte deterministic. The
+obsolete Node workbook builder was removed.
+
+The regenerated baselines retain 598 populated cells and 13 `BDFD` cells for
+STU002, and 406 populated cells and 5 `BDFD` cells for STU004. The rules for
+any later human reduction are documented separately in
+`docs/HUMAN_STRATEGY_SIMPLIFICATION.md`; regeneration does not apply them.

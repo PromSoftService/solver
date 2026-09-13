@@ -227,28 +227,37 @@ exploitability against an opponent who re-solves after seeing the policy.
 
 ## 9. Rebuilding the final output
 
-From repository root:
+Install the workbook dependency once:
+
+```text
+python -m pip install openpyxl==3.1.5
+```
+
+Then run one universal generator from repository root:
 
 ```text
 python scripts/generate-flop-strategies.py <study-directory> [--run <run-name>]
-node scripts/build-flop-workbooks.mjs <study-directory>
 ```
 
 Examples:
 
 ```text
 python scripts/generate-flop-strategies.py STU002__RNG001_UTG-vs-BB__BRD001_FLOP6
-node scripts/build-flop-workbooks.mjs STU002__RNG001_UTG-vs-BB__BRD001_FLOP6
-
 python scripts/generate-flop-strategies.py STU004__RNG002_UTG-vs-BTN__BRD001_FLOP4 --run run-20260909-221703Z
-node scripts/build-flop-workbooks.mjs STU004__RNG002_UTG-vs-BTN__BRD001_FLOP4
 ```
 
-The numeric generator validates inputs, board partitions, player support, and
-classification, then writes `strategy-10` and final validation artifacts. The
-workbook builder writes the single `.xlsx` file with the approved action
-colors; `BDFD` uses the call-family blue. The workbook must be recalculated,
-scanned for formula errors, rendered, and visually checked after regeneration.
+The command validates inputs, board partitions, player support and
+classification, then writes `strategy-10`, final validation artifacts and the
+single approved `.xlsx` workbook. Workbook creation uses local Python and
+`openpyxl`; Codex and `@oai/artifact-tool` are not required. Approved action
+colors and layout are deterministic, and `BDFD` uses the call-family blue.
+The saved workbook is reopened and checked for its sheet structure, cell
+values, formula-error tokens and ZIP integrity.
+
+Human simplification after this generated baseline is a separate, explicitly
+reviewed phase. Its rules and audit requirements are fixed in
+`docs/HUMAN_STRATEGY_SIMPLIFICATION.md`; the generator does not apply that
+phase automatically.
 
 ## 10. Non-goals
 
