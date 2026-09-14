@@ -1,0 +1,196 @@
+{
+  "scope": "STU002 03_BB_AFTER_CBET; 286 unpaired rainbow flops; native raise to 9.5 bb",
+  "flop_classes": {
+    "ABB": 6,
+    "Axx": 60,
+    "BBB": 4,
+    "Bxx": 160,
+    "[9-2]xx": 56
+  },
+  "max_mixed_ev_reproduction_error": 2.842170943040401e-14,
+  "metrics": {
+    "row_count": 106308,
+    "total_reach": 6937656.573394,
+    "solver_frequency_pct": {
+      "F": 47.89933315230258,
+      "C": 39.093020867989864,
+      "R": 13.00764593502005
+    },
+    "candidate_frequency_pct": {
+      "F": 49.08650494602105,
+      "C": 39.26769217720523,
+      "R": 11.645802876773729
+    },
+    "frequency_delta_pp": {
+      "F": 1.1871717937184667,
+      "C": 0.1746713092153629,
+      "R": -1.3618430582463232
+    },
+    "mean_source_loss_bb": 0.008601148100204837,
+    "mean_oracle_regret_bb": 0.010608178205377818,
+    "p95_oracle_regret_bb": 0.0311123,
+    "p99_oracle_regret_bb": 0.2343607,
+    "p999_oracle_regret_bb": 0.8844819999999999,
+    "max_oracle_regret_bb": 1.76049175,
+    "overcall_loss_bb": 0.0020994955145695665,
+    "overfold_loss_bb": 0.0034118914127087363,
+    "bad_raise_loss_bb": 0.00387254298521864,
+    "missed_raise_loss_bb": 0.0012242482928808758
+  },
+  "composition": {
+    "CALL": {
+      "total_variation": 0.12508338603512706,
+      "by_hand": [
+        {
+          "hand": "Two pair+",
+          "solver_share_pct": 3.2273465154430636,
+          "candidate_share_pct": 2.437195728865869,
+          "delta_pp": -0.7901507865771946
+        },
+        {
+          "hand": "Overpair",
+          "solver_share_pct": 1.5970839067156894,
+          "candidate_share_pct": 1.8571486480690524,
+          "delta_pp": 0.2600647413533629
+        },
+        {
+          "hand": "Top pair",
+          "solver_share_pct": 27.241724503027132,
+          "candidate_share_pct": 28.759829485181278,
+          "delta_pp": 1.5181049821541448
+        },
+        {
+          "hand": "Underpair",
+          "solver_share_pct": 9.160416158072188,
+          "candidate_share_pct": 9.57860474578112,
+          "delta_pp": 0.4181885877089328
+        },
+        {
+          "hand": "Second pair",
+          "solver_share_pct": 15.156907247483323,
+          "candidate_share_pct": 12.871710352045504,
+          "delta_pp": -2.285196895437819
+        },
+        {
+          "hand": "Weak pair",
+          "solver_share_pct": 4.434309738649082,
+          "candidate_share_pct": 6.868734069330536,
+          "delta_pp": 2.4344243306814533
+        },
+        {
+          "hand": "Third pair",
+          "solver_share_pct": 8.925145725850031,
+          "candidate_share_pct": 11.61294505855105,
+          "delta_pp": 2.687799332701019
+        },
+        {
+          "hand": "Low pocket pair",
+          "solver_share_pct": 0.3972179114269285,
+          "candidate_share_pct": 0.0,
+          "delta_pp": -0.3972179114269285
+        },
+        {
+          "hand": "OESD",
+          "solver_share_pct": 3.793066777730002,
+          "candidate_share_pct": 4.598233113971851,
+          "delta_pp": 0.8051663362418492
+        },
+        {
+          "hand": "Gutshot",
+          "solver_share_pct": 14.46421720032186,
+          "candidate_share_pct": 18.656126830805718,
+          "delta_pp": 4.191909630483859
+        },
+        {
+          "hand": "2 overcards + BDFD",
+          "solver_share_pct": 1.3387187965146745,
+          "candidate_share_pct": 1.5313994587027608,
+          "delta_pp": 0.19268066218808624
+        },
+        {
+          "hand": "Air",
+          "solver_share_pct": 10.26384551876603,
+          "candidate_share_pct": 1.2280725086952666,
+          "delta_pp": -9.035773010070763
+        }
+      ]
+    },
+    "RAISE": {
+      "total_variation": 0.1718494089965603,
+      "by_hand": [
+        {
+          "hand": "Two pair+",
+          "solver_share_pct": 26.117233683601143,
+          "candidate_share_pct": 31.787194625324805,
+          "delta_pp": 5.669960941723662
+        },
+        {
+          "hand": "Overpair",
+          "solver_share_pct": 1.2692114577432092,
+          "candidate_share_pct": 0.5167824072477768,
+          "delta_pp": -0.7524290504954324
+        },
+        {
+          "hand": "Top pair",
+          "solver_share_pct": 8.558126841092378,
+          "candidate_share_pct": 4.180293093537363,
+          "delta_pp": -4.377833747555014
+        },
+        {
+          "hand": "Underpair",
+          "solver_share_pct": 0.8330490862428412,
+          "candidate_share_pct": 0.0,
+          "delta_pp": -0.8330490862428412
+        },
+        {
+          "hand": "Second pair",
+          "solver_share_pct": 9.697645514250093,
+          "candidate_share_pct": 21.21262547218246,
+          "delta_pp": 11.514979957932365
+        },
+        {
+          "hand": "Weak pair",
+          "solver_share_pct": 0.008480544498681295,
+          "candidate_share_pct": 0.0,
+          "delta_pp": -0.008480544498681295
+        },
+        {
+          "hand": "Third pair",
+          "solver_share_pct": 5.519192907197884,
+          "candidate_share_pct": 0.0,
+          "delta_pp": -5.519192907197884
+        },
+        {
+          "hand": "Low pocket pair",
+          "solver_share_pct": 1.7227018037306342e-05,
+          "candidate_share_pct": 0.0,
+          "delta_pp": -1.7227018037306342e-05
+        },
+        {
+          "hand": "OESD",
+          "solver_share_pct": 14.671741889465792,
+          "candidate_share_pct": 14.462510146915298,
+          "delta_pp": -0.2092317425504947
+        },
+        {
+          "hand": "Gutshot",
+          "solver_share_pct": 27.43071508568038,
+          "candidate_share_pct": 27.319107679939986,
+          "delta_pp": -0.11160740574039374
+        },
+        {
+          "hand": "2 overcards + BDFD",
+          "solver_share_pct": 1.4018588453343286,
+          "candidate_share_pct": 0.5214865748523115,
+          "delta_pp": -0.880372270482017
+        },
+        {
+          "hand": "Air",
+          "solver_share_pct": 4.492726917875235,
+          "candidate_share_pct": 0.0,
+          "delta_pp": -4.492726917875235
+        }
+      ]
+    }
+  }
+}

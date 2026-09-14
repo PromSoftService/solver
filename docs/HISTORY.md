@@ -227,3 +227,19 @@ The regenerated baselines retain 598 populated cells and 13 `BDFD` cells for
 STU002, and 406 populated cells and 5 `BDFD` cells for STU004. The rules for
 any later human reduction are documented separately in
 `docs/HUMAN_STRATEGY_SIMPLIFICATION.md`; regeneration does not apply them.
+
+
+## 16. STU002 five-class BB response candidate
+
+The user requested a second, teaching-first reduction of only
+`03_BB_AFTER_CBET` to five flop columns: `ABB`, non-ABB `Axx`, `BBB`,
+non-BBB `Bxx`, and `[9-2]xx`. The tracked combo/action EV export, not a new
+GPU solve, selected pure actions, exact 50/50 CALL/RAISE mixes and deterministic
+CALL/FOLD selectors.
+
+The separate candidate preserves the canonical ten-class workbook. Its
+reach-weighted F/C/R is 49.09/39.27/11.65% versus solver
+47.90/39.09/13.01%; mean source-mix loss is 0.00860 bb and oracle-regret P99
+is 0.23436 bb. GPT-6 Astra reviewed the reproduced metrics and accepted the
+result only as a locally EV-audited human compromise. The analyzer and complete
+audit live under the STU002 branch's `analysis/human-5` directory.

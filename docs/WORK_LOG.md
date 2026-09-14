@@ -335,3 +335,44 @@ Runtime startup blocker:
 Recovery plan: preserve the failed artifacts under `_diagnostics/`, remove the premature generic-page fallback, poll only for the verified `appassets.local/index.html` target, pass a one-board local GPU smoke, commit/push the repair, then restart STU005 fresh. GitHub Actions remain out of scope.
 
 Recovery validation: PASS. The repaired worker waited for `https://appassets.local/index.html?desktop=1&transport=bridge`; the one-board `6s As 8c` GPU smoke completed with 508 combos and `Check / Raise 28`. No generic `about:blank` target was accepted. The full STU005 run can now restart fresh.
+
+
+## 2026-09-15 — STU002 BB versus UTG c-bet five-class EV simplification
+
+Status: COMPLETED
+
+Base commit: `2738ee92d40bd02690b77e413fd7dd9042e7b2a9` (`origin/main` equal).
+
+Scope: analyze only `STU002 / 03_BB_AFTER_CBET` from the tracked 106,381-row combo export. Reduce the teaching partition to `ABB`, `Axx` excluding `ABB`, `BBB`, `Bxx` excluding `BBB`, and `[9-2]xx`. Prefer low-regret pure actions; retain `C/R` only for range composition; interpret `C/F` as a deterministic solver-EV selector, never a randomizer.
+
+Constraints: preserve all solver data and the canonical ten-category workbook; use the existing fold/call/native-60-raise EV values; do not start or disturb the active STU005 GPU solve; do not use GitHub Actions.
+
+Plan:
+
+1. reproduce the branch classifier, reach weights and baseline audit from tracked data;
+2. enumerate five-class pure and 50/50 C/R candidates plus deterministic C/F selectors;
+3. compare average and tail regret, overcall/overfold, total frequencies and CALL/RAISE composition;
+4. send compact metrics and worst subgroups to GPT-6 Astra, reproduce accepted checks locally;
+5. save a separate machine-readable candidate and audit without changing the canonical generator/workbook;
+6. validate, close this log entry, commit and push `main`.
+
+
+Result:
+
+- added `scripts/analyze-human-bb-response.py` and reproduced a separate
+  five-class candidate plus JSON/CSV audits under
+  `analysis/human-5/03_BB_AFTER_CBET`;
+- verified 106,308 reach-positive rows, exact source mixed-EV reproduction,
+  and flop counts 6/60/4/160/56;
+- solver F/C/R is 47.8993/39.0930/13.0076%; candidate F/C/R is
+  49.0865/39.2677/11.6458%;
+- mean source-mix loss is 0.008601 bb; mean oracle regret is 0.010608 bb;
+  weighted P95/P99 is 0.031112/0.234361 bb;
+- deterministic C/F selectors were audited separately; the AK-only Air
+  exception improves mean loss by about 0.00400 bb for only 0.48 percentage
+  points moved from FOLD to CALL;
+- GPT-6 Astra independently accepted the result as a locally EV-audited human
+  compromise. The Gutshot/Bxx C/R tail remains documented; no unmeasured
+  selector was introduced;
+- the canonical workbook, source solver data and the active STU005 GPU run
+  were not changed or interrupted. GitHub Actions were not used.

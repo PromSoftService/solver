@@ -1,0 +1,134 @@
+{
+  "status": "locally EV-audited human candidate; not a re-solve or exploitability proof",
+  "classes": {
+    "ABB": "Ace-high with two Broadway cards",
+    "Axx": "other Ace-high flops",
+    "BBB": "three Broadway cards",
+    "Bxx": "K/Q/J/T-high excluding BBB",
+    "[9-2]xx": "highest card 9 or lower"
+  },
+  "table": {
+    "Two pair+": [
+      "C/R",
+      "R/C",
+      "C/R",
+      "R",
+      "R/C"
+    ],
+    "Overpair": [
+      "—",
+      "—",
+      "—",
+      "C/R",
+      "C"
+    ],
+    "Top pair": [
+      "C",
+      "C",
+      "BDFD",
+      "C",
+      "C/R"
+    ],
+    "Underpair": [
+      "—",
+      "C",
+      "—",
+      "C",
+      "C"
+    ],
+    "Second pair": [
+      "F",
+      "C",
+      "F",
+      "C/R",
+      "C"
+    ],
+    "Weak pair": [
+      "—",
+      "F",
+      "—",
+      "C/F",
+      "C"
+    ],
+    "Third pair": [
+      "F",
+      "C/F",
+      "F",
+      "C",
+      "C"
+    ],
+    "Low pocket pair": [
+      "F",
+      "F",
+      "F",
+      "F",
+      "F"
+    ],
+    "OESD": [
+      "R/C",
+      "R",
+      "C",
+      "R/C",
+      "R/C"
+    ],
+    "Gutshot": [
+      "C/F",
+      "C",
+      "C/F",
+      "C/R",
+      "C"
+    ],
+    "2 overcards + BDFD": [
+      "—",
+      "—",
+      "—",
+      "C/R",
+      "C/F"
+    ],
+    "Air": [
+      "F",
+      "F",
+      "F",
+      "C/F",
+      "C/F"
+    ]
+  },
+  "selectors": {
+    "Top pair / BBB": "CALL with BDFD; otherwise FOLD.",
+    "Weak pair / Bxx": "CALL when the flop has one Broadway card; FOLD when it has two.",
+    "Third pair / Axx": "CALL on A + two low cards; on A + Broadway + low CALL only with BDFD.",
+    "Gutshot / ABB": "CALL with any made pair inside the Gutshot; otherwise FOLD.",
+    "Gutshot / BBB": "CALL with top, second or third pair inside the Gutshot; otherwise FOLD.",
+    "2 overcards + BDFD / [9-2]xx": "CALL with Ax or two Broadway hole cards; otherwise FOLD.",
+    "Air / Bxx and [9-2]xx": "CALL only AK; otherwise FOLD."
+  },
+  "audit": {
+    "row_count": 106308,
+    "total_reach": 6937656.573394,
+    "solver_frequency_pct": {
+      "F": 47.89933315230258,
+      "C": 39.093020867989864,
+      "R": 13.00764593502005
+    },
+    "candidate_frequency_pct": {
+      "F": 49.08650494602105,
+      "C": 39.26769217720523,
+      "R": 11.645802876773729
+    },
+    "frequency_delta_pp": {
+      "F": 1.1871717937184667,
+      "C": 0.1746713092153629,
+      "R": -1.3618430582463232
+    },
+    "mean_source_loss_bb": 0.008601148100204837,
+    "mean_oracle_regret_bb": 0.010608178205377818,
+    "p95_oracle_regret_bb": 0.0311123,
+    "p99_oracle_regret_bb": 0.2343607,
+    "p999_oracle_regret_bb": 0.8844819999999999,
+    "max_oracle_regret_bb": 1.76049175,
+    "overcall_loss_bb": 0.0020994955145695665,
+    "overfold_loss_bb": 0.0034118914127087363,
+    "bad_raise_loss_bb": 0.00387254298521864,
+    "missed_raise_loss_bb": 0.0012242482928808758
+  }
+}

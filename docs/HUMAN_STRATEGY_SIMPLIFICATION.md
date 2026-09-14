@@ -179,6 +179,12 @@ the two displayed actions. The slash order follows solver majority; it does
 not change the randomizer. Three-way mixes and remembered board-level
 percentages are not allowed.
 
+Against the same fixed opponent strategy, the EV of an exact 50/50 mix is the
+average of the two pure-action EVs. It therefore cannot beat both pure actions
+on mean local EV. Retain a mix only for an explicitly audited range-composition
+or tail-risk reason; never describe it as the local-EV optimum when a pure
+action is better.
+
 The default human candidate enumerates every allowed vector: each one-hot pure
 action and every 50/50 pair of legal actions. Choose the vector with the
 smallest total absolute frequency error against the cell's solver vector; use
@@ -252,7 +258,20 @@ Gutshot on ABB, BDFD where proven, and pure CALL for Second pair on
 baseline mean loss from 0.02516 to 0.01460 bb and P99 from 0.637 to 0.444 bb.
 Gutshot composition inside the raise range remained the main caveat.
 
-Do not transfer either partition to another branch without recalculation.
+A later user-requested five-class STU002 candidate uses `ABB` (6), `Axx`
+excluding ABB (60), `BBB` (4), `Bxx` excluding BBB (160), and `[9-2]xx`
+(56). It is reproduced by `scripts/analyze-human-bb-response.py` and stored
+under the branch's `analysis/human-5` directory. Solver F/C/R is
+47.90/39.09/13.01%; the candidate is 49.09/39.27/11.65%. Mean source-mix loss
+is 0.00860 bb; oracle regret P95/P99 is 0.03111/0.23436 bb. Deterministic
+C/F selectors prevent random weak-hand overcalling, while exact C/R mixes are
+retained only where the simultaneous CALL/RAISE composition needs them. The
+known residual caveat is the Gutshot/Bxx C/R tail: pure CALL has lower local
+loss, but removing the whole mix would also remove 3.18 percentage points of
+total raises. GPT-6 Astra independently accepted this as a locally EV-audited
+human compromise, not as an exploitability proof.
+
+Do not transfer any recorded partition to another branch without recalculation.
 
 
 ## 12. Status and promotion to generated output

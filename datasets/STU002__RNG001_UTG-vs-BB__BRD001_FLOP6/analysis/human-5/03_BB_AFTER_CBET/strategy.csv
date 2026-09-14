@@ -1,0 +1,13 @@
+﻿hand,ABB,Axx,BBB,Bxx,[9-2]xx
+Two pair+,C/R,R/C,C/R,R,R/C
+Overpair,—,—,—,C/R,C
+Top pair,C,C,BDFD,C,C/R
+Underpair,—,C,—,C,C
+Second pair,F,C,F,C/R,C
+Weak pair,—,F,—,C/F,C
+Third pair,F,C/F,F,C,C
+Low pocket pair,F,F,F,F,F
+OESD,R/C,R,C,R/C,R/C
+Gutshot,C/F,C,C/F,C/R,C
+2 overcards + BDFD,—,—,—,C/R,C/F
+Air,F,F,F,C/F,C/F
