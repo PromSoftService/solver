@@ -524,7 +524,7 @@ try {
                 $json = $http.DownloadString("http://127.0.0.1:$port/json/list")
                 $targets = @($json | ConvertFrom-Json)
                 $target = $targets | Where-Object { $_.type -eq 'page' -and ($_.url -like 'https://appassets.local/*' -or $_.url -like '*index.html*') } | Select-Object -First 1
-                if ($null -eq $target) { $target = $targets | Where-Object { $_.type -eq 'page' } | Select-Object -First 1 }
+                if ($null -eq $target) { Start-Sleep -Milliseconds 250 }
             } catch { Start-Sleep -Milliseconds 250 }
         }
     } finally { $http.Dispose() }

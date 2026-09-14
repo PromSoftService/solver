@@ -326,3 +326,12 @@ Base commit: `d63f92d1e8d3cb40c24bd4a149b27a44b2085395` (`origin/main` equal).
 Scope: run all six STU005 branches over 286 BRD001 flops (1716 independent stock solves) using RNG003 and the prepared 50% / native-60 tree. Start fresh because no STU005 output or dataset exists.
 
 Plan: launch `run-all.ps1`, monitor local operation progress, preserve raw output under ignored `output/`, validate the completed compact dataset locally, record final timings/results, commit and push. GitHub Actions are intentionally out of scope.
+
+Runtime startup blocker:
+
+- the first full-run attempt and two one-board preflights selected a transient `about:blank` DevTools page and failed before `solver.init` with `requestObject` undefined;
+- the runner currently falls back to the first generic page immediately instead of waiting up to its documented 45-second deadline for the TexasSolver application page.
+
+Recovery plan: preserve the failed artifacts under `_diagnostics/`, remove the premature generic-page fallback, poll only for the verified `appassets.local/index.html` target, pass a one-board local GPU smoke, commit/push the repair, then restart STU005 fresh. GitHub Actions remain out of scope.
+
+Recovery validation: PASS. The repaired worker waited for `https://appassets.local/index.html?desktop=1&transport=bridge`; the one-board `6s As 8c` GPU smoke completed with 508 combos and `Check / Raise 28`. No generic `about:blank` target was accepted. The full STU005 run can now restart fresh.
