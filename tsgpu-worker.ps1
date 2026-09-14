@@ -8,7 +8,7 @@ param(
     [double]$TargetExploitability = 0.5,
     [int]$ExpectedBetAmount = 0,
     [int]$ExpectedRaiseAmount = 0,
-    [ValidateSet('BB_FIRST', 'UTG_CBET', 'BB_RESPONSE', 'UTG_VS_CHECK_RAISE', 'UTG_VS_DONK', 'BB_VS_DONK_RAISE', 'UTG_OOP_CBET', 'BTN_RESPONSE', 'BTN_STAB', 'UTG_RESPONSE')][string]$DecisionNode = 'BB_RESPONSE',
+    [ValidateSet('BB_FIRST', 'UTG_CBET', 'BB_RESPONSE', 'UTG_VS_CHECK_RAISE', 'UTG_VS_DONK', 'BB_VS_DONK_RAISE', 'UTG_OOP_CBET', 'BTN_RESPONSE', 'BTN_STAB', 'UTG_RESPONSE', 'BTN_CBET', 'BB_VS_BTN_CBET', 'BTN_VS_CHECK_RAISE', 'BTN_VS_DONK', 'BB_VS_BTN_DONK_RAISE')][string]$DecisionNode = 'BB_RESPONSE',
     [int]$ExportMaxNodes = 5000,
     [int]$SolveTimeoutMinutes = 180,
     [switch]$ShowHostWindow,
@@ -587,7 +587,7 @@ try {
     $rootActions = Split-Actions (Invoke-Bridge $socket 'solver.node.actionsAfter' '/api/actions-after' 'POST' ([ordered]@{ append = @() }) 10000 $transcript)
 
     if ($DecisionNode -eq 'BB_FIRST') {
-        # Export BB's first flop decision in UTG-open / BB-call pots.
+        # Export BB's first flop decision in IP-open / BB-call pots.
         $exportHistory = @()
         $selectedActions = @()
         $actingPlayer = 'BB'
@@ -606,18 +606,18 @@ try {
         $exportHistory = @($history)
         $selectedActions = @($rootBet.Label)
         $actingPlayer = 'BTN'
-    } elseif ($DecisionNode -in @('UTG_VS_DONK', 'BB_VS_DONK_RAISE')) {
+    } elseif ($DecisionNode -in @('UTG_VS_DONK', 'BB_VS_DONK_RAISE', 'BTN_VS_DONK', 'BB_VS_BTN_DONK_RAISE')) {
         $donk = Find-WagerActionIndex $rootActions ([Nullable[int]]$ExpectedBetAmount)
         $history = @([int]$donk.Index)
         Invoke-Bridge $socket 'solver.history.apply' '/api/apply-history' 'POST' ([ordered]@{ history = $history }) 10000 $transcript | Out-Null
 
-        if ($DecisionNode -eq 'UTG_VS_DONK') {
+        if ($DecisionNode -in @('UTG_VS_DONK', 'BTN_VS_DONK')) {
             $exportHistory = @($history)
             $selectedActions = @($donk.Label)
-            $actingPlayer = 'UTG'
+            $actingPlayer = if ($DecisionNode -eq 'BTN_VS_DONK') { 'BTN' } else { 'UTG' }
         } else {
-            $utgActions = Split-Actions (Invoke-Bridge $socket 'solver.node.actionsAfter' '/api/actions-after' 'POST' ([ordered]@{ append = @() }) 10000 $transcript)
-            $raise = Find-ActionIndex $utgActions 'Raise' ([Nullable[int]]$ExpectedRaiseAmount)
+            $openerActions = Split-Actions (Invoke-Bridge $socket 'solver.node.actionsAfter' '/api/actions-after' 'POST' ([ordered]@{ append = @() }) 10000 $transcript)
+            $raise = Find-ActionIndex $openerActions 'Raise' ([Nullable[int]]$ExpectedRaiseAmount)
             $history = @($history + [int]$raise.Index)
             Invoke-Bridge $socket 'solver.history.apply' '/api/apply-history' 'POST' ([ordered]@{ history = $history }) 10000 $transcript | Out-Null
             $exportHistory = @($history)
@@ -631,13 +631,13 @@ try {
         Invoke-Bridge $socket 'solver.history.apply' '/api/apply-history' 'POST' ([ordered]@{ history = $history }) 10000 $transcript | Out-Null
         $ipActions = Split-Actions (Invoke-Bridge $socket 'solver.node.actionsAfter' '/api/actions-after' 'POST' ([ordered]@{ append = @() }) 10000 $transcript)
 
-        if ($DecisionNode -eq 'UTG_CBET') {
-            # We export the node immediately after BB checks, so no UTG action is
-            # applied here. Native APIs are inconsistent about naming the first IP
-            # wager after a check (Bet vs Raise), therefore do not preselect it.
+        if ($DecisionNode -in @('UTG_CBET', 'BTN_CBET')) {
+            # Export the IP opener's node immediately after BB checks. Native APIs
+            # are inconsistent about naming the first IP wager after a check
+            # (Bet vs Raise), therefore do not preselect it.
             $exportHistory = @($history)
             $selectedActions = @($check.Label)
-            $actingPlayer = 'UTG'
+            $actingPlayer = if ($DecisionNode -eq 'BTN_CBET') { 'BTN' } else { 'UTG' }
         } elseif ($DecisionNode -eq 'BTN_STAB') {
             # Export BTN's Check/Bet decision after UTG checks the flop root.
             $exportHistory = @($history)
@@ -653,7 +653,7 @@ try {
             $exportHistory = @($history)
             $selectedActions = @($check.Label, $bet.Label)
             $actingPlayer = 'UTG'
-        } elseif ($DecisionNode -eq 'BB_RESPONSE') {
+        } elseif ($DecisionNode -in @('BB_RESPONSE', 'BB_VS_BTN_CBET')) {
             $bet = Find-WagerActionIndex $ipActions ([Nullable[int]]$ExpectedBetAmount)
             $history = @($history + [int]$bet.Index)
             Invoke-Bridge $socket 'solver.history.apply' '/api/apply-history' 'POST' ([ordered]@{ history = $history }) 10000 $transcript | Out-Null
@@ -670,7 +670,7 @@ try {
             Invoke-Bridge $socket 'solver.history.apply' '/api/apply-history' 'POST' ([ordered]@{ history = $history }) 10000 $transcript | Out-Null
             $exportHistory = @($history)
             $selectedActions = @($check.Label, $bet.Label, $raise.Label)
-            $actingPlayer = 'UTG'
+            $actingPlayer = if ($DecisionNode -eq 'BTN_VS_CHECK_RAISE') { 'BTN' } else { 'UTG' }
         }
     }
 
@@ -678,12 +678,12 @@ try {
     $node = Read-Property $export 'payload' $export
     $validActions = @($node.valid_actions)
 
-    $checkBetDecisionNodes = @('BB_FIRST', 'UTG_CBET', 'UTG_OOP_CBET', 'BTN_STAB')
-    $foldCallDecisionNodes = @('UTG_VS_CHECK_RAISE', 'BB_VS_DONK_RAISE')
+    $checkBetDecisionNodes = @('BB_FIRST', 'UTG_CBET', 'UTG_OOP_CBET', 'BTN_STAB', 'BTN_CBET')
+    $foldCallDecisionNodes = @('UTG_VS_CHECK_RAISE', 'BB_VS_DONK_RAISE', 'BTN_VS_CHECK_RAISE', 'BB_VS_BTN_DONK_RAISE')
     if ($DecisionNode -in $checkBetDecisionNodes) {
         $checkSlot = Get-ActionSlot $validActions 'Check'
         # TexasSolverGPU v0.2.0 may expose a first wager as either Bet or Raise
-        # depending on the native API. Treat both labels as the semantic UTG bet.
+        # depending on the native API. Treat both labels as the semantic wager.
         $betSlot = $null
         for ($i = 0; $i -lt $validActions.Count; $i++) {
             if ($validActions[$i] -match '(?i)^(?:Bet|Raise|Donk)(?:(?:\s+|:)|$)') {

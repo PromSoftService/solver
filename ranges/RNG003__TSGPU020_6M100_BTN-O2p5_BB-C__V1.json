@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "range_id": "RNG003",
+  "name": "RNG003__TSGPU020_6M100_BTN-O2p5_BB-C__V1",
+  "game": {
+    "format": "NLHE cash",
+    "players": 6,
+    "stack_bb": 100,
+    "sb_bb": 0.5,
+    "bb_bb": 1,
+    "ante_bb": 0
+  },
+  "spot": {
+    "open_position": "BTN",
+    "open_size_bb": 2.5,
+    "caller": "BB",
+    "oop": "BB",
+    "ip": "BTN",
+    "flop_pot_bb": 5.5,
+    "flop_effective_stack_bb": 97.5
+  },
+  "source": {
+    "provider": "TexasSolverGPU bundled 6-max range library",
+    "release": "v0.2.0",
+    "repo": "bupticybee/TexasSolverGPU",
+    "path": "ranges/6max_range/BTN/2.5bb/BB/Call",
+    "provenance_note": "Exact upstream solver/provider provenance is not documented in the public repository; do not label these ranges as GTO Wizard ranges."
+  },
+  "files": {
+    "BTN": "RNG003__TSGPU020_6M100_BTN-O2p5_BB-C__V1__BTN.txt",
+    "BB": "RNG003__TSGPU020_6M100_BTN-O2p5_BB-C__V1__BB.txt"
+  },
+  "sha256": {
+    "BTN": "40ba6a4a025c1385639e27747e6273f1f332d83c3829b5fd0aad6c9ceb127f24",
+    "BB": "4fc4374b8f208a9d4b140307e08b9cd94e52324d5f48da5406e047545516e488"
+  },
+  "weighted_combos": {
+    "BTN": 550.912,
+    "BB": 389.82
+  }
+}

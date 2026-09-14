@@ -285,3 +285,34 @@ Final audit:
 
 No GPU solve was run. No solver export, study, range, board, canonical policy,
 generator or workbook was changed. Promotion remains blocked until user approval.
+
+
+## 2026-09-14 — STU005 BTN vs BB study preparation
+
+Status: STARTED
+
+Base commit: `543921ffd747515e5ba24d0543d8966b28ed9b3d` (`origin/main` equal).
+
+Constraints: use the bundled TexasSolverGPU v0.2.0 BTN-open/BB-call ranges; preserve BRD001 and all source data; mirror the proven STU002 six-branch single-size abstraction; do not run the GPU solver during preparation.
+
+Plan: import and fingerprint the exact bundled ranges as RNG003, add the reproducible STU005 six-branch package, extend only the verified positional decision presets needed for BTN vs BB, validate JSON/PowerShell/boards/config histories without a solve, record results, commit and push.
+
+Status: COMPLETED
+
+Result:
+
+- imported the exact bundled BTN-open/BB-call text ranges as RNG003; BTN is 550.912 weighted combos and BB is 389.82;
+- added `STU005__RNG003_BTN-vs-BB__BRD001_FLOP6` with 286 BRD001 flops and six independent normal-action branches;
+- added explicit BTN-vs-BB decision aliases while preserving every existing preset and the v015 solve/export boundary;
+- replaced the STU004-only config builder with `scripts/generate-study-config.mjs`, which deterministically rebuilds both STU004 and STU005;
+- updated baseline documentation and static CI coverage. The superseded `generate-stu004-config.mjs` was removed.
+
+Validation:
+
+- all 12 active PowerShell files parsed successfully;
+- RNG003 tracked range bytes matched the bundled originals and both expanded to 1326 combo weights;
+- STU005 config rebuilt byte-identically; STU004 rebuilt without a Git diff;
+- pot 55, effective stack 975, expected flop bet 28, expected raise 95, 286 boards and six unique branches passed;
+- `git diff --check` passed and no TexasSolverGPU process was started.
+
+GPU results and human tables remain pending; this commit prepares only the reproducible study.

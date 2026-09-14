@@ -34,9 +34,10 @@ A full reconstruction was technically proven through repeated stock current-stre
 - `studies/STU001__RNG001_UTG-vs-BB__5FLOP_50-50/`: explicitly approved five-board performance study and report launcher.
 - `studies/STU002__RNG001_UTG-vs-BB__BRD001_FLOP6/`: six independent selected-branch jobs covering the normal-action flop interaction over BRD001.
 - `studies/STU004__RNG002_UTG-vs-BTN__BRD001_FLOP4/`: four selected UTG-vs-BTN flop decisions over BRD001.
+- `studies/STU005__RNG003_BTN-vs-BB__BRD001_FLOP6/`: prepared six-branch BTN-vs-BB flop study over BRD001; no GPU results are tracked yet.
 - `docs/FLOP_STRATEGY_WORKFLOW.md`: the accepted generic post-processing
   contract and one ten-flop-category workbook per completed production study.
-- `ranges/`: RNG001 and RNG002 source ranges.
+- `ranges/`: RNG001, RNG002 and RNG003 source ranges.
 - `boards/BRD001...txt`: 286 canonical source flops; never use it for routine runner smoke tests.
 
 ## Output contract

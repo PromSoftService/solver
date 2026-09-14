@@ -12,5 +12,6 @@ This is the short operational history. Detailed evidence remains in `HISTORY.md`
 8. **STU003 to STU004.** A five-flop UTG-vs-BTN pilot proved the configuration. STU004 replaced it with four selected branches across all 286 flops; the pilot package was removed from active main.
 9. **Universal workbook generation.** STU002 and STU004 now use one Python entry point plus shared analysis/workbook modules. The old Node workbook builder and study-specific strategy generators were removed.
 10. **Human simplification research.** Candidate flop partitions and subgroup selectors were tested from existing combo data. They remain a reviewed interpretation layer, not canonical output, until an exact candidate is approved and made reproducible.
+11. **STU005 preparation.** Exact bundled BTN-open/BB-call ranges became RNG003, explicit BTN-vs-BB selected-node aliases were added, and a six-branch BRD001 package was prepared without a GPU solve. STU004 and STU005 configs now share one reproducible generator.
 
-Current canonical outputs are one `<STU>_flop_strategy.xlsx` baseline for STU002 and one for STU004. GPU solver output, study definitions, ranges and boards are preserved.
+Current canonical outputs are one `<STU>_flop_strategy.xlsx` baseline for STU002 and one for STU004. STU005 is prepared but unsolved. GPU solver output, study definitions, ranges and boards are preserved.

@@ -42,7 +42,9 @@ Command-line options override matching `runner` values from JSON. The relevant s
 Supported UTG-vs-BB flop presets are `BB_FIRST`, `UTG_CBET`, `BB_RESPONSE`,
 `UTG_VS_CHECK_RAISE`, `UTG_VS_DONK`, and `BB_VS_DONK_RAISE`. Existing
 UTG-vs-BTN presets remain `UTG_OOP_CBET`, `BTN_RESPONSE`, `BTN_STAB`, and
-`UTG_RESPONSE`. `expectedBetAmount` and `expectedRaiseAmount` are safety
+`UTG_RESPONSE`. BTN-vs-BB adds explicit `BTN_CBET`, `BB_VS_BTN_CBET`,
+`BTN_VS_CHECK_RAISE`, `BTN_VS_DONK`, and `BB_VS_BTN_DONK_RAISE` aliases;
+`BB_FIRST` is shared. `expectedBetAmount` and `expectedRaiseAmount` are safety
 checks; use `0` to disable a check.
 
 ## Output
@@ -68,6 +70,11 @@ current-street export.
 `studies/STU004__RNG002_UTG-vs-BTN__BRD001_FLOP4/` is the production form of
 the STU003 pilot: the same four selected UTG-vs-BTN flop decisions over all
 286 canonical BRD001 flops.
+
+`studies/STU005__RNG003_BTN-vs-BB__BRD001_FLOP6/` defines the same complete
+six-branch normal-action flop interaction for BTN open 2.5 bb versus BB call.
+Its config is prepared and validated from bundled RNG003 ranges; GPU results
+are not part of the preparation commit.
 
 STU002 and STU004 completed compact datasets each feed one approved
 human-strategy workbook: 12 hand rows by ten final flop categories. One local

@@ -22,7 +22,9 @@ jobs:
             'scripts/run-flop-study-branch.ps1',
             'scripts/run-flop-study-all.ps1',
             'studies/STU004__RNG002_UTG-vs-BTN__BRD001_FLOP4/run-branch.ps1',
-            'studies/STU004__RNG002_UTG-vs-BTN__BRD001_FLOP4/run-all.ps1'
+            'studies/STU004__RNG002_UTG-vs-BTN__BRD001_FLOP4/run-all.ps1',
+            'studies/STU005__RNG003_BTN-vs-BB__BRD001_FLOP6/run-branch.ps1',
+            'studies/STU005__RNG003_BTN-vs-BB__BRD001_FLOP6/run-all.ps1'
           )
           foreach ($f in $files) {
             $tokens=$null; $errors=$null
@@ -45,7 +47,7 @@ jobs:
             if ($worker.Contains($bad)) { throw "Experimental full-tree probe leaked into baseline: $bad" }
           }
           $ranges = @(Get-ChildItem ranges -File)
-          if ($ranges.Count -ne 6) { throw "Expected 6 source range files; got $($ranges.Count)" }
+          if ($ranges.Count -ne 9) { throw "Expected 9 source range files; got $($ranges.Count)" }
           $boards = @(Get-Content boards/BRD001__FLOP_UNPAIRED_RAINBOW__ISO286__V1.txt | Where-Object { $_.Trim() })
           if ($boards.Count -ne 286) { throw "Expected 286 BRD001 boards; got $($boards.Count)" }
           if (-not (Test-Path smoke/CFG001-one-board.json) -or -not (Test-Path smoke/boards.txt)) { throw 'Smoke fixture missing' }
@@ -107,6 +109,26 @@ jobs:
             if ([Math]::Abs([double]$study4Config.config.ipRange[$i] - [double]$expectedBtn[$i]) -gt 1e-12) { throw "STU004 IP range differs from RNG002 BTN source at combo $i" }
             if ([Math]::Abs([double]$study4Config.config.oopRange[$i] - [double]$expectedUtg[$i]) -gt 1e-12) { throw "STU004 OOP range differs from RNG002 UTG source at combo $i" }
           }
+          $expectedBtnOpen = @(Convert-TexasSolverRangeTo1326 -Path 'ranges/RNG003__TSGPU020_6M100_BTN-O2p5_BB-C__V1__BTN.txt')
+          $expectedBbCall = @(Convert-TexasSolverRangeTo1326 -Path 'ranges/RNG003__TSGPU020_6M100_BTN-O2p5_BB-C__V1__BB.txt')
+          $study5Path = 'studies/STU005__RNG003_BTN-vs-BB__BRD001_FLOP6'
+          $study5 = Get-Content "$study5Path/study.json" -Raw | ConvertFrom-Json
+          $study5Config = Get-Content "$study5Path/config.json" -Raw | ConvertFrom-Json
+          $study5Boards = @(Get-Content $study5.board_file | Where-Object { $_.Trim() -and -not $_.Trim().StartsWith('#') })
+          $actualStudy5Branches = @($study5.branches | ForEach-Object { $_.decision_node })
+          $expectedStudy5Branches = @('BB_FIRST','BTN_CBET','BB_VS_BTN_CBET','BTN_VS_CHECK_RAISE','BTN_VS_DONK','BB_VS_BTN_DONK_RAISE')
+          if ($study5.study_id -ne 'STU005' -or $study5Boards.Count -ne 286 -or [int]$study5.expected_boards -ne 286 -or $actualStudy5Branches.Count -ne 6) { throw 'STU005 manifest/boards invalid' }
+          foreach ($decision in $expectedStudy5Branches) {
+            if ($actualStudy5Branches -notcontains $decision) { throw "STU005 is missing $decision" }
+            if (-not $worker.Contains("'$decision'")) { throw "Worker is missing STU005 preset $decision" }
+            if (-not $batch.Contains("'$decision'")) { throw "Batch is missing STU005 preset $decision" }
+          }
+          if ([int]$study5Config.config.startingPot -ne 55 -or [int]$study5Config.config.effectiveStack -ne 975) { throw 'STU005 pot/stack invalid' }
+          if ($study5Config.config.ipFlopBet -ne '50' -or $study5Config.config.oopFlopBet -ne '50' -or [int]$study5Config.config.maxRaiseNumber -ne 2) { throw 'STU005 flop abstraction invalid' }
+          for ($i = 0; $i -lt 1326; $i++) {
+            if ([Math]::Abs([double]$study5Config.config.ipRange[$i] - [double]$expectedBtnOpen[$i]) -gt 1e-12) { throw "STU005 IP range differs from RNG003 BTN source at combo $i" }
+            if ([Math]::Abs([double]$study5Config.config.oopRange[$i] - [double]$expectedBbCall[$i]) -gt 1e-12) { throw "STU005 OOP range differs from RNG003 BB source at combo $i" }
+          }
           if (-not (Test-Path datasets/README.md)) { throw 'Tracked dataset policy is missing' }
           foreach ($studyId in @('STU002__RNG001_UTG-vs-BB__BRD001_FLOP6','STU004__RNG002_UTG-vs-BTN__BRD001_FLOP4')) {
             $strategyRoot = "datasets/$studyId/analysis"
@@ -136,12 +158,13 @@ jobs:
             'scripts/README.md',
             'scripts/flop_strategy.py',
             'scripts/flop_workbook.py',
-            'scripts/generate-flop-strategies.py'
+            'scripts/generate-flop-strategies.py',
+            'scripts/generate-study-config.mjs'
           )) {
             if (-not (Test-Path $required -PathType Leaf)) { throw "Missing generic strategy file: $required" }
           }
-          if (Test-Path 'scripts/generate-stu003-config.mjs') {
-            throw 'Superseded STU003 generator returned to active scripts'
+          foreach ($obsoleteGenerator in @('scripts/generate-stu003-config.mjs','scripts/generate-stu004-config.mjs')) {
+            if (Test-Path $obsoleteGenerator) { throw "Superseded config generator returned: $obsoleteGenerator" }
           }
           Write-Host 'PASS: proven v015 selected current-street production runner.'
       - name: Rebuild and validate strategy data
@@ -149,9 +172,9 @@ jobs:
         run: |
           python -m pip install openpyxl==3.1.5
           python -m py_compile scripts/flop_strategy.py scripts/flop_workbook.py scripts/generate-flop-strategies.py
-          node --check scripts/generate-stu004-config.mjs
-          node scripts/generate-stu004-config.mjs
-          git diff --exit-code -- studies/STU004__RNG002_UTG-vs-BTN__BRD001_FLOP4/config.json
+          node --check scripts/generate-study-config.mjs
+          node scripts/generate-study-config.mjs STU004 STU005
+          git diff --exit-code -- studies/STU004__RNG002_UTG-vs-BTN__BRD001_FLOP4/config.json studies/STU005__RNG003_BTN-vs-BB__BRD001_FLOP6/config.json
           python scripts/generate-flop-strategies.py STU002__RNG001_UTG-vs-BB__BRD001_FLOP6
           python scripts/generate-flop-strategies.py STU004__RNG002_UTG-vs-BTN__BRD001_FLOP4 --run run-20260909-221703Z
           git diff --exit-code -- datasets/STU002__RNG001_UTG-vs-BB__BRD001_FLOP6/analysis datasets/STU004__RNG002_UTG-vs-BTN__BRD001_FLOP4/analysis
