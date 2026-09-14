@@ -316,3 +316,13 @@ Validation:
 - `git diff --check` passed and no TexasSolverGPU process was started.
 
 GPU results and human tables remain pending; this commit prepares only the reproducible study.
+
+## 2026-09-14 — STU005 full BTN vs BB GPU run
+
+Status: STARTED
+
+Base commit: `d63f92d1e8d3cb40c24bd4a149b27a44b2085395` (`origin/main` equal).
+
+Scope: run all six STU005 branches over 286 BRD001 flops (1716 independent stock solves) using RNG003 and the prepared 50% / native-60 tree. Start fresh because no STU005 output or dataset exists.
+
+Plan: launch `run-all.ps1`, monitor local operation progress, preserve raw output under ignored `output/`, validate the completed compact dataset locally, record final timings/results, commit and push. GitHub Actions are intentionally out of scope.
