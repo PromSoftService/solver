@@ -111,3 +111,60 @@ Audit:
 No GPU solve was run. No solver export, study, range, board, canonical policy,
 generator or workbook was changed. Promotion into generated Excel remains blocked
 until the exact Markdown table is approved by the user.
+
+
+## 2026-09-14 — STU002 UTG versus BB check-raise human table
+
+Status: STARTED
+
+Starting point:
+
+- branch `main` is clean;
+- local `HEAD` and `origin/main` are both
+  `790853764e0f76a149beba771e74cae6f78c6341`;
+- source branch is `STU002 / 04_UTG_AFTER_CHECK_RAISE`;
+- source export is the tracked `20260909-003912Z/combos.csv`;
+- the node contains only FOLD and CALL actions;
+- no GPU solve and no canonical workbook edit are authorized.
+
+Plan:
+
+1. reproduce the baseline classification and node metrics;
+2. compare compact familiar flop partitions with pure/50-50 F/C policies;
+3. audit hand-row bias, BDFD dependence, local combo EV and loss tails;
+4. ask GPT-6 Astra to review the Pareto candidates and material exceptions;
+5. reproduce the accepted findings locally;
+6. report one Markdown table for user approval without changing generation.
+
+Status: ANALYZED — AWAITING USER APPROVAL
+
+Result:
+
+- evaluated 36 compact partitions against the tracked combo export;
+- selected seven exhaustive classes: `ABB` (6), `A[K/Q]x` (16),
+  `A[J-T]x` (16), `A[9-2]x` (28), `BBB` (4), `Bxx` (160),
+  and `[9-2]xx` (56);
+- reduced the table from 101 populated baseline cells to 69;
+- retained `BDFD` only where the solver continuation is carried by the
+  backdoor-flush subset;
+- added `SUITED` for `Gutshot / A[J-T]x`: call suited hole cards, fold offsuit;
+- independently reviewed the candidate with GPT-6 Astra and reproduced its
+  requested `Gutshot / Bxx: C -> C/F` control locally.
+
+Audit:
+
+- solver F/C: 39.2341% / 60.7659%;
+- candidate F/C: 38.2314% / 61.7686%;
+- mean fixed-opponent reach-weighted local regret: 0.0206200 bb;
+- root-weighted value of that audit: 0.00140393 bb;
+- P99 loss: 0.580688 bb; maximum combo loss: 2.87821 bb;
+- hand-row mean absolute frequency error: 5.3482 percentage points;
+- call-range hand-composition TVD: 0.05327.
+
+The Astra control was rejected: `Bxx` is 60.89% of Gutshot reach, and changing
+it to `C/F` moved total F/C to 42.3425% / 57.6575%, raised mean regret to
+0.0741972 bb, P99 to 1.77075 bb and maximum loss to 4.10376 bb. `C` therefore
+remains the supported simplification despite the visible Gutshot overcall.
+
+No GPU solve was run. No solver export, study, range, board, canonical policy,
+generator or workbook was changed. Promotion remains blocked until user approval.
