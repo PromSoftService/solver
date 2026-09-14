@@ -33,6 +33,21 @@ changing classification, aggregation, thresholds, or workbooks. Read
 `docs/HUMAN_STRATEGY_SIMPLIFICATION.md` before proposing or automating any
 further human reduction of a generated workbook.
 
+## Task lifecycle
+
+For every repository-changing task:
+
+1. inspect `git status`, `git diff`, active processes and relevant artifacts;
+2. fetch `origin/main`, then record the base commit, constraints and plan in
+   `docs/WORK_LOG.md` before implementation;
+3. make the smallest supported change and preserve source solver data;
+4. append changed files, checks, results and remaining limits to the work log;
+5. show the final diff, commit, push and report the pushed commit.
+
+Do not promote a human candidate from chat or an untracked workbook. It must
+follow the approval and machine-readable promotion contract in
+`docs/HUMAN_STRATEGY_SIMPLIFICATION.md`.
+
 ## Full-tree research history
 
 The installed runtime exposes no monolithic full-tree save/load method. A diagnostic proved that the solved tree can be reconstructed by repeatedly combining `solver.history.apply`, `solver.cards.possible`, and `solver.export.currentStreet`. The complete one-board proof required 33,125 fragments, about 18.3 minutes of extraction, and a 589 MB archive. It was rejected as a production architecture.
@@ -59,3 +74,6 @@ GitHub-hosted CI cannot prove a CUDA solve. Never claim a runtime result that wa
 4. `docs/BRIDGE_SCHEMA.md`
 5. `docs/HISTORY.md`
 6. `docs/FLOP_STRATEGY_WORKFLOW.md` when working on strategy studies
+7. `docs/HUMAN_STRATEGY_SIMPLIFICATION.md` for human candidates
+8. `docs/BATCHER_EVOLUTION.md` for the short project chronology
+9. `docs/WORK_LOG.md` for the active task record

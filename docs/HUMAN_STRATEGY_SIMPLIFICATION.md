@@ -116,3 +116,164 @@ A future automated simplifier may generate the candidate and audit, but it must
 not silently replace the baseline or declare the candidate approved. Until that
 automation is explicitly enabled, regeneration produces only the baseline
 workbook and its existing validations.
+
+
+## 7. Exact analysis dataset
+
+A human-table analysis starts from one branch's tracked aggregate `combos.csv`.
+For every active concrete combo retain the board, cards, source weight, node
+reach probability, solver action frequencies, mixed EV, every pure-action EV,
+made-hand base, direct-draw class and BDFD flag. Re-run the repository
+classifier; do not trust categories copied from an earlier workbook.
+
+For hand row `h`, board `b` and action `a`, first compute the ordinary
+combo mean on that board, then the ordinary mean of those board means inside
+each proposed flop class. This is the policy signal. Source weights and reach
+magnitude do not change it. Keep counts of boards, concrete combos and reach
+beside every estimate so tiny subgroups remain visible.
+
+The candidate policy is evaluated per concrete combo. If its action
+probabilities are `q[a]`, then:
+
+```text
+candidate_ev = sum(q[a] * pure_action_ev[a])
+combo_loss_bb = max(0, solver_mixed_ev - candidate_ev) / 10
+mean_local_loss_bb = sum(reach * combo_loss_bb) / sum(reach)
+```
+
+Also report root-normalized loss using the original flop-root reach denominator.
+These are fixed-opponent local-regret measurements, never exploitability.
+
+
+## 8. Finding learnable flop classes
+
+Start with B13 because it assigns all 286 boards deterministically. A candidate
+partition may merge B13 members or use explicit rank rules, but it must be
+mutually exclusive, exhaustive, stable under suits and verified against the
+board file. Print every class definition and board count; counts must sum to
+286. Names such as `Axx`, `B[Q-8]x` or `[9-2]x con` are not accepted until
+their exact inclusion and exclusion rules are written down.
+
+Search candidate partitions from the smallest user-approved column count
+upward. Prefer familiar boundaries: ace-high versus non-ace-high, high versus
+low middle card, and connected versus disconnected low boards. Merge only
+classes whose hand-row action vectors and subgroup composition are similar.
+Isolate `ABB` or `BBB` when the raw data shows a real discontinuity.
+
+For every partition, rebuild every cell from raw frequencies and calculate the
+full audit. Keep the Pareto set rather than optimizing one magic score:
+column count, populated cells, node-wide action deltas, mean and root loss,
+P95/P99/maximum loss, reach mass above 0.10/0.25/0.50 bb, row/action error and
+action-range composition error. The chosen partition is the simplest member
+whose remaining errors are understood and teachable.
+
+A four-column result is not automatically better than an eight-column result.
+Reject a merge when an apparently good total frequency hides a wrong `ABB`,
+`BBB`, pair-rank, kicker, made-pair-with-draw or BDFD subgroup.
+
+
+## 9. Cell policy and subgroup selectors
+
+Allowed ordinary cell policies are one pure action or an exact 50/50 mix of
+the two displayed actions. The slash order follows solver majority; it does
+not change the randomizer. Three-way mixes and remembered board-level
+percentages are not allowed.
+
+The default human candidate enumerates every allowed vector: each one-hot pure
+action and every 50/50 pair of legal actions. Choose the vector with the
+smallest total absolute frequency error against the cell's solver vector; use
+fixed native action order only to break an exact tie. At a two-action node this
+is the nearest 0/50/100 rule: up to and including 25% for the second native action
+maps to the first pure action, 75% or more maps to the second pure action, and
+the interior maps to 50/50. Any different boundary is an explicitly named
+experiment, never a silent global change.
+
+For a human candidate, compare the nearest 0/50/100 bucket with the generated
+65% baseline, but do not adopt a new threshold globally from one branch. A
+pure override is allowed only when raw frequencies support that action and a
+50/50 randomizer demonstrably selects the wrong half of the combos.
+
+Audit each hand row by board class, pair rank, kicker band, direct-draw subtype,
+made pair inside a draw row and BDFD. For each action, compare the solver and
+candidate distribution of the action range across hand rows and flop classes.
+Report percentage-point deltas and total-variation distance. This composition
+audit is mandatory because matching F/C/R or X/B totals can still select the
+wrong hands.
+
+A selector must be observable at the table and use the same classifier
+priority. Preferred selectors are `BDFD`, made pair inside Gutshot, a simple
+kicker band or one explicit flop exception. Record both sides' frequency,
+reach, EV loss and sample size. If the split is unstable or complicated, keep
+the broader 50/50 cell rather than inventing a mnemonic.
+
+
+## 10. Astra review contract
+
+GPT-6 Astra is a second analyst, not a data source and not an approver. Use it
+after the primary analysis has produced reproducible candidate metrics. Give it
+a compact review package containing:
+
+- branch, actor, legal actions and exact study/range/board provenance;
+- classifier priority and exact candidate flop definitions/counts;
+- baseline and candidate action-frequency, regret, tail and composition metrics;
+- cell-level frequencies and support for the leading candidates;
+- worst cells, worst concrete combos and every proposed selector;
+- the user's complexity limit and invariants that may not be changed.
+
+Ask Astra to look independently for hidden clusters, non-monotone exceptions,
+wrong-action subgroups and simpler partitions. It may propose tests, but its
+numbers and conclusions are never copied into production. The primary process
+must reproduce every accepted claim from tracked combo data and rerun the full
+audit. If Astra, theory and local data disagree, local data wins. Astra never
+edits the canonical workbook, never launches the solver and never declares a
+candidate approved.
+
+
+## 11. Recorded worked examples
+
+These examples record how the method was applied; they are not automatic
+production policies.
+
+For STU004 `04_UTG_AFTER_STAB`, a reviewed five-class partition was:
+`Axx` (66), `B[Q-8]x` (104), `B[7-3]x` (60),
+`[9-2]x dis` (40), and `[9-2]x con` (16). It reduced populated cells from
+103 to 56. Solver F/C/R was 40.02/48.10/11.88%; the candidate was
+43.27/44.52/12.21%. Mean local loss was 0.01345 bb and P99 was 0.36769 bb.
+The remaining known skew was over-raising Two pair+ and Gutshot while always
+folding Air.
+
+For STU002 `03_BB_AFTER_CBET`, four-to-six-class merges were rejected because
+they hid third-pair and OESD discontinuities on `ABB`/`BBB`. The reviewed
+eight classes were `ABB` (6), `A[K-T]x` (32), `A[9-2]x` (28), `BBB`
+(4), `B[Q-8]x` (100), `B[7-3]x` (60), `[9-8]xx` (36), and
+`[7-4]xx` (20). The reviewed candidate used a made-pair selector for
+Gutshot on ABB, BDFD where proven, and pure CALL for Second pair on
+`A[K-T]x` because a random 50% fold selected the wrong BDFD combos. It moved
+baseline mean loss from 0.02516 to 0.01460 bb and P99 from 0.637 to 0.444 bb.
+Gutshot composition inside the raise range remained the main caveat.
+
+Do not transfer either partition to another branch without recalculation.
+
+
+## 12. Status and promotion to generated output
+
+As of 2026-09-14, no human candidate is a canonical generated workbook. The
+two local files formerly named
+`output/STU004_UTG_vs_BTN_UTG_cbet_test.xlsx` and
+`output/STU002_UTG_vs_BB_human_strategy_candidate.xlsx` were experiments:
+the first covered one branch with a test-specific EV guard; the second used an
+earlier all-branch rule that predates later manual reviews. Neither is a valid
+source of truth.
+
+A human strategy becomes reproducible only after all of these steps:
+
+1. save exact flop-class definitions and cell/selector policies as tracked,
+   machine-readable configuration;
+2. generate a separate candidate workbook and machine-readable audit beside
+   the untouched `<STU>_flop_strategy.xlsx` baseline;
+3. reproduce every reported metric from tracked combo data;
+4. receive explicit user approval for that exact version;
+5. add the candidate to the universal generator and CI in the same commit.
+
+Until then, the universal generator intentionally emits only the approved
+solver-frequency baseline.

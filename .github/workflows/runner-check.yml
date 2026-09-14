@@ -128,8 +128,20 @@ jobs:
               if (Test-Path "$strategyRoot/$obsolete") { throw "Obsolete strategy output is active: $obsolete" }
             }
           }
-          foreach ($required in @('docs/FLOP_STRATEGY_WORKFLOW.md','docs/HUMAN_STRATEGY_SIMPLIFICATION.md','scripts/flop_strategy.py','scripts/flop_workbook.py','scripts/generate-flop-strategies.py')) {
+          foreach ($required in @(
+            'docs/FLOP_STRATEGY_WORKFLOW.md',
+            'docs/HUMAN_STRATEGY_SIMPLIFICATION.md',
+            'docs/BATCHER_EVOLUTION.md',
+            'docs/WORK_LOG.md',
+            'scripts/README.md',
+            'scripts/flop_strategy.py',
+            'scripts/flop_workbook.py',
+            'scripts/generate-flop-strategies.py'
+          )) {
             if (-not (Test-Path $required -PathType Leaf)) { throw "Missing generic strategy file: $required" }
+          }
+          if (Test-Path 'scripts/generate-stu003-config.mjs') {
+            throw 'Superseded STU003 generator returned to active scripts'
           }
           Write-Host 'PASS: proven v015 selected current-street production runner.'
       - name: Rebuild and validate strategy data
