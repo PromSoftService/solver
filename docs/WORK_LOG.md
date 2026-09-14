@@ -168,3 +168,120 @@ remains the supported simplification despite the visible Gutshot overcall.
 
 No GPU solve was run. No solver export, study, range, board, canonical policy,
 generator or workbook was changed. Promotion remains blocked until user approval.
+
+
+## 2026-09-14 — STU002 UTG versus BB donk human table
+
+Status: STARTED
+
+Starting point:
+
+- local `main` is clean and one documentation commit ahead of `origin/main`;
+- source branch is `STU002 / 05_UTG_AFTER_DONK`;
+- history is `BB Donk 50%`; UTG chooses FOLD/CALL/RAISE 60 native;
+- tracked source export is `20260909-003948Z/combos.csv`;
+- no GPU solve and no canonical workbook edit are authorized.
+
+Plan: reproduce the baseline, search compact exhaustive flop partitions, audit
+hand-row and action-range composition plus combo EV/tails, obtain an independent
+GPT-6 Astra review, reproduce accepted tests locally, and report one Markdown
+candidate for user approval.
+
+Status: ANALYZED — AWAITING USER APPROVAL
+
+Result:
+
+- evaluated 36 compact exhaustive partitions;
+- selected five familiar classes: `Axx` (66), `B[Q-8]x` (104),
+  `B[7-3]x` (60), `[9-2]x dis` (40), `[9-2]x con` (16);
+- reduced the branch from 103 populated baseline cells to 56;
+- retained one conditional selector: `Air / Axx = BDFD`;
+- GPT-6 Astra independently reviewed the candidate and requested four bounded
+  one-cell controls; every control was reproduced locally.
+
+Accepted control:
+
+- `OESD / B[7-3]x: R -> R/C` reduced OESD over-raising, mean regret,
+  P99 and raise-composition error.
+
+Rejected controls:
+
+- both Weak-pair raise additions selected locally unsupported raises (solver
+  raise 9.6% and 0.9% in the tested cells);
+- restoring `Third pair / [9-2]x dis = C/R` increased row error to 12.46 pp.
+
+Final audit:
+
+- solver F/C/R: 28.0434% / 59.0276% / 12.9290%;
+- candidate F/C/R: 29.5709% / 56.8135% / 13.6156%;
+- mean fixed-opponent reach-weighted local regret: 0.0170222 bb;
+- root-weighted value: 0.00108547 bb;
+- P99 loss: 0.279847 bb; maximum combo loss: 4.55684 bb;
+- reach above 0.10 / 0.25 / 0.50 bb: 4.5470% / 1.2078% / 0.1115%;
+- hand-row MAE: 4.6352 pp versus 10.6935 pp for the baseline;
+- action-range TVD F/C/R: 0.03229 / 0.04245 / 0.18648 versus
+  0.03279 / 0.19043 / 0.52555 for the baseline.
+
+The candidate prioritizes hand-category balance over minimum local regret:
+baseline mean regret is lower at 0.0129025 bb, but its category and raise-range
+composition errors are materially larger.
+
+No GPU solve was run. No solver export, study, range, board, canonical policy,
+generator or workbook was changed. Promotion remains blocked until user approval.
+
+
+## 2026-09-14 — STU002 BB versus UTG raise after donk human table
+
+Status: STARTED
+
+Starting point:
+
+- source branch is `STU002 / 06_BB_AFTER_DONK_RAISE`;
+- history is `BB Donk 50% -> UTG Raise 60 native`; BB chooses FOLD/CALL;
+- tracked source export is `20260909-024314Z/combos.csv`;
+- the baseline has 91 populated cells and three BDFD selectors;
+- no GPU solve and no canonical workbook edit are authorized.
+
+Plan: reproduce the baseline, search compact exhaustive flop partitions, audit
+hand-row and CALL-range composition plus combo EV/tails, obtain an independent
+GPT-6 Astra review, reproduce accepted tests locally, and report one Markdown
+candidate for user approval.
+
+Status: ANALYZED — AWAITING USER APPROVAL
+
+Result:
+
+- evaluated 36 compact exhaustive partitions and selected five familiar classes:
+  `Axx` (66), `B[Q-8]x` (104), `B[7-3]x` (60),
+  `[9-2]x dis` (40), `[9-2]x con` (16);
+- reduced the branch from 91 populated baseline cells to 56;
+- retained `BDFD` for three Third-pair cells, `Ax` for two low-board
+  two-overcard cells, and one shared `PAIR/BDFD` Gutshot rule;
+- GPT-6 Astra independently accepted the action matrix and requested only exact
+  coverage and selector definitions; the source was rechecked as exactly 286
+  unpaired, three-distinct-rank boards before documenting the boundaries.
+
+Class boundaries:
+
+- `Axx`: every board containing an ace;
+- `B[Q-8]x`: no ace, three distinct ranks, top rank K-T and middle
+  rank Q-8;
+- `B[7-3]x`: no ace, three distinct ranks, top rank K-T and middle
+  rank 7-3;
+- low boards have top rank at most 9 and split at rank span three:
+  span above three is `dis`, span at most three is `con`.
+
+Final audit:
+
+- solver F/C: 41.4759% / 58.5241%;
+- candidate F/C: 41.4081% / 58.5919%;
+- mean fixed-opponent reach-weighted local regret: 0.0144167 bb versus
+  0.0492779 bb for the baseline;
+- root-weighted value: 0.000118860 bb versus 0.000406276 bb;
+- P95 / P99 / maximum combo loss: 0.006982 / 0.553575 / 3.01659 bb;
+- reach above 0.10 / 0.25 / 0.50 / 1.00 bb:
+  2.8478% / 1.8828% / 1.0926% / 0.2215%;
+- CALL-range composition TVD: 0.01993.
+
+No GPU solve was run. No solver export, study, range, board, canonical policy,
+generator or workbook was changed. Promotion remains blocked until user approval.
