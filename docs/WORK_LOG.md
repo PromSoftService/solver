@@ -754,3 +754,15 @@ Scope: make the manual human-table process independently reproducible by documen
 Constraints: human judgment remains manual; repository scripts continue to generate only the solver-frequency baseline; do not change the trainer, solver, generator, workbooks or active STU005; do not use GitHub Actions.
 
 Plan: add explicit initiative and defense procedures to `docs/HUMAN_STRATEGY_SIMPLIFICATION.md`, reconcile the existing 0/50/100 policy with the already approved, explicitly audited 15/85 initiative exceptions, validate internal consistency and publish the documentation only.
+
+Status: COMPLETED
+
+Result:
+
+- added separate, numbered manual procedures for initiative nodes and defense/response nodes to `docs/HUMAN_STRATEGY_SIMPLIFICATION.md`;
+- initiative procedure now fixes board-partition search, coherent value/draw/Air composition, protected CHECK, pure-value overrides, 0/50/100 testing, explicitly audited 15/85 exceptions and downstream path feasibility;
+- defense procedure now fixes made-hand CALL structure, value/direct-draw raises, deterministic CALL/FOLD selectors, hidden-subgroup checks and stronger value simplification for rare deep branches;
+- reconciled cell-policy wording with the approved `B15/X85` and `D15/X85` tables without permitting arbitrary percentages;
+- linked the procedure to all four approved initiative worked examples;
+- validated Markdown whitespace and all nine referenced documentation paths locally;
+- scripts, trainer, solver, workbooks and active STU005 output were unchanged; GitHub Actions were not used.

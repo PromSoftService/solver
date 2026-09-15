@@ -80,6 +80,87 @@ Theory may explain an accepted data-backed rule, but must be kept separate from
 the calculation. If no reliable theoretical explanation is available, state
 that instead of inventing one.
 
+
+## 4A. Separate procedures for initiative and defense
+
+Both procedures start from the same tracked combo-level frequencies, pure-action
+EVs and reach values. They differ in what must remain balanced and therefore
+must not be collapsed into one generic cell-selection rule.
+
+### 4A.1. Initiative: CHECK versus BET or DONK
+
+Use this procedure when the acting player chooses between CHECK and an
+initiative action such as BET or DONK:
+
+1. Confirm the exact actor, opponent, pot, size and upstream path. Do not mix
+   c-bet, stab and donk data or transfer a partition between positions.
+2. Reproduce total and per-hand-row solver action frequencies, both by the
+   baseline board-then-combo mean and, where labelled, by reach.
+3. Start with the smallest exhaustive board-height partition. Test familiar
+   boundaries such as A-high, K/Q-high, J/T-high and low boards. Test a special
+   `AKx / Kxx` or low-only donk class only when the local data shows a stable
+   discontinuity.
+4. For every proposed class inspect value hands, ordinary pairs, OESD, Gutshot,
+   `2 overcards + BDFD` and Air separately. A matching total BET frequency is
+   insufficient if the candidate bets the wrong hand rows.
+5. Build a coherent betting range: strong value supplies calls from worse,
+   direct draws supply natural semi-bluffs, and a controlled Air component
+   prevents BET from meaning only value. Preserve a protected CHECK range.
+6. Test pure CHECK, pure BET/DONK and the standard 50/50 mix first. A fixed
+   15/85 mix is allowed only as an explicitly audited initiative exception:
+   it must represent a stable low-frequency tendency across a broad,
+   memorable row or board class, be compared with 0/50/100 alternatives, and
+   be written in the table and legend. Never invent arbitrary percentages per
+   cell to imitate solver output.
+7. A pure-value override is allowed when raw frequency and pure-action EV both
+   support it and it removes a meaningful loss tail or wrong range composition.
+   EV remains a veto and audit, not a source of unsupported actions.
+8. Compare candidate partitions on column count, total action delta, hand-row
+   and board-family composition, root loss, P95/P99/maximum loss and reach in
+   the loss tails. Choose the simplest Pareto candidate whose remaining skew
+   is explicit and teachable.
+9. If this action leads to a later training branch, that branch may generate
+   only boards and hands on which the upstream human table permits the observed
+   BET or DONK. An off-policy response table may remain documented, but it must
+   not create impossible standard histories.
+
+### 4A.2. Defense and response: FOLD, CALL and RAISE
+
+Use this procedure after an opponent BET, DONK or RAISE:
+
+1. Confirm the exact node and legal actions. Treat a response to a first bet
+   separately from a response in a deep, low-reach raise branch.
+2. Establish the coarse human skeleton before adding exceptions: normal made
+   hands tend to CALL, hands without sufficient equity tend to FOLD, and the
+   raising range is built primarily from strong value, OESD and Gutshot.
+3. Audit pair rank, kicker band, made pair inside a draw row, direct-draw
+   subtype and BDFD. Add a selector only when one visible property reliably
+   separates valid continues from folds.
+4. Prefer a deterministic strength boundary to random CALL/FOLD. A human
+   `C/F` or `F/C` cell therefore requires a local legend stating which stronger
+   subgroup calls and which weaker subgroup folds; it is not automatically a
+   50/50 randomizer. `C/R` and `R/C` remain exact 50/50 unless their local
+   legend explicitly says otherwise.
+5. Start the board search with tight Broadway, remaining high boards and low
+   boards as hypotheses, not universal categories. Merge Axx with Bxx only
+   after their final hand-row actions and hidden subgroups have been checked
+   separately. Keep `ABB / BBB` isolated when it has a real discontinuity.
+6. Do not restore rare solver raises with pairs or Air merely to match the
+   aggregate raise percentage. The simplified raise range may intentionally
+   concentrate in value and direct draws when frequency, fixed-opponent EV and
+   tails remain acceptable.
+7. In a rare deep branch, simplify more strongly toward value and robust draws.
+   Record the branch reach and the cost of discarded marginal continues rather
+   than carrying the full first-response complexity into the table.
+8. Re-run the complete frequency, composition and local-regret audit after
+   every merge or selector. Use only branch-specific, explicitly approved
+   tolerances; there is no universal frequency or EV allowance.
+
+These procedures produce proposals only. The analyst presents the exact table,
+audit and known distortions; only explicit user approval makes it the recorded
+human strategy. No repository generator performs these judgments.
+
+
 ## 5. Required audit
 
 Every proposed human table must report, for each branch:
@@ -175,22 +256,27 @@ Reject a merge when an apparently good total frequency hides a wrong `ABB`,
 
 ## 9. Cell policy and subgroup selectors
 
-Allowed ordinary cell policies are one pure action or an exact 50/50 mix of
-the two displayed actions. The slash order follows solver majority; it does
-not change the randomizer. Three-way mixes and remembered board-level
-percentages are not allowed.
+The default ordinary cell policies are one pure action or an exact 50/50 mix
+of two displayed actions. `B/X`, `D/X`, `C/R` and their reversed forms are
+50/50; slash order follows solver majority and does not change the randomizer.
+A human `C/F` or `F/C` must instead have a local deterministic strength
+selector unless it is explicitly declared to be a randomizer. Initiative
+tables may use a labelled 15/85 mix only under the exception in section 4A.1.
+Three-way mixes and unlabelled or board-specific percentages are not allowed.
 
-Against the same fixed opponent strategy, the EV of an exact 50/50 mix is the
-average of the two pure-action EVs. It therefore cannot beat both pure actions
-on mean local EV. Retain a mix only for an explicitly audited range-composition
-or tail-risk reason; never describe it as the local-EV optimum when a pure
-action is better.
+Against the same fixed opponent strategy, the EV of any fixed mix is the
+weighted average of its pure-action EVs. It therefore cannot beat every pure
+component on mean local EV. Retain a mix only for an explicitly audited
+frequency, range-composition or tail-risk reason; never describe it as the
+local-EV optimum when a pure action is better.
 
-During manual analysis, temporary calculations may enumerate each one-hot pure
-action and every 50/50 pair of legal actions. The analyst compares those vectors
-with the cell's solver frequencies; this calculation proposes candidates but
-does not generate or approve the teaching table. Use fixed native action order
-only to break an exact tie. At a two-action node this
+During manual analysis, temporary calculations enumerate each one-hot pure
+action and every 50/50 pair of legal actions first. An initiative analysis may
+then test the explicit 15/85 exception against those standard alternatives.
+The analyst compares those vectors with the cell's solver frequencies; this
+calculation proposes candidates but does not generate or approve the teaching
+table. Use fixed native action order only to break an exact tie. At a
+two-action node the default candidate mapping
 is the nearest 0/50/100 rule: up to and including 25% for the second native action
 maps to the first pure action, 75% or more maps to the second pure action, and
 the interior maps to 50/50. Any different boundary is an explicitly named
@@ -309,6 +395,29 @@ Solver F/C/R is 34.84/52.43/12.73%; the candidate is
 0.002372/0.003410/0.005520 bb. The only deterministic CALL/FOLD selector is
 the row-wide Weak-pair rank boundary. The exact table and audit are in
 `docs/BTN_CBET_RESPONSE_SIMPLIFICATION.md`.
+
+The initiative procedure is represented by four approved worked examples:
+
+- STU002 `01_BB_FIRST` keeps T-high and higher as range CHECK, uses a broad
+  15% donk on `[9-8]xx`, and raises suitable `[7-4]xx` rows to 50%. The two
+  low classes are necessary because one merged low class hid opposite board-
+  height errors. See `docs/BB_DONK_SIMPLIFICATION.md`.
+- STU002 `02_UTG_AFTER_CHECK` uses A-high, K/Q-high, J/T-high and 9-high-or-
+  lower. The fourth column is retained because Low pocket pair and Overpair
+  change materially at the lowest boundary. See
+  `docs/UTG_CBET_VS_BB_SIMPLIFICATION.md`.
+- STU004 `01_UTG_FIRST` uses `AKx / Kxx`, remaining A/Q/J-high and T-high-or-
+  lower. Strong value pure-bets the first class, ordinary rows retain simple
+  mixes, and the entire lowest class checks. See
+  `docs/UTG_CBET_VS_BTN_SIMPLIFICATION.md`.
+- STU004 `02_BTN_AFTER_CHECK` uses A-high, K/Q-high and J-high-or-lower.
+  Pure value and the supported A-high Gutshot override repair the dominant
+  loss and composition errors without adding another column. See
+  `docs/BTN_STAB_VS_UTG_SIMPLIFICATION.md`.
+
+These examples show the initiative workflow rather than a universal partition:
+each split and override was accepted only after its own frequency, composition
+and fixed-opponent EV audit.
 
 Do not transfer any recorded partition to another branch without recalculation.
 
