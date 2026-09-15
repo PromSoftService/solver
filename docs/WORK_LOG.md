@@ -645,3 +645,16 @@ Approval and publication:
 - GPT-6 Astra independently reviewed the evidence; every accepted or rejected suggestion was reproduced from tracked combo data;
 - kept the generator, canonical workbook, trainer and active STU005 output unchanged;
 - validated locally only; GitHub Actions were not used.
+
+
+## 2026-09-15 - audit STU004 UTG c-bet initiative table
+
+Status: STARTED
+
+Base commit: `d7f3204` (`main` synchronized with `origin/main`).
+
+Scope: manually re-audit only `STU004 / 01_UTG_FIRST`, where UTG chooses CHECK or BET 1/2 against BTN.
+
+Constraints: use the tracked combo/action-EV export; do not run the GPU solver; do not change the generator, canonical workbook or trainer; preserve active STU005; do not use GitHub Actions.
+
+Plan: reproduce the approved three-column teaching table; search the smallest familiar exhaustive flop classes; test `X`, `B15/X85`, `B/X` and `B`; audit total BET, BET-range composition, local/root EV and tails; obtain an independent GPT-6 Astra critique; present one reproduced candidate for approval before documentation changes.
