@@ -621,3 +621,16 @@ Approval and publication:
 - kept all generators, canonical workbooks and solver/source data unchanged;
 - validated locally only; GitHub Actions were not used;
 - active untracked STU005 solver output remains excluded.
+
+
+## 2026-09-15 - audit STU002 UTG c-bet initiative table
+
+Status: STARTED
+
+Base commit: `f7216e6bc1492573ec4c134e5fd66b69264b8187` (`main` synchronized with `origin/main`).
+
+Scope: manually re-audit only `STU002 / 02_UTG_AFTER_CHECK`, where UTG chooses CHECK or BET 1/2 after BB checks.
+
+Constraints: use the tracked combo/action-EV export; do not run the GPU solver; do not change the generator or canonical workbook; preserve active STU005; do not use GitHub Actions.
+
+Plan: reproduce the current three-column table frequencies; test allowed `X`, `B15/X85`, `B/X` and `B` policies and the smallest familiar exhaustive flop partitions; audit total BET, hand-category and board-family composition, local/root EV and loss tails; obtain an independent GPT-6 Astra critique; reproduce accepted suggestions locally; present the candidate for approval before updating teaching documents or trainer.
