@@ -634,3 +634,14 @@ Scope: manually re-audit only `STU002 / 02_UTG_AFTER_CHECK`, where UTG chooses C
 Constraints: use the tracked combo/action-EV export; do not run the GPU solver; do not change the generator or canonical workbook; preserve active STU005; do not use GitHub Actions.
 
 Plan: reproduce the current three-column table frequencies; test allowed `X`, `B15/X85`, `B/X` and `B` policies and the smallest familiar exhaustive flop partitions; audit total BET, hand-category and board-family composition, local/root EV and loss tails; obtain an independent GPT-6 Astra critique; reproduce accepted suggestions locally; present the candidate for approval before updating teaching documents or trainer.
+
+
+Status: COMPLETED
+
+Approval and publication:
+
+- the user approved the four-class `A-high / K/Q-high / J/T-high / 9-high and lower` table;
+- recorded the exact table, metrics, deliberate row distortions and rejected B15 experiments in `docs/UTG_CBET_VS_BB_SIMPLIFICATION.md`;
+- GPT-6 Astra independently reviewed the evidence; every accepted or rejected suggestion was reproduced from tracked combo data;
+- kept the generator, canonical workbook, trainer and active STU005 output unchanged;
+- validated locally only; GitHub Actions were not used.

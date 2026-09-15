@@ -96,7 +96,8 @@ UTG responses to the check-raise and donk branches are in
 donk-raise is in `docs/BB_DONK_RAISE_RESPONSE_SIMPLIFICATION.md`; the approved
 UTG response to the BTN stab and BTN response to the UTG c-bet are in
 `docs/UTG_STAB_RESPONSE_SIMPLIFICATION.md` and
-`docs/BTN_CBET_RESPONSE_SIMPLIFICATION.md`. A concise runner and table
+`docs/BTN_CBET_RESPONSE_SIMPLIFICATION.md`; the approved UTG c-bet against BB
+is in `docs/UTG_CBET_VS_BB_SIMPLIFICATION.md`. A concise runner and table
 evolution is in `docs/BATCHER_EVOLUTION.md`; active
 repository-changing work is recorded in `docs/WORK_LOG.md`. Script ownership
 and the sole strategy entry point are summarized in `scripts/README.md`.
