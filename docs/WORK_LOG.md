@@ -658,3 +658,14 @@ Scope: manually re-audit only `STU004 / 01_UTG_FIRST`, where UTG chooses CHECK o
 Constraints: use the tracked combo/action-EV export; do not run the GPU solver; do not change the generator, canonical workbook or trainer; preserve active STU005; do not use GitHub Actions.
 
 Plan: reproduce the approved three-column teaching table; search the smallest familiar exhaustive flop classes; test `X`, `B15/X85`, `B/X` and `B`; audit total BET, BET-range composition, local/root EV and tails; obtain an independent GPT-6 Astra critique; present one reproduced candidate for approval before documentation changes.
+
+
+Status: COMPLETED
+
+Approval and publication:
+
+- the user approved the original three flop classes with pure BET for Two pair+ and Overpair on `AKx / Kxx`;
+- recorded the exact table, metrics, classifier priority and accepted completed-straight exception in `docs/UTG_CBET_VS_BTN_SIMPLIFICATION.md`;
+- GPT-6 Astra independently reviewed the evidence and the accepted claims were reproduced from tracked combo data;
+- kept the generator, canonical workbook, trainer and active STU005 output unchanged;
+- validated locally only; GitHub Actions were not used.
