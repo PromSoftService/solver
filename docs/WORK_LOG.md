@@ -741,3 +741,16 @@ Result:
 - confirmed 36 `[9-8]xx` boards, 20 `[7-4]xx` boards and 230 T-high+ boards excluded from donk generation;
 - standalone file SHA-256: `63f42c613051c61e57deabcc3a901c89b168bf912c8b52bdbe7be777228c02b2`;
 - solver, generator, canonical workbooks and active STU005 output were unchanged; GitHub Actions were not used.
+
+
+## 2026-09-16 - document separate initiative and defense procedures
+
+Status: STARTED
+
+Base commit: `40f45f4` (`main` synchronized with `origin/main`).
+
+Scope: make the manual human-table process independently reproducible by documenting separate step-by-step procedures for initiative nodes and defense/response nodes.
+
+Constraints: human judgment remains manual; repository scripts continue to generate only the solver-frequency baseline; do not change the trainer, solver, generator, workbooks or active STU005; do not use GitHub Actions.
+
+Plan: add explicit initiative and defense procedures to `docs/HUMAN_STRATEGY_SIMPLIFICATION.md`, reconcile the existing 0/50/100 policy with the already approved, explicitly audited 15/85 initiative exceptions, validate internal consistency and publish the documentation only.
