@@ -682,3 +682,14 @@ Scope: manually re-audit only `STU004 / 02_BTN_AFTER_CHECK`, where BTN chooses C
 Constraints: use the tracked combo/action-EV export; do not run the GPU solver; do not change the generator, canonical workbook or trainer; preserve active STU005; do not use GitHub Actions.
 
 Plan: reproduce the approved three-column teaching table; test the smallest familiar exhaustive flop classes and `X`, `B15/X85`, `B/X`, `B`; audit total BET, hand-row and board-family composition, root EV and tails; obtain independent GPT-6 Astra review; present one locally reproduced candidate before documentation changes.
+
+
+Status: COMPLETED
+
+Approval and publication:
+
+- the user approved pure BET for Two pair+ on K/Q-high and Gutshot on A-high while retaining the three existing flop classes;
+- recorded the exact table, metrics, classifier priority and accepted row/tail exceptions in `docs/BTN_STAB_VS_UTG_SIMPLIFICATION.md`;
+- GPT-6 Astra independently reviewed the evidence and all accepted claims were reproduced from tracked combo data;
+- kept the generator, canonical workbook, trainer and active STU005 output unchanged;
+- validated locally only; GitHub Actions were not used.
