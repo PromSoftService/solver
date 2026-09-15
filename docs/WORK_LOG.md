@@ -728,3 +728,16 @@ Scope: update the standalone mobile HTML trainer to the ten approved STU002/STU0
 Constraints: do not add the standalone trainer to the solver repository; do not change solver/generator/workbook code; do not touch or interrupt active STU005; do not use GitHub Actions.
 
 Plan: update branch data, mutually exclusive flop classifiers and explanations; prevent impossible BB-donk histories outside the approved low-board classes; validate all ten selectable branches, table dimensions, actions, random deals and mobile HTML locally; publish the updated standalone HTML, then close this work-log entry.
+
+Status: COMPLETED
+
+Result:
+
+- updated the existing standalone `poker_flop_strategy_trainer.html` to all ten approved STU002/STU004 teaching tables and full explanations;
+- added the approved two-class BB-donk strategy, four-class UTG-vs-BB c-bet strategy and all approved simplified response tables;
+- updated path filtering so `D15/X85` is a valid rare donk while BB-donk and donk-raise branches remain impossible on T-high and higher boards;
+- preserved the ten-branch checkbox filter, side-by-side weighted ranges, soft action colours and mobile portrait layout;
+- validated JavaScript syntax, HTML parsing, 12 hand rows per table, all table dimensions, all 286 board-rank classifications, 25 generated questions per branch and full explanation rendering;
+- confirmed 36 `[9-8]xx` boards, 20 `[7-4]xx` boards and 230 T-high+ boards excluded from donk generation;
+- standalone file SHA-256: `63f42c613051c61e57deabcc3a901c89b168bf912c8b52bdbe7be777228c02b2`;
+- solver, generator, canonical workbooks and active STU005 output were unchanged; GitHub Actions were not used.
