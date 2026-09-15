@@ -585,3 +585,24 @@ Approval and publication:
   artifact unchanged;
 - active untracked STU005 output remains excluded;
 - GitHub Actions were not used.
+
+
+## 2026-09-15 - simplify STU004 BTN response to UTG c-bet
+
+Status: STARTED
+
+Base commit: `e0c7ff2` (`main` synchronized with `origin/main`).
+
+Scope: manually simplify only `STU004 / 03_BTN_AFTER_CBET`, where BTN
+chooses FOLD, CALL or RAISE after UTG c-bets one half-pot.
+
+Constraints: use the tracked solver combo/action-EV export; do not run the GPU
+solver; do not add or change a human-table generator; preserve the canonical
+workbook and active untracked STU005 output; do not use GitHub Actions.
+
+Plan: audit the current five-column table; test the smallest exhaustive familiar
+partitions, beginning with `ABB / BBB`, non-paired `Axx`, non-paired `Bxx`
+and `[9-2]xx`; preserve a learnable value-plus-direct-draw raise range;
+measure total F/C/R, row/flop composition and EV tails; obtain independent
+GPT-6 Astra review; present a reproduced candidate for approval before final
+documentation.
