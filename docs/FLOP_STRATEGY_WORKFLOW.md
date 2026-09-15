@@ -254,10 +254,12 @@ colors and layout are deterministic, and `BDFD` uses the call-family blue.
 The saved workbook is reopened and checked for its sheet structure, cell
 values, formula-error tokens and ZIP integrity.
 
-Human simplification after this generated baseline is a separate, explicitly
-reviewed phase. Its rules and audit requirements are fixed in
-`docs/HUMAN_STRATEGY_SIMPLIFICATION.md`; the generator does not apply that
-phase automatically.
+Human simplification starts only after this generated baseline and is a manual,
+explicitly reviewed phase. Its rules and audit requirements are fixed in
+`docs/HUMAN_STRATEGY_SIMPLIFICATION.md`. The generator never chooses teaching
+flop classes, changes actions from a human discussion, invokes Astra, reads a
+Markdown strategy or emits an approved human table. Temporary calculations may
+audit a proposal, but they are not part of workbook generation.
 
 ## 10. Non-goals
 

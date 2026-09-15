@@ -25,12 +25,14 @@ Keep source inputs and reusable examples in Git. Generated `output/` and `_diagn
 
 Every completed production study publishes exactly one workbook: 12 displayed
 hand rows by the final ten flop categories. It is rebuilt directly from tracked
-solver combo frequencies. OESD and Gutshot take priority over made hands.
+solver combo frequencies. The production generator stops there: human
+simplification is a manual analysis and approval phase, and no human-table
+generator may be added to the supported pipeline. OESD and Gutshot take priority over made hands.
 `BDFD` in a response cell means fold without BDFD and call with BDFD. Do not
 infer frequencies from displayed action labels and do not restore discarded
 row-smoothing experiments. Read `docs/FLOP_STRATEGY_WORKFLOW.md` before
 changing classification, aggregation, thresholds, or workbooks. Read
-`docs/HUMAN_STRATEGY_SIMPLIFICATION.md` before proposing or automating any
+`docs/HUMAN_STRATEGY_SIMPLIFICATION.md` before analyzing or proposing any
 further human reduction of a generated workbook.
 
 ## Task lifecycle
@@ -44,9 +46,10 @@ For every repository-changing task:
 4. append changed files, checks, results and remaining limits to the work log;
 5. show the final diff, commit, push and report the pushed commit.
 
-Do not promote a human candidate from chat or an untracked workbook. It must
-follow the approval and machine-readable promotion contract in
-`docs/HUMAN_STRATEGY_SIMPLIFICATION.md`.
+Do not turn a human candidate from chat into generated output. Human tables
+remain manually reviewed Markdown documentation, follow the approval protocol
+in `docs/HUMAN_STRATEGY_SIMPLIFICATION.md`, and never become an input to the
+production workbook generator.
 
 ## Full-tree research history
 
@@ -62,9 +65,9 @@ Before replacing files, fetch remote `main`. After runner changes:
 - validate JSON examples and board syntax;
 - run the smallest relevant smoke on the user's Windows/NVIDIA machine;
 - inspect output files and batch summaries;
-- inspect GitHub Actions logs after pushing.
+- do not use GitHub Actions; validate locally and report the exact checks.
 
-GitHub-hosted CI cannot prove a CUDA solve. Never claim a runtime result that was not produced on the Windows/NVIDIA host.
+Only the Windows/NVIDIA host can prove a CUDA solve. Never claim a runtime result that was not produced there.
 
 ## First files to read
 
@@ -75,5 +78,6 @@ GitHub-hosted CI cannot prove a CUDA solve. Never claim a runtime result that wa
 5. `docs/HISTORY.md`
 6. `docs/FLOP_STRATEGY_WORKFLOW.md` when working on strategy studies
 7. `docs/HUMAN_STRATEGY_SIMPLIFICATION.md` for human candidates
-8. `docs/BATCHER_EVOLUTION.md` for the short project chronology
-9. `docs/WORK_LOG.md` for the active task record
+8. `docs/BB_DEFENSE_SIMPLIFICATION.md` for the approved defensive worked example
+9. `docs/BATCHER_EVOLUTION.md` for the short project chronology
+10. `docs/WORK_LOG.md` for the active task record

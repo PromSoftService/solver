@@ -377,6 +377,10 @@ Result:
 - the canonical workbook, source solver data and the active STU005 GPU run
   were not changed or interrupted. GitHub Actions were not used.
 
+Historical note: this five-class experiment was later rejected. Its analyzer
+was removed; `analysis/human-5` remains only as archived audit evidence and is
+not an active workflow or source of truth.
+
 
 ## 2026-09-15 — strict five-class STU002 BB response revision
 
@@ -394,6 +398,12 @@ Plan: clean the interrupted partial edit, regenerate all audits from tracked
 combo/action EV, review frequency/composition and EV tails with GPT-6 Astra,
 document the result, validate, amend the unpushed commit, and request explicit
 authorization before pushing. The active STU005 GPU run remains untouched.
+
+Status: SUPERSEDED
+
+The strict five-class intermediate candidate was not promoted. The later
+user-approved four-class revision replaces it and is recorded below; its audit
+is regenerated from the same tracked combo data.
 
 
 ## 2026-09-15 — resilient batch summaries during STU005 resume
@@ -420,3 +430,36 @@ Implementation and validation:
 - the second branch produced its first two successful boards and a live TexasSolverGPU child process was verified.
 
 Remaining operational note: a reader may continue holding the old raw `batch-summary.json`; this no longer blocks solving, resume, parsing or compact dataset publication.
+
+
+## 2026-09-15 - document and reproduce the final BB defense simplification
+
+Status: STARTED
+
+Base commit: `349c9efb9043403997a5d26059420728bf42a832` (local `main`; `origin/main` is `2738ee92d40bd02690b77e413fd7dd9042e7b2a9`).
+
+Scope: record how the primary analysis and GPT-6 Astra review produced the simplified `STU002 / 03_BB_AFTER_CBET` teaching table, then record the user-approved principles for human bluff check-raises, deterministic CALL/FOLD selection and numeric acceptance limits. Make the exact four-column `ABB / BBB`, `Axx`, `Bxx`, `[9-2]xx` result reproducible from tracked combo data.
+
+Constraints: preserve the canonical ten-column workbook and every solver/source artifact; do not disturb the active STU005 GPU solve; do not use GitHub Actions; keep unrelated generated STU005 files out of Git.
+
+Plan:
+
+1. update the methodology with the chronological primary-analysis/Astra/local-reproduction protocol;
+2. document the revised check-raise composition principle and agreed frequency/EV/tail guardrails;
+3. remove the branch-specific human analyzer and keep the old `human-5` evidence only as an explicitly rejected historical audit;
+4. verify that the universal generator remains unchanged and has no human-table input or output;
+5. close this log entry, inspect the staged diff, commit and push `main`.
+
+
+Status: COMPLETED
+
+Result:
+
+- documented the manual analyst -> Astra critique -> local verification -> user approval workflow;
+- recorded the final four-class `03_BB_AFTER_CBET` table, branch-only check-raise principles, numeric guardrails and reproduced audit metrics;
+- removed `scripts/analyze-human-bb-response.py`; no supported script generates, consumes or promotes a human table;
+- retained `analysis/human-5` only as the explicitly rejected historical five-class audit;
+- verified that `generate-flop-strategies.py`, `flop_strategy.py` and `flop_workbook.py` are unchanged from `origin/main`;
+- `git diff --check`, Python compilation of the universal generator modules and parsing of every PowerShell script passed;
+- runner PID 4488 and TexasSolverGPU PID 25852 remained alive; active untracked STU005 output was not staged or modified;
+- GitHub Actions were not used.

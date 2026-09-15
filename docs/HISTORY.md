@@ -229,17 +229,26 @@ any later human reduction are documented separately in
 `docs/HUMAN_STRATEGY_SIMPLIFICATION.md`; regeneration does not apply them.
 
 
-## 16. STU002 five-class BB response candidate
+## 16. STU002 approved four-class BB response candidate
 
-The user requested a second, teaching-first reduction of only
-`03_BB_AFTER_CBET` to five flop columns: `ABB`, non-ABB `Axx`, `BBB`,
+A teaching-first reduction of
+`03_BB_AFTER_CBET` first used five flop columns: `ABB`, non-ABB `Axx`, `BBB`,
 non-BBB `Bxx`, and `[9-2]xx`. The tracked combo/action EV export, not a new
 GPU solve, selected pure actions, exact 50/50 CALL/RAISE mixes and deterministic
 CALL/FOLD selectors.
 
+After independent Astra review, local reproduction and the user's clarification
+of the human check-raise model, `ABB` and `BBB` were merged. The final classes
+are `ABB / BBB`, non-ABB `Axx`, non-BBB `Bxx`, and `[9-2]xx`. Rare solver
+raises with pairs or Air are deliberately omitted; the only conditional rule
+is the observable `PAIR` selector for Gutshot on paired Broadway structures.
+
 The separate candidate preserves the canonical ten-class workbook. Its
-reach-weighted F/C/R is 49.09/39.27/11.65% versus solver
-47.90/39.09/13.01%; mean source-mix loss is 0.00860 bb and oracle-regret P99
-is 0.23436 bb. GPT-6 Astra reviewed the reproduced metrics and accepted the
-result only as a locally EV-audited human compromise. The analyzer and complete
-audit live under the STU002 branch's `analysis/human-5` directory.
+reach-weighted F/C/R is 51.23/37.91/10.86% versus solver
+47.90/39.09/13.01%; mean source-mix loss is 0.013265 bb and oracle-regret P99
+is 0.431487 bb. GPT-6 Astra reviewed the reproduced metrics and accepted the
+result only as a locally EV-audited human compromise. The approved table,
+evolution, guardrails and manual repetition steps are recorded in
+`docs/BB_DEFENSE_SIMPLIFICATION.md`. The tracked `analysis/human-5` directory
+contains only the earlier rejected five-class audit and is not an active
+analyzer or source of truth.

@@ -13,6 +13,6 @@ The entry point validates tracked datasets and delegates to two cohesive shared 
 
 `generate-study-config.mjs` reproducibly builds the STU004 and STU005 solver configs from tracked ranges. Pass a study ID or omit arguments to rebuild every supported config. The PowerShell files launch study branches and do not implement strategy analysis.
 
-There is no active STU003 generator and no separate human-candidate workbook generator. Human candidates follow `docs/HUMAN_STRATEGY_SIMPLIFICATION.md` and become generated workbooks only after explicit approval.
+There is no active STU003 generator and no human-strategy generator. The supported Python path only converts tracked solver data into the canonical solver-frequency Excel workbook. It never selects teaching flop classes, applies human actions, consumes an Astra review or promotes a Markdown table.
 
-`analyze-human-bb-response.py` is a deliberately branch-specific audit for the separate STU002 five-class BB-versus-c-bet candidate. It reads the tracked combo/action EV export and reproduces `analysis/human-5/03_BB_AFTER_CBET`; it never launches the solver or changes the canonical workbook.
+Human simplification is performed manually after workbook generation under `docs/HUMAN_STRATEGY_SIMPLIFICATION.md`. Branch-specific analysis may use temporary local calculations, but no study-specific human-table generator is kept in `scripts/`.
