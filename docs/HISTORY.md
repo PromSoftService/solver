@@ -252,3 +252,19 @@ evolution, guardrails and manual repetition steps are recorded in
 `docs/BB_DEFENSE_SIMPLIFICATION.md`. The tracked `analysis/human-5` directory
 contains only the earlier rejected five-class audit and is not an active
 analyzer or source of truth.
+
+
+## 17. STU002 approved three-class UTG check-raise response
+
+The manual review of `04_UTG_AFTER_CHECK_RAISE` reduced seven teaching columns
+to `ABB / BBB`, non-ABB/BBB `Axx / Bxx`, and `[9-2]xx`. The tracked export's
+75,236 positive-reach rows were audited without another GPU solve.
+
+The approved FOLD/CALL policy is 37.15/62.85% versus solver 39.23/60.77%.
+Mean source loss is 0.156224 bb locally and 0.010637 bb after node-reach
+scaling. A five-class alternative saved only about 0.000345 bb at root while
+requiring another column distinction and `SUITED` rule. Independent GPT-6
+Astra review selected the same three-class compromise; the user then approved
+it. The exact manual table, trade-offs and metrics are in
+`docs/UTG_CHECK_RAISE_RESPONSE_SIMPLIFICATION.md`. No generator or canonical
+workbook was changed.

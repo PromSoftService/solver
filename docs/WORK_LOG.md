@@ -491,3 +491,15 @@ Analysis checkpoint:
 - keeping five columns and a separate `Second pair / Axx = SUITED` rule saves only about 0.000345 bb at root;
 - independent GPT-6 Astra review selected the same three-column candidate and identified the tiny deliberate Top-pair/BBB BDFD overcall as the cost of merging ABB with BBB;
 - no human generator or generated human artifact was created; the production workbook and active STU005 output remain untouched.
+
+
+Status: COMPLETED
+
+Approval and publication:
+
+- the user explicitly approved the three-column candidate;
+- added `docs/UTG_CHECK_RAISE_RESPONSE_SIMPLIFICATION.md` with the exact table, definitions, metrics and accepted distortions;
+- linked the worked example from `README.md`, `AGENTS.md`, `HISTORY.md` and `BATCHER_EVOLUTION.md`;
+- kept the universal generator, canonical solver-frequency workbook and solver data unchanged;
+- validated locally only; GitHub Actions were not used;
+- active STU005 solver output remains untracked and excluded from this change.
