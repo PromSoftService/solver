@@ -693,3 +693,16 @@ Approval and publication:
 - GPT-6 Astra independently reviewed the evidence and all accepted claims were reproduced from tracked combo data;
 - kept the generator, canonical workbook, trainer and active STU005 output unchanged;
 - validated locally only; GitHub Actions were not used.
+
+
+## 2026-09-15 - audit STU002 BB donk initiative table
+
+Status: STARTED
+
+Base commit: `0679731` (`main` synchronized with `origin/main`).
+
+Scope: manually re-audit only `STU002 / 01_BB_FIRST`, where BB chooses CHECK or DONK BET 1/2.
+
+Constraints: use the tracked combo/action-EV export; do not run or interrupt the GPU solver; do not change the generator, canonical workbook or trainer; preserve active STU005; do not use GitHub Actions.
+
+Plan: reproduce the current rule that donks only `[7-4]x`; test the smallest familiar exhaustive board partition and `X`, `D15/X85`, `D/X`, `D`; audit total DONK, hand-row and board-family composition, root EV and tails; obtain independent GPT-6 Astra review; present one locally reproduced candidate before documentation changes.
