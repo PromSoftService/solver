@@ -529,3 +529,31 @@ Approval and publication:
 - no human-table generator or generated human workbook was added;
 - active untracked STU005 solver output remains excluded from this change;
 - GitHub Actions were not used.
+
+
+## 2026-09-15 - simplify STU002 BB response to UTG donk-raise
+
+Status: STARTED
+
+Base commit: `483fbbcfd146ed26e5d821c6487154d9c2c116fc` (`main` synchronized with `origin/main`).
+
+Scope: manually simplify only `STU002 / 06_BB_AFTER_DONK_RAISE`, where BB chooses FOLD or CALL after `BB DONK 1/2 -> UTG RAISE 60`.
+
+Constraints: use the tracked solver combo/action-EV export; do not run GPU solver; do not add or change a human-table generator; preserve the canonical workbook and active untracked STU005 solve; do not use GitHub Actions.
+
+Branch-specific direction: because this is a rare deep branch, test a stronger value-oriented simplification and accept more frequency deviation when the fixed-opponent root EV audit remains within an explicitly reported limit. Prefer pure CALL/FOLD; retain `BDFD`, `Ax` or `PAIR` only when raw combo data proves that the observable selector prevents a material error.
+
+Plan: audit the five-column table, test the familiar three-class partition `ABB / BBB`, `Axx / Bxx`, `[9-2]xx`, compare value-heavy pure policies with the old conditional policy, report total continuation and hand/flop subgroup skew plus EV tails, obtain an independent GPT-6 Astra critique, then present the locally reproduced candidate for user approval before final documentation.
+
+
+Status: COMPLETED
+
+Approval and publication:
+
+- the user approved the three-column value-and-draw candidate and the separate rare deep-branch simplification principle;
+- added `docs/BB_DONK_RAISE_RESPONSE_SIMPLIFICATION.md` with the exact table, selector evidence, metrics, tail cost and Astra review;
+- linked the approved example from `README.md`, `AGENTS.md`, `HISTORY.md`, `HUMAN_STRATEGY_SIMPLIFICATION.md` and `BATCHER_EVOLUTION.md`;
+- recorded the owner's standing instruction to push each completed task in this repository to `PromSoftService/solver` `main`;
+- kept all production generators, canonical workbooks and solver/source data unchanged;
+- active untracked STU005 solver output remains excluded from the commit;
+- GitHub Actions were not used.

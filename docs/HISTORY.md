@@ -285,3 +285,20 @@ reviewed the reproduced metrics and found no supported simple improvement.
 The exact table and trade-offs are in
 `docs/UTG_DONK_RESPONSE_SIMPLIFICATION.md`. No generator or canonical workbook
 was changed.
+
+
+## 19. STU002 approved three-class BB response to donk-raise
+
+The manual review of `06_BB_AFTER_DONK_RAISE` reduced five teaching columns to
+`ABB / BBB`, non-ABB/BBB `Axx / Bxx`, and `[9-2]xx`. The branch reaches
+only 0.8245% from the flop root, so the user approved a stronger value-and-draw
+simplification with pure CALL/FOLD actions.
+
+The candidate uses one row-wide `PAIR/BDFD` selector for Gutshot and one
+row-wide `Ax` selector for two overcards plus BDFD. Solver F/C is
+41.48/58.52%; the candidate is 40.59/59.41%. Root source/clipped loss is
+0.000282/0.000298 bb, slightly below the old five-column table, while local P99
+rises from 1.0972 to 1.1447 bb. Independent GPT-6 Astra review accepted this
+explicit rare-branch trade-off. The exact table and evidence are in
+`docs/BB_DONK_RAISE_RESPONSE_SIMPLIFICATION.md`. No generator or canonical
+workbook was changed.

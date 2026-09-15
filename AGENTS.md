@@ -46,6 +46,10 @@ For every repository-changing task:
 4. append changed files, checks, results and remaining limits to the work log;
 5. show the final diff, commit, push and report the pushed commit.
 
+The repository owner has explicitly authorized pushing every completed task in
+this repository to `https://github.com/PromSoftService/solver.git`, branch
+`main`. Keep unrelated active solver output out of each commit.
+
 Do not turn a human candidate from chat into generated output. Human tables
 remain manually reviewed Markdown documentation, follow the approval protocol
 in `docs/HUMAN_STRATEGY_SIMPLIFICATION.md`, and never become an input to the
@@ -81,5 +85,6 @@ Only the Windows/NVIDIA host can prove a CUDA solve. Never claim a runtime resul
 8. `docs/BB_DEFENSE_SIMPLIFICATION.md` for the approved BB-defense worked example
 9. `docs/UTG_CHECK_RAISE_RESPONSE_SIMPLIFICATION.md` for the approved UTG check-raise response
 10. `docs/UTG_DONK_RESPONSE_SIMPLIFICATION.md` for the approved UTG donk response
-11. `docs/BATCHER_EVOLUTION.md` for the short project chronology
-12. `docs/WORK_LOG.md` for the active task record
+11. `docs/BB_DONK_RAISE_RESPONSE_SIMPLIFICATION.md` for the approved BB response to the donk-raise
+12. `docs/BATCHER_EVOLUTION.md` for the short project chronology
+13. `docs/WORK_LOG.md` for the active task record

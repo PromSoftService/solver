@@ -283,6 +283,14 @@ table. The explicit cost is over-folded Air and a raise range concentrated in
 Two pair+, OESD, Gutshot and low-board Top pair. Full evidence and Astra review
 are recorded in `docs/UTG_DONK_RESPONSE_SIMPLIFICATION.md`.
 
+For the low-reach STU002 `06_BB_AFTER_DONK_RAISE` branch, the same three classes
+support a stronger value-and-draw simplification with pure CALL/FOLD decisions.
+The only row-wide selectors are `PAIR/BDFD` for Gutshot and `Ax` for two
+overcards plus BDFD. Solver F/C is 41.48/58.52%; the approved candidate is
+40.59/59.41%, with root source/clipped loss of 0.000282/0.000298 bb. The exact
+table, rare-branch rule, tail cost and Astra review are in
+`docs/BB_DONK_RAISE_RESPONSE_SIMPLIFICATION.md`.
+
 Do not transfer any recorded partition to another branch without recalculation.
 
 
