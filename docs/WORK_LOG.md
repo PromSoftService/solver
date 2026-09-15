@@ -715,3 +715,16 @@ Approval and publication:
 - recorded the exact table, metrics, rejected one-column alternative and GPT-6 Astra revision in `docs/BB_DONK_SIMPLIFICATION.md`;
 - kept the generator, canonical workbook, trainer and active STU005 output unchanged;
 - validated locally only; GitHub Actions were not used.
+
+
+## 2026-09-16 - synchronize standalone flop trainer with approved tables
+
+Status: STARTED
+
+Base commit: `5171893` (`main` synchronized with `origin/main`).
+
+Scope: update the standalone mobile HTML trainer to the ten approved STU002/STU004 teaching tables and their full explanations.
+
+Constraints: do not add the standalone trainer to the solver repository; do not change solver/generator/workbook code; do not touch or interrupt active STU005; do not use GitHub Actions.
+
+Plan: update branch data, mutually exclusive flop classifiers and explanations; prevent impossible BB-donk histories outside the approved low-board classes; validate all ten selectable branches, table dimensions, actions, random deals and mobile HTML locally; publish the updated standalone HTML, then close this work-log entry.
