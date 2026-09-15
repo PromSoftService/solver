@@ -463,3 +463,31 @@ Result:
 - `git diff --check`, Python compilation of the universal generator modules and parsing of every PowerShell script passed;
 - runner PID 4488 and TexasSolverGPU PID 25852 remained alive; active untracked STU005 output was not staged or modified;
 - GitHub Actions were not used.
+
+
+## 2026-09-15 — simplify STU002 UTG response to BB check-raise
+
+Status: STARTED
+
+Base commit: `b37648ec946d922013d86b0e42cf35d1adb3ee1d` (`main` synchronized with `origin/main`).
+
+Scope: manually simplify only `STU002 / 04_UTG_AFTER_CHECK_RAISE`, where UTG chooses FOLD or CALL after `BB CHECK -> UTG BET 1/2 -> BB CHECK-RAISE 60`.
+
+Constraints: use the tracked solver combo/EV export; do not run GPU solver; do not change or add a human-table generator; preserve the canonical workbook and active untracked STU005 solve; do not use GitHub Actions.
+
+Plan: audit the existing seven-column table, test the smallest familiar exhaustive flop partitions and observable row-wide CALL/FOLD boundaries, measure total continuation and EV tails, obtain an independent GPT-6 Astra critique, reproduce accepted suggestions locally, present alternatives for user approval, then document, commit and push only after approval.
+
+
+Status: AWAITING USER APPROVAL
+
+Analysis checkpoint:
+
+- audited 75,236 positive-reach combo rows from the tracked branch export; GPU solver was not run;
+- corrected a temporary overbroad `ABB` test before approval; exact board counts are ABB 6, Axx 60, BBB 4, Bxx 160 and low 56;
+- the recommended manual candidate has three columns: `ABB / BBB`, `Axx / Bxx`, `[9-2]xx`;
+- candidate FOLD/CALL is 37.1501/62.8499% versus solver 39.2341/60.7659%, a +2.0840 pp CALL deviation;
+- mean source loss is 0.156224 bb locally and 0.010637 bb after the documented node-reach scaling; clipped loss is 0.168665 bb locally and 0.011484 bb at root;
+- P95/P99 local oracle regret is 0.560665/5.015470 bb; 5.2160%/3.8886% reach exceeds 0.5/1.0 bb;
+- keeping five columns and a separate `Second pair / Axx = SUITED` rule saves only about 0.000345 bb at root;
+- independent GPT-6 Astra review selected the same three-column candidate and identified the tiny deliberate Top-pair/BBB BDFD overcall as the cost of merging ABB with BBB;
+- no human generator or generated human artifact was created; the production workbook and active STU005 output remain untouched.
