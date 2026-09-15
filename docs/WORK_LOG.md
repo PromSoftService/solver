@@ -669,3 +669,16 @@ Approval and publication:
 - GPT-6 Astra independently reviewed the evidence and the accepted claims were reproduced from tracked combo data;
 - kept the generator, canonical workbook, trainer and active STU005 output unchanged;
 - validated locally only; GitHub Actions were not used.
+
+
+## 2026-09-15 - audit STU004 BTN stab initiative table
+
+Status: STARTED
+
+Base commit: `2283771` (`main` synchronized with `origin/main`).
+
+Scope: manually re-audit only `STU004 / 02_BTN_AFTER_CHECK`, where BTN chooses CHECK or BET 1/2 after UTG checks.
+
+Constraints: use the tracked combo/action-EV export; do not run the GPU solver; do not change the generator, canonical workbook or trainer; preserve active STU005; do not use GitHub Actions.
+
+Plan: reproduce the approved three-column teaching table; test the smallest familiar exhaustive flop classes and `X`, `B15/X85`, `B/X`, `B`; audit total BET, hand-row and board-family composition, root EV and tails; obtain independent GPT-6 Astra review; present one locally reproduced candidate before documentation changes.
