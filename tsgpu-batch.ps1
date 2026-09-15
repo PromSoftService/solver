@@ -200,8 +200,17 @@ for ($i = 0; $i -lt $boardList.Count; $i++) {
     }
 }
 
-$summary | ConvertTo-Json -Depth 20 | Set-Content -LiteralPath (Join-Path $outputPath 'batch-summary.json') -Encoding UTF8
-$summary | Export-Csv -LiteralPath (Join-Path $outputPath 'batch-summary.csv') -NoTypeInformation -Encoding UTF8
+$summaryCsvPath = Join-Path $outputPath 'batch-summary.csv'
+$summaryJsonPath = Join-Path $outputPath 'batch-summary.json'
+$summary | Export-Csv -LiteralPath $summaryCsvPath -NoTypeInformation -Encoding UTF8
+$summaryJson = $summary | ConvertTo-Json -Depth 20
+try {
+    $summaryJson | Set-Content -LiteralPath $summaryJsonPath -Encoding UTF8
+} catch [System.IO.IOException] {
+    $fallbackJsonPath = Join-Path $outputPath ("batch-summary-{0}.json" -f [DateTime]::UtcNow.ToString('yyyyMMdd-HHmmssfffZ'))
+    $summaryJson | Set-Content -LiteralPath $fallbackJsonPath -Encoding UTF8
+    Write-Warning "Could not replace locked $summaryJsonPath. Wrote $fallbackJsonPath; CSV remains canonical."
+}
 
 Write-Host "Batch complete: $($boardList.Count - $failed) done, $failed failed."
 Write-Host "Decision: $effectiveDecisionNode"

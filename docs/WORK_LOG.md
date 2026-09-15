@@ -376,3 +376,47 @@ Result:
   selector was introduced;
 - the canonical workbook, source solver data and the active STU005 GPU run
   were not changed or interrupted. GitHub Actions were not used.
+
+
+## 2026-09-15 — strict five-class STU002 BB response revision
+
+Status: STARTED
+
+Base commit: `0f3c903` (local only; `main` is one commit ahead of
+`origin/main`).
+
+Scope: replace the rejected five-column candidate with a genuinely simple
+version for `03_BB_AFTER_CBET`: exactly five visible flop classes, pure
+F/C/R or exact 50/50 C/R cells, and no cell-specific hidden C/F selectors.
+The existing global BDFD action may remain only where the split is material.
+
+Plan: clean the interrupted partial edit, regenerate all audits from tracked
+combo/action EV, review frequency/composition and EV tails with GPT-6 Astra,
+document the result, validate, amend the unpushed commit, and request explicit
+authorization before pushing. The active STU005 GPU run remains untouched.
+
+
+## 2026-09-15 — resilient batch summaries during STU005 resume
+
+Status: STARTED
+
+Base commit: `0f3c9038b8a047ed8d53251b1998ac880e737d62` (local; `origin/main` is `2738ee92d40bd02690b77e413fd7dd9042e7b2a9`).
+
+Observed failure: all four missing `01_BB_FIRST` boards were solved, but the six-branch runner stopped before branch 2 because `batch-summary.json` was held open by the Local Desktop Commander Node process. The raw branch has 286/286 complete board artifacts; no solver process remains active.
+
+Scope: make summary publication resilient to a reader locking the optional raw JSON, validate resume against the completed first branch, then continue the existing STU005 run. Preserve every solver output and all unrelated human-table work. GitHub Actions are out of scope.
+
+Plan: make CSV the canonical resume/parsing summary and publish it first; treat an `IOException` writing raw JSON as non-fatal and save a timestamped fallback; regenerate the compact dataset JSON from the canonical CSV; parse all PowerShell files, exercise the locked-file resume path without re-solving completed boards, then launch `run-all.ps1 -Resume` and verify branch 2 reaches a live GPU solve.
+
+Status: COMPLETED
+
+Implementation and validation:
+
+- `tsgpu-batch.ps1` now publishes canonical `batch-summary.csv` before JSON and converts a locked raw JSON write into a timestamped fallback plus warning;
+- `run-flop-study-branch.ps1` parses the canonical CSV, restores numeric/null types, and creates the compact dataset JSON independently of the raw JSON lock;
+- all PowerShell files parsed successfully and `git diff --check` passed;
+- the four completed-but-unpublished `01_BB_FIRST` rows were recovered from their validated `run.json`/`combos.json` artifacts without another GPU solve;
+- the live locked-file test passed: `01_BB_FIRST` completed 286/286, fallback JSON was written, the compact dataset was built, and `run-all.ps1 -Resume` advanced to `02_BTN_AFTER_CHECK`;
+- the second branch produced its first two successful boards and a live TexasSolverGPU child process was verified.
+
+Remaining operational note: a reader may continue holding the old raw `batch-summary.json`; this no longer blocks solving, resume, parsing or compact dataset publication.

@@ -49,7 +49,7 @@ checks; use `0` to disable a check.
 
 ## Output
 
-Each numbered board directory contains `run.json`, `node.raw.json`, `combos.json`, `combos.csv`, and `bridge-transcript.jsonl`. The output root contains `batch-summary.json` and `batch-summary.csv`.
+Each numbered board directory contains `run.json`, `node.raw.json`, `combos.json`, `combos.csv`, and `bridge-transcript.jsonl`. The output root contains `batch-summary.json` and `batch-summary.csv`. CSV is the canonical resume/parsing summary and is published first. If another application locks the raw JSON, the batcher writes a timestamped `batch-summary-*.json` fallback and continues; the compact dataset still receives a fresh canonical JSON summary.
 
 `-Resume` reuses only boards with both `run.json` and `combos.json` and verifies that the decision preset matches.
 

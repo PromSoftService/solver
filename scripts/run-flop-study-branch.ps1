@@ -73,14 +73,26 @@ if ($SolverExe) { $batchArguments['SolverExe'] = $SolverExe }
 & (Join-Path $repoRoot 'tsgpu-batch.ps1') @batchArguments
 $batchEnded = [DateTime]::UtcNow
 
-$summaryJsonPath = Join-Path $outputPath 'batch-summary.json'
 $summaryCsvPath = Join-Path $outputPath 'batch-summary.csv'
-if (-not (Test-Path -LiteralPath $summaryJsonPath -PathType Leaf)) {
-    throw "Missing batch summary: $summaryJsonPath"
+if (-not (Test-Path -LiteralPath $summaryCsvPath -PathType Leaf)) {
+    throw "Missing canonical batch summary: $summaryCsvPath"
 }
 
-$parsedSummary = Get-Content -LiteralPath $summaryJsonPath -Raw -Encoding UTF8 | ConvertFrom-Json
-$summary = @($parsedSummary)
+$summary = @(Import-Csv -LiteralPath $summaryCsvPath | ForEach-Object {
+    $exploitability = if ([string]::IsNullOrWhiteSpace([string]$_.exploitability)) { $null } else { [double]$_.exploitability }
+    [pscustomobject][ordered]@{
+        index = [int]$_.index
+        board = [string]$_.board
+        decision_node = [string]$_.decision_node
+        status = [string]$_.status
+        output_directory = [string]$_.output_directory
+        combos = [int]$_.combos
+        iteration = [int]$_.iteration
+        exploitability = $exploitability
+        elapsed_ms = [int]$_.elapsed_ms
+        error = [string]$_.error
+    }
+})
 $done = @($summary | Where-Object { $_.status -eq 'done' })
 $failed = @($summary | Where-Object { $_.status -ne 'done' })
 if ($done.Count -ne $expectedBoards -or $failed.Count -ne 0) {
@@ -157,7 +169,7 @@ try {
 }
 
 $validationRows | Export-Csv -LiteralPath (Join-Path $datasetPath 'validation.csv') -NoTypeInformation -Encoding UTF8
-Copy-Item -LiteralPath $summaryJsonPath -Destination (Join-Path $datasetPath 'batch-summary.json')
+$summary | ConvertTo-Json -Depth 20 | Set-Content -LiteralPath (Join-Path $datasetPath 'batch-summary.json') -Encoding UTF8
 Copy-Item -LiteralPath $summaryCsvPath -Destination (Join-Path $datasetPath 'batch-summary.csv')
 
 $elapsedValues = @($done | ForEach-Object { [double]$_.elapsed_ms } | Sort-Object)
