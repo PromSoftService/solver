@@ -557,3 +557,16 @@ Approval and publication:
 - kept all production generators, canonical workbooks and solver/source data unchanged;
 - active untracked STU005 solver output remains excluded from the commit;
 - GitHub Actions were not used.
+
+
+## 2026-09-15 - simplify STU004 UTG response to BTN stab
+
+Status: STARTED
+
+Base commit: `e24149d5be0044964fae187c0a5a1a9a977b4bbb` (`main` synchronized with `origin/main`).
+
+Scope: manually simplify only `STU004 / 04_UTG_AFTER_STAB`, where UTG chooses FOLD, CALL or RAISE after `UTG CHECK -> BTN STAB 1/2`.
+
+Constraints: use the tracked solver combo/action-EV export; do not run GPU solver; do not add or change a human-table generator; preserve the canonical workbook and active untracked STU005 solve; do not use GitHub Actions.
+
+Plan: audit the current five-column table; test the exhaustive three-class partition `ABB / BBB`, `Axx / Bxx`, `[9-2]xx` and only the smallest necessary expansions; preserve a learnable value-plus-direct-draw raise range; measure total F/C/R, hand-row and flop-family skew, selectors and EV tails; obtain independent GPT-6 Astra critique; present the locally reproduced candidate for approval before final documentation.
