@@ -229,7 +229,7 @@ any later human reduction are documented separately in
 `docs/HUMAN_STRATEGY_SIMPLIFICATION.md`; regeneration does not apply them.
 
 
-## 16. STU002 approved four-class BB response candidate
+## 16. STU002 approved three-column BB response candidate
 
 A teaching-first reduction of
 `03_BB_AFTER_CBET` first used five flop columns: `ABB`, non-ABB `Axx`, `BBB`,
@@ -238,10 +238,12 @@ GPU solve, selected pure actions, exact 50/50 CALL/RAISE mixes and deterministic
 CALL/FOLD selectors.
 
 After independent Astra review, local reproduction and the user's clarification
-of the human check-raise model, `ABB` and `BBB` were merged. The final classes
-are `ABB / BBB`, non-ABB `Axx`, non-BBB `Bxx`, and `[9-2]xx`. Rare solver
-raises with pairs or Air are deliberately omitted; the only conditional rule
-is the observable `PAIR` selector for Gutshot on paired Broadway structures.
+of the human check-raise model, `ABB` and `BBB` were merged. The approved
+Axx and Bxx action vectors are also identical, so the final teaching display
+merges them without changing the policy or metrics. The three columns are
+`ABB / BBB`, non-ABB/BBB `Axx / Bxx`, and `[9-2]xx`. Rare solver raises
+with pairs or Air are deliberately omitted; the only conditional rule is the
+observable `PAIR` selector for Gutshot on dense Broadway structures.
 
 The separate candidate preserves the canonical ten-class workbook. Its
 reach-weighted F/C/R is 51.23/37.91/10.86% versus solver
@@ -319,3 +321,16 @@ the reproduced four-class result and identified raise composition plus the
 two-overcards/Air offset as the remaining deliberate risks. The exact manual
 table and audit are in `docs/UTG_STAB_RESPONSE_SIMPLIFICATION.md`. No
 generator, canonical workbook or solver data was changed.
+
+
+## 21. STU004 approved three-class BTN response to UTG c-bet
+
+The manual review of `03_BTN_AFTER_CBET` reduced the teaching display to
+`ABB / BBB`, non-ABB/BBB `Axx / Bxx`, and `[9-2]xx`. The sole deterministic
+CALL/FOLD selector is a row-wide Weak-pair pocket-rank boundary.
+
+Solver F/C/R is 34.84/52.43/12.73%; the candidate is 39.92/52.06/8.03%.
+Root source/clipped/oracle loss is 0.002372/0.003410/0.005520 bb and local P99
+oracle regret is 0.415417 bb. The exact table and review are in
+`docs/BTN_CBET_RESPONSE_SIMPLIFICATION.md`. No generator, canonical workbook
+or solver data was changed.

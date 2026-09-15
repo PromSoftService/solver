@@ -606,3 +606,18 @@ and `[9-2]xx`; preserve a learnable value-plus-direct-draw raise range;
 measure total F/C/R, row/flop composition and EV tails; obtain independent
 GPT-6 Astra review; present a reproduced candidate for approval before final
 documentation.
+
+
+Status: COMPLETED
+
+Approval and publication:
+
+- the user's consolidated strategy block confirmed the three-column candidate;
+- added `docs/BTN_CBET_RESPONSE_SIMPLIFICATION.md` with the exact table,
+  deterministic Weak-pair boundary, metrics and accepted distortions;
+- synchronized the approved BB-defense display by merging identical Axx and
+  Bxx action vectors; this presentation-only merge changes no policy or metric;
+- linked both approved teaching artifacts from the repository documentation;
+- kept all generators, canonical workbooks and solver/source data unchanged;
+- validated locally only; GitHub Actions were not used;
+- active untracked STU005 solver output remains excluded.

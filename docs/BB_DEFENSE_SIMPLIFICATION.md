@@ -70,36 +70,42 @@ subgroup test: it called bad A-high weak pairs and folded good low-board weak
 pairs. The solver pattern was approximately 95% FOLD on Axx, 69% FOLD on Bxx
 and 86% CALL on low boards. Therefore `F / F / C` was retained.
 
-Finally `ABB` and `BBB` were merged. Both are paired Broadway structures
+Finally `ABB` and `BBB` were merged. Both are dense Broadway structures
 that favour the UTG range and their action vectors coincide after one
 observable Gutshot selector: `PAIR` means CALL with a made pair inside the
 Gutshot, otherwise FOLD. This merge improved, rather than merely preserved,
 the EV and tail audit.
 
+For the final teaching display, `Axx` and `Bxx` were also merged into
+`Axx / Bxx`. Their approved action vectors are identical in every hand row,
+so this is an exact presentation merge: it changes neither the combo policy
+nor any audit metric.
+
 ## 3. Approved table
 
-| Hand category | ABB / BBB | Axx | Bxx | [9-2]xx |
-|---|---:|---:|---:|---:|
-| Two pair+ | C/R | R | R | R |
-| Overpair | — | — | C | C |
-| Top pair | C | C | C | C |
-| Underpair | — | C | C | C |
-| Second pair | F | C | C | C |
-| Weak pair | — | F | F | C |
-| Third pair | F | C | C | C |
-| Low pocket pair | F | F | F | F |
-| OESD | C | R/C | R/C | R/C |
-| Gutshot | PAIR | C/R | C/R | C/R |
-| 2 overcards + BDFD | — | — | C | C |
-| Air | F | F | F | F |
+| Hand category | ABB / BBB | Axx / Bxx | [9-2]xx |
+|---|---:|---:|---:|
+| Two pair+ | C/R | R | R |
+| Overpair | — | C | C |
+| Top pair | C | C | C |
+| Underpair | — | C | C |
+| Second pair | F | C | C |
+| Weak pair | — | F | C |
+| Third pair | F | C | C |
+| Low pocket pair | F | F | F |
+| OESD | C | R/C | R/C |
+| Gutshot | PAIR | C/R | C/R |
+| 2 overcards + BDFD | — | C | C |
+| Air | F | F | F |
 
 `PAIR`: CALL with any made pair inside the Gutshot; otherwise FOLD.
 `C/R` and `R/C`: the same exact 50/50 randomizer; order records solver
 majority.
 
-The partition is mutually exclusive and exhaustive:
-`ABB / BBB` 10 boards, `Axx` 60, `Bxx` 160 and `[9-2]xx` 56;
-the counts sum to all 286 BRD001 boards.
+The displayed partition is mutually exclusive and exhaustive:
+`ABB / BBB` 10 boards, `Axx / Bxx` 220 and `[9-2]xx` 56;
+the counts sum to all 286 BRD001 boards. Internally, the audit may still split
+the middle class into 60 Axx and 160 Bxx boards for subgroup checks.
 
 ## 4. Branch-specific acceptance guardrails
 
