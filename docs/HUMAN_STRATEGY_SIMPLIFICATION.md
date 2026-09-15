@@ -291,6 +291,15 @@ overcards plus BDFD. Solver F/C is 41.48/58.52%; the approved candidate is
 table, rare-branch rule, tail cost and Astra review are in
 `docs/BB_DONK_RAISE_RESPONSE_SIMPLIFICATION.md`.
 
+For STU004 `04_UTG_AFTER_STAB`, the approved manual table uses four
+classes: `ABB / BBB`, non-ABB `Axx`, non-BBB `Bxx`, and `[9-2]xx`.
+Solver F/C/R is 40.02/48.10/11.88%; the candidate is
+41.94/45.97/12.10%. Root clipped loss is 0.004649 bb, lower than the former
+five-column teaching table's 0.006339 bb, while P99 falls from 0.441121 to
+0.361774 bb. The exact table, rejected three-class merge, deliberate range
+distortions and Astra review are recorded in
+`docs/UTG_STAB_RESPONSE_SIMPLIFICATION.md`.
+
 Do not transfer any recorded partition to another branch without recalculation.
 
 

@@ -93,7 +93,8 @@ BB-defense worked example is in `docs/BB_DEFENSE_SIMPLIFICATION.md`; the approve
 UTG responses to the check-raise and donk branches are in
 `docs/UTG_CHECK_RAISE_RESPONSE_SIMPLIFICATION.md` and
 `docs/UTG_DONK_RESPONSE_SIMPLIFICATION.md`; the approved BB response to the
-donk-raise is in `docs/BB_DONK_RAISE_RESPONSE_SIMPLIFICATION.md`. A concise
-runner and table evolution is in `docs/BATCHER_EVOLUTION.md`; active
+donk-raise is in `docs/BB_DONK_RAISE_RESPONSE_SIMPLIFICATION.md`; the approved
+UTG response to the BTN stab is in `docs/UTG_STAB_RESPONSE_SIMPLIFICATION.md`.
+A concise runner and table evolution is in `docs/BATCHER_EVOLUTION.md`; active
 repository-changing work is recorded in `docs/WORK_LOG.md`. Script ownership
 and the sole strategy entry point are summarized in `scripts/README.md`.

@@ -302,3 +302,20 @@ rises from 1.0972 to 1.1447 bb. Independent GPT-6 Astra review accepted this
 explicit rare-branch trade-off. The exact table and evidence are in
 `docs/BB_DONK_RAISE_RESPONSE_SIMPLIFICATION.md`. No generator or canonical
 workbook was changed.
+
+
+## 20. STU004 approved four-class UTG response to BTN stab
+
+The manual review of `04_UTG_AFTER_STAB` rejected a three-column merge because
+Axx and Bxx contain materially different Weak-pair and Two-pair+ behavior. The
+approved partition is `ABB / BBB`, non-ABB `Axx`, non-BBB `Bxx`, and
+`[9-2]xx`.
+
+Solver F/C/R is 40.02/48.10/11.88%; the candidate is
+41.94/45.97/12.10%. Root clipped loss is 0.004649 bb versus 0.006339 bb for
+the former five-column teaching table. P99 falls from 0.441121 to 0.361774 bb
+and the maximum combo loss from 4.680100 to 2.384909 bb. GPT-6 Astra accepted
+the reproduced four-class result and identified raise composition plus the
+two-overcards/Air offset as the remaining deliberate risks. The exact manual
+table and audit are in `docs/UTG_STAB_RESPONSE_SIMPLIFICATION.md`. No
+generator, canonical workbook or solver data was changed.

@@ -570,3 +570,18 @@ Scope: manually simplify only `STU004 / 04_UTG_AFTER_STAB`, where UTG chooses FO
 Constraints: use the tracked solver combo/action-EV export; do not run GPU solver; do not add or change a human-table generator; preserve the canonical workbook and active untracked STU005 solve; do not use GitHub Actions.
 
 Plan: audit the current five-column table; test the exhaustive three-class partition `ABB / BBB`, `Axx / Bxx`, `[9-2]xx` and only the smallest necessary expansions; preserve a learnable value-plus-direct-draw raise range; measure total F/C/R, hand-row and flop-family skew, selectors and EV tails; obtain independent GPT-6 Astra critique; present the locally reproduced candidate for approval before final documentation.
+
+
+Status: COMPLETED
+
+Approval and publication:
+
+- moving to the next branch confirmed the four-column candidate;
+- added `docs/UTG_STAB_RESPONSE_SIMPLIFICATION.md` with the exact table,
+  rejected three-class merge, metrics, tail comparison and Astra review;
+- linked the approved example from `README.md`, `AGENTS.md`, `HISTORY.md`,
+  `HUMAN_STRATEGY_SIMPLIFICATION.md` and `BATCHER_EVOLUTION.md`;
+- kept every production generator, canonical workbook and solver/source
+  artifact unchanged;
+- active untracked STU005 output remains excluded;
+- GitHub Actions were not used.
