@@ -91,5 +91,6 @@ Only the Windows/NVIDIA host can prove a CUDA solve. Never claim a runtime resul
 14. `docs/UTG_CBET_VS_BB_SIMPLIFICATION.md` for the approved UTG c-bet against BB
 15. `docs/UTG_CBET_VS_BTN_SIMPLIFICATION.md` for the approved UTG c-bet against BTN
 16. `docs/BTN_STAB_VS_UTG_SIMPLIFICATION.md` for the approved BTN stab after the UTG check
-17. `docs/BATCHER_EVOLUTION.md` for the short project chronology
-18. `docs/WORK_LOG.md` for the active task record
+17. `docs/BB_DONK_SIMPLIFICATION.md` for the approved BB donk initiative table
+18. `docs/BATCHER_EVOLUTION.md` for the short project chronology
+19. `docs/WORK_LOG.md` for the active task record
