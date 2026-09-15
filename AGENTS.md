@@ -79,6 +79,7 @@ Only the Windows/NVIDIA host can prove a CUDA solve. Never claim a runtime resul
 6. `docs/FLOP_STRATEGY_WORKFLOW.md` when working on strategy studies
 7. `docs/HUMAN_STRATEGY_SIMPLIFICATION.md` for human candidates
 8. `docs/BB_DEFENSE_SIMPLIFICATION.md` for the approved BB-defense worked example
-9. `docs/UTG_CHECK_RAISE_RESPONSE_SIMPLIFICATION.md` for the approved UTG response example
-10. `docs/BATCHER_EVOLUTION.md` for the short project chronology
-11. `docs/WORK_LOG.md` for the active task record
+9. `docs/UTG_CHECK_RAISE_RESPONSE_SIMPLIFICATION.md` for the approved UTG check-raise response
+10. `docs/UTG_DONK_RESPONSE_SIMPLIFICATION.md` for the approved UTG donk response
+11. `docs/BATCHER_EVOLUTION.md` for the short project chronology
+12. `docs/WORK_LOG.md` for the active task record

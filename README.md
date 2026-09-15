@@ -90,8 +90,9 @@ superseded it; Git history preserves the proof.
 The exact human-table search, subgroup-skew audit and GPT-6 Astra review
 contract are in `docs/HUMAN_STRATEGY_SIMPLIFICATION.md`. The approved STU002
 BB-defense worked example is in `docs/BB_DEFENSE_SIMPLIFICATION.md`; the approved
-UTG response to that check-raise is in
-`docs/UTG_CHECK_RAISE_RESPONSE_SIMPLIFICATION.md`. A concise runner and
-table evolution is in `docs/BATCHER_EVOLUTION.md`; active repository-changing
-work is recorded in `docs/WORK_LOG.md`. Script ownership and the sole strategy
-entry point are summarized in `scripts/README.md`.
+UTG responses to the check-raise and donk branches are in
+`docs/UTG_CHECK_RAISE_RESPONSE_SIMPLIFICATION.md` and
+`docs/UTG_DONK_RESPONSE_SIMPLIFICATION.md`. A concise runner and table evolution
+is in `docs/BATCHER_EVOLUTION.md`; active repository-changing work is recorded
+in `docs/WORK_LOG.md`. Script ownership and the sole strategy entry point are
+summarized in `scripts/README.md`.

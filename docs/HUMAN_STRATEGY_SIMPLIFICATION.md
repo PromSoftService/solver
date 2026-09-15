@@ -275,6 +275,14 @@ restored merely to match composition. The shared `PAIR` selector on
 history, Astra's role, subgroup vetoes, branch-specific guardrails and the
 repetition protocol are recorded in `docs/BB_DEFENSE_SIMPLIFICATION.md`.
 
+For STU002 `05_UTG_AFTER_DONK`, the approved manual table uses three classes:
+`ABB / BBB`, non-ABB/BBB `Axx / Bxx`, and `[9-2]xx`. Solver F/C/R is
+28.04/59.03/12.93%; the candidate is 37.29/52.72/9.99%. Root source/clipped
+loss is 0.003877/0.008518 bb, both lower than the previous five-column teaching
+table. The explicit cost is over-folded Air and a raise range concentrated in
+Two pair+, OESD, Gutshot and low-board Top pair. Full evidence and Astra review
+are recorded in `docs/UTG_DONK_RESPONSE_SIMPLIFICATION.md`.
+
 Do not transfer any recorded partition to another branch without recalculation.
 
 

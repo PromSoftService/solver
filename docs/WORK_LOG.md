@@ -516,3 +516,16 @@ Scope: manually simplify only `STU002 / 05_UTG_AFTER_DONK`, where UTG chooses FO
 Constraints: use the tracked solver combo/action-EV export; do not run GPU solver; do not change or add a human-table generator; preserve the canonical workbook and active untracked STU005 solve; do not use GitHub Actions.
 
 Plan: audit the current five-column table, test smaller familiar exhaustive flop partitions, preserve a learnable value-plus-direct-draw raise range, reject hidden cell-specific selectors, measure total F/C/R, hand-row and board-family skew plus EV tails, obtain an independent GPT-6 Astra critique, and present the locally reproduced candidate for user approval before final documentation.
+
+
+Status: COMPLETED
+
+Approval and publication:
+
+- the user explicitly approved the three-column candidate;
+- added `docs/UTG_DONK_RESPONSE_SIMPLIFICATION.md` with the exact table, source provenance, metrics, Astra review and accepted distortions;
+- linked the worked example from `README.md`, `AGENTS.md`, `HISTORY.md`, `HUMAN_STRATEGY_SIMPLIFICATION.md` and `BATCHER_EVOLUTION.md`;
+- kept the universal generator, canonical solver-frequency workbook and solver data unchanged;
+- no human-table generator or generated human workbook was added;
+- active untracked STU005 solver output remains excluded from this change;
+- GitHub Actions were not used.

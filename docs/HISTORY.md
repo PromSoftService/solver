@@ -268,3 +268,20 @@ Astra review selected the same three-class compromise; the user then approved
 it. The exact manual table, trade-offs and metrics are in
 `docs/UTG_CHECK_RAISE_RESPONSE_SIMPLIFICATION.md`. No generator or canonical
 workbook was changed.
+
+
+## 18. STU002 approved three-class UTG donk response
+
+The manual review of `05_UTG_AFTER_DONK` reduced five teaching columns to
+`ABB / BBB`, non-ABB/BBB `Axx / Bxx`, and `[9-2]xx`. The audit used 80,553
+positive-reach combo rows from the tracked export and did not run the solver.
+
+The approved policy keeps raises learnable: strong value, OESD, Gutshot and
+low-board Top pair. It deliberately under-defends Air, using only BDFD calls.
+Solver F/C/R is 28.04/59.03/12.93%; the candidate is 37.29/52.72/9.99%.
+Root source loss is 0.003877 bb and clipped root loss is 0.008518 bb, both
+better than the former five-column teaching table. GPT-6 Astra independently
+reviewed the reproduced metrics and found no supported simple improvement.
+The exact table and trade-offs are in
+`docs/UTG_DONK_RESPONSE_SIMPLIFICATION.md`. No generator or canonical workbook
+was changed.
