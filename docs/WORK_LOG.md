@@ -766,3 +766,62 @@ Result:
 - linked the procedure to all four approved initiative worked examples;
 - validated Markdown whitespace and all nine referenced documentation paths locally;
 - scripts, trainer, solver, workbooks and active STU005 output were unchanged; GitHub Actions were not used.
+
+
+## 2026-09-17 - document canonical six-class teaching grid
+
+Status: COMPLETED
+
+Scope: record how the shared six flop classes were derived and why initiative
+and defense/response use different canonical display orders in human Markdown
+tables and the standalone trainer.
+
+Constraints: preserve B13 and the generated solver-frequency workbook; do not
+turn the display grid into a universal strategy; do not change solver,
+generator, trainer, workbooks or STU005 solver data; do not use GitHub Actions.
+
+Result:
+
+- added `docs/UNIFIED_FLOP_GRID.md` with exact precedence and verified board
+  counts `6 / 4 / 60 / 96 / 64 / 56`;
+- recorded initiative order `ABB / Axx / BBB / K/Qxx / J/Txx / [9-2]xx`;
+- recorded defense/response order
+  `ABB / BBB / Axx / K/Qxx / J/Txx / [9-2]xx`;
+- recorded why the orders differ and why ordering changes presentation only,
+  not classification, policy or EV;
+- separated the stable teaching grid from B13 and branch-specific audit
+  partitions;
+- recorded the retained low-only BB-donk and UTG-vs-BTN c-bet exceptions plus
+  exact `All flops` collapses;
+- documented normal-path reachability, off-policy columns, selector semantics
+  and the approval/synchronization checklist;
+- linked the contract from both workflow documents and recorded the decision
+  in `docs/HISTORY.md`;
+- added completed STU005/RNG003 scope, range provenance and all six exported
+  BTN-vs-BB decisions to `docs/FLOP_STRATEGY_WORKFLOW.md`;
+- left the untracked STU005 dataset untouched; no GitHub Actions were used.
+
+
+## 2026-09-17 - approve STU005 BB response to BTN c-bet
+
+Status: COMPLETED
+
+Base branch: `main`; synchronization with `origin/main` was confirmed before
+work began.
+
+Scope: publish the user-approved teaching table for
+`STU005 / 03_BB_AFTER_CBET` and preserve its exact six-class defense order,
+selectors, frequency deviations and local EV audit.
+
+Result:
+
+- added `docs/BB_CBET_RESPONSE_VS_BTN_SIMPLIFICATION.md` with the exact table;
+- recorded solver and candidate F/C/R, mean local source/oracle loss, tail
+  quantiles, high-loss reach and the maximum single-combo regret;
+- recorded the deliberate +7.42 pp over-fold and -2.94 pp under-raise bias;
+- linked the approved branch from the workflow documentation and repository
+  reading order;
+- retained the canonical defense display order with `ABB` and `BBB` adjacent;
+- left the standalone trainer, generator, canonical workbooks and STU005
+  source dataset unchanged;
+- validated locally only; GitHub Actions were not used.

@@ -10,6 +10,7 @@ method from chat memory or from already simplified action labels.
 |---|---|---|---:|
 | `STU002__RNG001_UTG-vs-BB__BRD001_FLOP6` | UTG open 2.5 bb, BB call; OOP BB, IP UTG | 5.5 / 97.5 bb | 6 |
 | `STU004__RNG002_UTG-vs-BTN__BRD001_FLOP4` | UTG open 2.5 bb, BTN call; OOP UTG, IP BTN | 6.5 / 97.5 bb | 4 |
+| `STU005__RNG003_BTN-vs-BB__BRD001_FLOP6` | BTN open 2.5 bb, BB call; OOP BB, IP BTN | 5.5 / 97.5 bb | 6 |
 
 Each job covers all 286 BRD001 flops. It solves a full continuation game but
 exports and analyzes one configured flop decision only. Turn and river remain
@@ -25,13 +26,14 @@ Every cell is one pure action, an exact 50/50 mix, `BDFD`, or `—`.
 ## 2. Range provenance
 
 The canonical manifests and concrete files under `ranges/` are the only range
-source. Both matched preflop solutions came from the range library bundled
+source. All three matched preflop solutions came from the range library bundled
 with TexasSolverGPU v0.2.0, not GTO Wizard:
 
 | Range | Spot | Bundled source path |
 |---|---|---|
 | RNG001 | UTG open 2.5 bb / BB call | `ranges/6max_range/UTG/2.5bb/BB/Call` |
 | RNG002 | UTG open 2.5 bb / BTN call | `ranges/6max_range/UTG/2.5bb/BTN/Call` |
+| RNG003 | BTN open 2.5 bb / BB call | `ranges/6max_range/BTN/2.5bb/BB/Call` |
 
 The manifests retain source SHA-256 values and weighted-combo totals. Study
 configs contain the corresponding exact 1326-combo arrays. A combo with any
@@ -72,6 +74,17 @@ STU004 exports four UTG-vs-BTN decisions:
 
 STU004 deliberately omits the two responses after a flop raise. Those require
 a separately approved study if needed.
+
+STU005 exports six BTN-vs-BB decisions:
+
+| Branch | Selected decision | Normal actions |
+|---|---|---|
+| `01_BB_FIRST` | BB at flop root | check / donk 50% |
+| `02_BTN_AFTER_CHECK` | BTN after BB check | check / bet 50% |
+| `03_BB_AFTER_CBET` | BB versus BTN c-bet | fold / call / raise 60 |
+| `04_BTN_AFTER_CHECK_RAISE` | BTN versus check-raise | fold / call |
+| `05_BTN_AFTER_DONK` | BTN versus BB donk | fold / call / raise 60 |
+| `06_BB_AFTER_DONK_RAISE` | BB versus raise after donk | fold / call |
 
 For every board and branch the stock runner performs exactly one GPU solve,
 applies one configured history, and calls `solver.export.currentStreet` once.
@@ -137,6 +150,16 @@ The final table is recomputed from real board/combo frequencies. It never
 averages B13 means or votes on B13 labels; each real board has equal influence
 inside its final category. B13 remains only the deterministic internal
 partition used to assign all 286 boards exactly once.
+
+The manually reviewed teaching layer also has a canonical six-class grid.
+Initiative displays `ABB, Axx, BBB, K/Qxx, J/Txx, [9-2]xx`; defense and
+response display `ABB, BBB, Axx, K/Qxx, J/Txx, [9-2]xx`. Exact classification
+precedence, board counts, derivation, retained exceptions and trainer
+synchronization are recorded in `docs/UNIFIED_FLOP_GRID.md`.
+
+This teaching grid does not replace B13 or the generated ten-category
+workbook. Its classes are stable while their order follows the decision type.
+Every branch still rebuilds its actions and audit from its own tracked data.
 
 ## 6. Strict hand classifier and displayed rows
 

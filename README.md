@@ -96,9 +96,10 @@ UTG responses to the check-raise and donk branches are in
 donk-raise is in `docs/BB_DONK_RAISE_RESPONSE_SIMPLIFICATION.md`; the approved
 UTG response to the BTN stab and BTN response to the UTG c-bet are in
 `docs/UTG_STAB_RESPONSE_SIMPLIFICATION.md` and
-`docs/BTN_CBET_RESPONSE_SIMPLIFICATION.md`; the approved UTG c-bet against BB
-is in `docs/UTG_CBET_VS_BB_SIMPLIFICATION.md`; the approved UTG c-bet against
-BTN is in `docs/UTG_CBET_VS_BTN_SIMPLIFICATION.md`; the approved BTN stab after
+`docs/BTN_CBET_RESPONSE_SIMPLIFICATION.md`; the approved BB response to the
+BTN c-bet is in `docs/BB_CBET_RESPONSE_VS_BTN_SIMPLIFICATION.md`; the approved
+UTG c-bet against BB is in `docs/UTG_CBET_VS_BB_SIMPLIFICATION.md`; the
+approved UTG c-bet against BTN is in `docs/UTG_CBET_VS_BTN_SIMPLIFICATION.md`; the approved BTN stab after
 UTG checks is in `docs/BTN_STAB_VS_UTG_SIMPLIFICATION.md`; the approved BB donk
 initiative table is in `docs/BB_DONK_SIMPLIFICATION.md`. A concise runner and table
 evolution is in `docs/BATCHER_EVOLUTION.md`; active

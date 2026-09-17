@@ -254,6 +254,24 @@ Reject a merge when an apparently good total frequency hides a wrong `ABB`,
 `BBB`, pair-rank, kicker, made-pair-with-draw or BDFD subgroup.
 
 
+### 8.1. Canonical teaching grid
+
+The human-facing layer uses six shared classes with two canonical orders:
+
+- initiative: `ABB, Axx, BBB, K/Qxx, J/Txx, [9-2]xx`;
+- defense/response: `ABB, BBB, Axx, K/Qxx, J/Txx, [9-2]xx`.
+
+Initiative keeps ace-high boards together. Defense puts the two
+dense-Broadway exceptions together so that they do not create misleading
+alternating action patterns.
+
+This is a display standard, not a universal solver partition. Internal audits
+must retain B13 or any finer split needed to expose subgroup errors. Exact
+definitions, classification precedence, counts, exceptions, reachability and
+the Markdown/trainer synchronization checklist are in
+`docs/UNIFIED_FLOP_GRID.md`.
+
+
 ## 9. Cell policy and subgroup selectors
 
 The default ordinary cell policies are one pure action or an exact 50/50 mix
@@ -395,6 +413,14 @@ Solver F/C/R is 34.84/52.43/12.73%; the candidate is
 0.002372/0.003410/0.005520 bb. The only deterministic CALL/FOLD selector is
 the row-wide Weak-pair rank boundary. The exact table and audit are in
 `docs/BTN_CBET_RESPONSE_SIMPLIFICATION.md`.
+
+For STU005 `03_BB_AFTER_CBET`, the approved manual table uses the canonical
+six defense columns. Solver F/C/R is 43.14/45.71/11.16%; the candidate is
+50.56/41.22/8.22%. Mean local source loss is 0.017993 bb and local oracle-
+regret P99 is 0.561649 bb. Dense Broadway Third pair uses the row-wide `BDFD`
+selector and dense Broadway Gutshot uses `PAIR`; all remaining transitions are
+pure actions or exact 50/50 CALL/RAISE mixes. The exact table and audit are in
+`docs/BB_CBET_RESPONSE_VS_BTN_SIMPLIFICATION.md`.
 
 The initiative procedure is represented by four approved worked examples:
 

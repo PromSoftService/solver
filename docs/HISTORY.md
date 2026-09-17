@@ -334,3 +334,49 @@ Root source/clipped/oracle loss is 0.002372/0.003410/0.005520 bb and local P99
 oracle regret is 0.415417 bb. The exact table and review are in
 `docs/BTN_CBET_RESPONSE_SIMPLIFICATION.md`. No generator, canonical workbook
 or solver data was changed.
+
+
+## 22. Canonical six-class teaching grid
+
+The human strategy and standalone trainer adopted one shared full-board
+set of classes with two display orders:
+
+- initiative: `ABB -> Axx -> BBB -> K/Qxx -> J/Txx -> [9-2]xx`;
+- defense/response: `ABB -> BBB -> Axx -> K/Qxx -> J/Txx -> [9-2]xx`.
+
+The six classes contain 6, 4, 60, 96, 64 and 56 boards respectively and cover
+all 286 BRD001 flops exactly once. Initiative keeps the ace-high classes
+adjacent. Defense and response place `ABB` and `BBB` together because both
+are dense-Broadway exceptions; this removes misleading visual alternation.
+
+The two orders change presentation only. Classification precedence, board
+membership, combo policy and audit metrics remain unchanged.
+
+The grid was derived from the reviewed branch-specific tables, but it is only
+a teaching/display standard. Branch actions remain position- and
+history-specific and must be recalculated from tracked combo data. The
+low-only BB donk and the special UTG-vs-BTN c-bet partition remain explicit
+audited exceptions; exact `All flops` collapses are also allowed.
+
+Definitions, scope, reachability rules, selector semantics and the
+synchronization checklist are recorded in `docs/UNIFIED_FLOP_GRID.md`.
+
+
+## 23. STU005 approved BB response to BTN c-bet
+
+The first approved BTN-vs-BB response table is branch
+`03_BB_AFTER_CBET`: after `BB CHECK -> BTN BET 1/2`, BB chooses FOLD, CALL
+or native-60 RAISE. It uses the canonical defense order
+`ABB -> BBB -> Axx -> K/Qxx -> J/Txx -> [9-2]xx`.
+
+Solver F/C/R is 43.1372/45.7067/11.1562%; the approved candidate is
+50.5559/41.2229/8.2211%. Mean local source loss is 0.017993 bb, mean local
+oracle regret is 0.019105 bb and P99 is 0.561649 bb. The table deliberately
+over-folds and under-raises weak holdings so ordinary pairs form a simple CALL
+core while strong value and direct draws form the check-raise range.
+
+The only deterministic selectors are `BDFD` for Third pair and `PAIR` for
+Gutshot on dense Broadway boards. The exact table, tail audit and accepted
+distortions are recorded in
+`docs/BB_CBET_RESPONSE_VS_BTN_SIMPLIFICATION.md`. No generator, workbook,
+trainer or solver data was changed.
