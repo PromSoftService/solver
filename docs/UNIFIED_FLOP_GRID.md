@@ -168,7 +168,14 @@ The first such exception is BTN-vs-BB `5.4.5`: although baseline `5.4.1`
 makes BB range CHECK, the trainer generates `BB DONK 1/2 -> BTN RESPONSE` on
 all six classes so the user can practise against human opponents who donk
 incorrectly. This does not invent a solver donk, change the normal-path tree
-or automatically authorize any other off-policy or donk-raise branch.
+or automatically authorize unrelated off-policy branches.
+
+The approved deviation path extends one step deeper only when `5.4.5`
+generates BTN RAISE: the trainer then generates `5.4.6 BB RESPONSE` on all six
+classes. This extension is reachable because the approved `5.4.5` table can
+raise Two pair+, OESD and Gutshot in every class. It remains part of the same
+named human-donk deviation exercise and does not make donk histories part of
+the normal baseline.
 
 This distinction is particularly important for donk and donk-raise branches.
 

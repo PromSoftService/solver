@@ -885,3 +885,40 @@ Result:
 - left the standalone trainer update for the complete BTN-vs-BB publication
   pass and kept generator, workbooks and solver data unchanged;
 - validated locally only; GitHub Actions were not used.
+
+
+## 2026-09-17 - approve STU005 BB response to BTN donk-raise
+
+Status: COMPLETED
+
+Base commit: `b119fec` (`main` synchronized with `origin/main`).
+
+Scope: publish the user-approved teaching table for
+`STU005 / 06_BB_AFTER_DONK_RAISE`, the final BTN-vs-BB flop branch, and
+record its reachability inside the explicit all-flop opponent-deviation
+training path created for `5.4.5`.
+
+Constraints: keep the solver dataset, generator, canonical workbook and
+standalone trainer file unchanged; do not add generated STU005 data; defer
+trainer implementation to the complete BTN-vs-BB publication pass; do not use
+GitHub Actions.
+
+Plan: add the exact table and reproduced local/root audit, update the
+human-strategy, reachability, history and reading-order documents, validate
+Markdown and links, then commit and push documentation only.
+
+Result:
+
+- added `docs/BB_RESPONSE_TO_BTN_DONK_RAISE_SIMPLIFICATION.md` with the exact
+  approved table, selectors, 286/286 validation and local/root EV audit;
+- recorded the accepted 8.30-point over-call and the rejected low-board
+  Third-pair BDFD exception whose root gain was below 0.000003 bb;
+- extended the named human-donk deviation path through `5.4.6` on all six
+  classes whenever the preceding `5.4.5` action is BTN RAISE;
+- kept baseline `5.4.1` as range CHECK and did not authorize unrelated
+  off-policy histories;
+- linked the final STU005 branch from repository, history, grid and
+  human-strategy documentation;
+- left the standalone trainer update for the complete BTN-vs-BB publication
+  pass and kept generator, workbooks and solver data unchanged;
+- validated locally only; GitHub Actions were not used.

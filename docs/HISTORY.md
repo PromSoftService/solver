@@ -425,3 +425,30 @@ The exact table, selector evidence, audit and trainer requirement are recorded
 in `docs/BTN_RESPONSE_TO_BB_DONK_SIMPLIFICATION.md`. The trainer file remains
 deferred to the complete BTN-vs-BB publication pass; no generator, workbook or
 solver data was changed.
+
+
+## 26. STU005 approved BB response to BTN donk-raise
+
+The final approved BTN-vs-BB flop table is branch
+`06_BB_AFTER_DONK_RAISE`: after the human-deviation BB half-pot donk and a
+native-60 BTN raise, BB chooses FOLD or CALL. It uses the canonical six-column
+defense order.
+
+Solver F/C is 41.9091/58.0909%; the candidate is 33.6057/66.3943%. Mean local
+source loss is 0.048328 bb and local oracle-regret P99 is 0.993524 bb. The
+branch reaches only 0.4122% from the solved flop root, giving root-normalized
+source loss of 0.000199 bb.
+
+The table accepts an 8.30-point over-call in exchange for simple pair and
+Gutshot strength transitions. A low-board Third-pair BDFD exception saved
+only 0.000680 bb locally and less than 0.000003 bb at root, so it was rejected.
+
+Although baseline `5.4.1` makes BB range CHECK, this branch is reachable
+inside the separately approved all-flop human-donk deviation exercise whenever
+`5.4.5` generates BTN RAISE. The trainer must preserve that full six-class
+downstream path without changing the normal baseline.
+
+The exact table, selectors, audit and reachability rule are recorded in
+`docs/BB_RESPONSE_TO_BTN_DONK_RAISE_SIMPLIFICATION.md`. The trainer file
+remains deferred to the complete BTN-vs-BB publication pass; no generator,
+workbook or solver data was changed.

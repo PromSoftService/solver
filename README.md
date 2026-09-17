@@ -101,7 +101,9 @@ BTN c-bet is in `docs/BB_CBET_RESPONSE_VS_BTN_SIMPLIFICATION.md`; the approved
 BTN response to the BB check-raise is in
 `docs/BTN_RESPONSE_TO_BB_CHECK_RAISE_SIMPLIFICATION.md`; the approved BTN
 response to a BB donk, including its all-flop human-deviation trainer rule, is
-in `docs/BTN_RESPONSE_TO_BB_DONK_SIMPLIFICATION.md`; the approved UTG c-bet
+in `docs/BTN_RESPONSE_TO_BB_DONK_SIMPLIFICATION.md`; the approved BB response
+after BTN raises that donk is in
+`docs/BB_RESPONSE_TO_BTN_DONK_RAISE_SIMPLIFICATION.md`; the approved UTG c-bet
 against BB is in `docs/UTG_CBET_VS_BB_SIMPLIFICATION.md`; the approved UTG
 c-bet against BTN is in `docs/UTG_CBET_VS_BTN_SIMPLIFICATION.md`; the approved
 BTN stab after

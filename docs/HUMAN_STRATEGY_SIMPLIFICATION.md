@@ -445,6 +445,20 @@ That exception is branch-specific and does not change the upstream strategy
 or make other off-policy branches reachable. The exact table and audit are in
 `docs/BTN_RESPONSE_TO_BB_DONK_SIMPLIFICATION.md`.
 
+For STU005 `06_BB_AFTER_DONK_RAISE`, the approved manual table keeps the
+canonical six defense columns. Solver F/C is 41.91/58.09%; the candidate is
+33.61/66.39%. Mean local source loss is 0.048328 bb, but the branch reaches
+only 0.4122% from the solved flop root, giving root-normalized source loss of
+0.000199 bb. Strong value and OESD call, weak pocket pairs and Air fold, while
+Second pair, Third pair and Gutshot use simple strength transitions.
+
+This branch is generated only downstream of the approved `5.4.5` opponent-
+deviation exercise when BTN raises. Because that parent can raise on every
+class, the trainer must support `5.4.6` on all six classes as part of the same
+human-donk deviation mode. The exact table, rejected low-board Third-pair
+exception and audit are recorded in
+`docs/BB_RESPONSE_TO_BTN_DONK_RAISE_SIMPLIFICATION.md`.
+
 The initiative procedure is represented by four approved worked examples:
 
 - STU002 `01_BB_FIRST` keeps T-high and higher as range CHECK, uses a broad
