@@ -849,3 +849,39 @@ Result:
 - left the standalone trainer, generator, canonical workbooks and STU005
   source dataset unchanged;
 - validated locally only; GitHub Actions were not used.
+
+
+## 2026-09-17 - approve STU005 BTN response to BB donk
+
+Status: COMPLETED
+
+Base commit: `5186cd5` (`main` synchronized with `origin/main`).
+
+Scope: publish the user-approved teaching table for
+`STU005 / 05_BTN_AFTER_DONK` and record the explicit trainer exception that
+this human-deviation branch must be generated on all six flop classes even
+though the approved baseline `5.4.1 BB DONK 1/2` is range CHECK.
+
+Constraints: keep the solver dataset, generator and canonical workbook
+unchanged; do not add generated STU005 data; defer the standalone trainer
+file update to the complete BTN-vs-BB publication pass; do not use GitHub
+Actions.
+
+Plan: add the exact table and audit, update the reachability contract and
+repository reading order, validate Markdown and links, commit and push only
+the documentation, then analyze the final `06_BB_AFTER_DONK_RAISE` branch.
+
+Result:
+
+- added `docs/BTN_RESPONSE_TO_BB_DONK_SIMPLIFICATION.md` with the exact
+  approved table, source frequencies, local/root audit and tail disclosure;
+- recorded that baseline `5.4.1` remains range CHECK and this branch has zero
+  reach against the approved human baseline;
+- added the explicit exception requiring the trainer to generate `5.4.5` on
+  all six classes as opponent-deviation practice against human donks;
+- kept the exception branch-specific so it does not authorize other
+  off-policy paths or invent solver action frequencies;
+- linked the branch from repository, history and human-strategy documents;
+- left the standalone trainer update for the complete BTN-vs-BB publication
+  pass and kept generator, workbooks and solver data unchanged;
+- validated locally only; GitHub Actions were not used.

@@ -99,7 +99,9 @@ UTG response to the BTN stab and BTN response to the UTG c-bet are in
 `docs/BTN_CBET_RESPONSE_SIMPLIFICATION.md`; the approved BB response to the
 BTN c-bet is in `docs/BB_CBET_RESPONSE_VS_BTN_SIMPLIFICATION.md`; the approved
 BTN response to the BB check-raise is in
-`docs/BTN_RESPONSE_TO_BB_CHECK_RAISE_SIMPLIFICATION.md`; the approved UTG c-bet
+`docs/BTN_RESPONSE_TO_BB_CHECK_RAISE_SIMPLIFICATION.md`; the approved BTN
+response to a BB donk, including its all-flop human-deviation trainer rule, is
+in `docs/BTN_RESPONSE_TO_BB_DONK_SIMPLIFICATION.md`; the approved UTG c-bet
 against BB is in `docs/UTG_CBET_VS_BB_SIMPLIFICATION.md`; the approved UTG
 c-bet against BTN is in `docs/UTG_CBET_VS_BTN_SIMPLIFICATION.md`; the approved
 BTN stab after

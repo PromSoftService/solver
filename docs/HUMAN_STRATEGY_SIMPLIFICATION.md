@@ -431,6 +431,20 @@ and Air fold, and all normal pairs plus direct draws call from Axx downward.
 The exact table and rejected Gutshot micro-rule are recorded in
 `docs/BTN_RESPONSE_TO_BB_CHECK_RAISE_SIMPLIFICATION.md`.
 
+For STU005 `05_BTN_AFTER_DONK`, the approved manual table keeps the canonical
+six defense columns. Solver F/C/R is 29.25/54.25/16.50%; the candidate is
+38.80/49.27/11.93%. Mean local source loss is 0.017220 bb and local oracle-
+regret P99 is 0.599497 bb. Two pair+, OESD and Gutshot use a uniform exact
+50/50 CALL/RAISE mix; ordinary pairs call; Low pocket pair folds; Third pair
+on dense Broadway and Air from Axx downward use `BDFD`.
+
+Baseline `5.4.1` makes BB range CHECK, so this branch has zero reach against
+the approved human baseline. The user explicitly approved it as an all-six-
+class opponent-deviation trainer exercise against humans who may donk anyway.
+That exception is branch-specific and does not change the upstream strategy
+or make other off-policy branches reachable. The exact table and audit are in
+`docs/BTN_RESPONSE_TO_BB_DONK_SIMPLIFICATION.md`.
+
 The initiative procedure is represented by four approved worked examples:
 
 - STU002 `01_BB_FIRST` keeps T-high and higher as range CHECK, uses a broad

@@ -401,3 +401,27 @@ roughly doubled mean local loss and made the tail materially worse.
 The exact table, subgroup evidence and accepted local tail are recorded in
 `docs/BTN_RESPONSE_TO_BB_CHECK_RAISE_SIMPLIFICATION.md`. No generator,
 workbook, trainer or solver data was changed.
+
+
+## 25. STU005 approved BTN response to BB donk
+
+The approved `05_BTN_AFTER_DONK` table covers an unexpected BB half-pot donk,
+after which BTN chooses FOLD, CALL or native-60 RAISE. It uses the canonical
+six-column defense order.
+
+Solver F/C/R is 29.2521/54.2480/16.4999%; the candidate is
+38.8037/49.2678/11.9284%. Mean local source loss is 0.017220 bb, local oracle-
+regret P99 is 0.599497 bb and solver-tree root-normalized source loss is
+0.000429 bb. The table deliberately over-folds weak holdings and keeps its
+raise range concentrated in Two pair+, OESD and Gutshot.
+
+The approved baseline `5.4.1` has no BB donk, so this branch is unreachable
+against that baseline. The user nevertheless required the trainer to generate
+it on all six flop classes as a named opponent-deviation exercise against
+human players who may donk incorrectly. This exception does not alter the
+baseline, assert a solver donk frequency or authorize other off-policy paths.
+
+The exact table, selector evidence, audit and trainer requirement are recorded
+in `docs/BTN_RESPONSE_TO_BB_DONK_SIMPLIFICATION.md`. The trainer file remains
+deferred to the complete BTN-vs-BB publication pass; no generator, workbook or
+solver data was changed.

@@ -160,7 +160,17 @@ The trainer must distinguish documentation from normal-path generation:
 - an impossible standard history must not be generated merely because its
   response cell exists.
 
-This is particularly important for donk and donk-raise branches.
+An approved opponent-deviation exercise is the only exception. It must be
+named branch-specifically, must not alter the upstream baseline strategy and
+must state exactly which otherwise off-policy classes the trainer generates.
+
+The first such exception is BTN-vs-BB `5.4.5`: although baseline `5.4.1`
+makes BB range CHECK, the trainer generates `BB DONK 1/2 -> BTN RESPONSE` on
+all six classes so the user can practise against human opponents who donk
+incorrectly. This does not invent a solver donk, change the normal-path tree
+or automatically authorize any other off-policy or donk-raise branch.
+
+This distinction is particularly important for donk and donk-raise branches.
 
 ## 7. Cell labels and selectors
 
@@ -202,7 +212,8 @@ After a table is approved:
 4. keep legends and hand priority identical in both artifacts;
 5. verify the six board counts and all 286 classifications;
 6. verify table dimensions and action tokens;
-7. test normal-path reachability and off-policy exclusions;
+7. test normal-path reachability, off-policy exclusions and every explicitly
+   approved opponent-deviation exercise;
 8. record the solver/candidate audit and accepted trade-offs;
 9. do not change the canonical workbook or generator;
 10. an approval-only commit may precede publication only when pending trainer
