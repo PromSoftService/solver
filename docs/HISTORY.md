@@ -380,3 +380,24 @@ Gutshot on dense Broadway boards. The exact table, tail audit and accepted
 distortions are recorded in
 `docs/BB_CBET_RESPONSE_VS_BTN_SIMPLIFICATION.md`. No generator, workbook,
 trainer or solver data was changed.
+
+
+## 24. STU005 approved BTN response to BB check-raise
+
+The approved `04_BTN_AFTER_CHECK_RAISE` teaching table covers
+`BB CHECK -> BTN BET 1/2 -> BB RAISE 60`, after which BTN chooses FOLD or
+CALL. It uses the canonical six-column defense order.
+
+Solver F/C is 40.0662/59.9338%; the candidate is 42.2941/57.7059%. Mean local
+source loss is 0.023685 bb and local oracle-regret P99 is 0.698544 bb. Because
+the branch reaches only 6.0416% from the flop root, root-normalized source loss
+is 0.001431 bb.
+
+Dense-Broadway pairs use `BDFD`, dense-Broadway Gutshot uses `PAIR`, Low
+pocket pair and Air fold, and normal pairs plus direct draws call from Axx
+downward. A proposed Gutshot `PAIR/BDFD` micro-rule was rejected because it
+roughly doubled mean local loss and made the tail materially worse.
+
+The exact table, subgroup evidence and accepted local tail are recorded in
+`docs/BTN_RESPONSE_TO_BB_CHECK_RAISE_SIMPLIFICATION.md`. No generator,
+workbook, trainer or solver data was changed.

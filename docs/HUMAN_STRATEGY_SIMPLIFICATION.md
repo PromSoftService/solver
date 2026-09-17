@@ -422,6 +422,15 @@ selector and dense Broadway Gutshot uses `PAIR`; all remaining transitions are
 pure actions or exact 50/50 CALL/RAISE mixes. The exact table and audit are in
 `docs/BB_CBET_RESPONSE_VS_BTN_SIMPLIFICATION.md`.
 
+For STU005 `04_BTN_AFTER_CHECK_RAISE`, the approved manual table keeps the
+canonical six defense columns. Solver F/C is 40.07/59.93%; the candidate is
+42.29/57.71%. Local source loss is 0.023685 bb, but the branch reaches only
+6.04% from the flop root, giving root-normalized loss of 0.001431 bb. Dense
+Broadway pairs use `BDFD`, dense Broadway Gutshot uses `PAIR`, Low pocket pair
+and Air fold, and all normal pairs plus direct draws call from Axx downward.
+The exact table and rejected Gutshot micro-rule are recorded in
+`docs/BTN_RESPONSE_TO_BB_CHECK_RAISE_SIMPLIFICATION.md`.
+
 The initiative procedure is represented by four approved worked examples:
 
 - STU002 `01_BB_FIRST` keeps T-high and higher as range CHECK, uses a broad

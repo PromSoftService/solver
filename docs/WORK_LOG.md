@@ -825,3 +825,27 @@ Result:
 - left the standalone trainer, generator, canonical workbooks and STU005
   source dataset unchanged;
 - validated locally only; GitHub Actions were not used.
+
+
+## 2026-09-17 - approve STU005 BTN response to BB check-raise
+
+Status: COMPLETED
+
+Base branch: `main`; synchronization with `origin/main` was confirmed before
+implementation.
+
+Scope: publish the user-approved teaching table for
+`STU005 / 04_BTN_AFTER_CHECK_RAISE` with its six-class defense order,
+observable selectors and both local and root-normalized audit.
+
+Result:
+
+- added `docs/BTN_RESPONSE_TO_BB_CHECK_RAISE_SIMPLIFICATION.md`;
+- recorded 153,604 source rows, 141,866 positive-reach rows and 286/286 PASS;
+- recorded solver/candidate F/C, branch reach, local/root loss and tail metrics;
+- documented why dense-Broadway pairs use `BDFD` and Gutshot uses `PAIR`;
+- recorded the rejected Gutshot `PAIR/BDFD` micro-rule and its larger loss;
+- linked the approved branch from repository and human-strategy documentation;
+- left the standalone trainer, generator, canonical workbooks and STU005
+  source dataset unchanged;
+- validated locally only; GitHub Actions were not used.

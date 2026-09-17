@@ -89,9 +89,10 @@ Only the Windows/NVIDIA host can prove a CUDA solve. Never claim a runtime resul
 12. `docs/UTG_STAB_RESPONSE_SIMPLIFICATION.md` for the approved UTG response to the BTN stab
 13. `docs/BTN_CBET_RESPONSE_SIMPLIFICATION.md` for the approved BTN response to the UTG c-bet
 14. `docs/BB_CBET_RESPONSE_VS_BTN_SIMPLIFICATION.md` for the approved BB response to the BTN c-bet
-15. `docs/UTG_CBET_VS_BB_SIMPLIFICATION.md` for the approved UTG c-bet against BB
-16. `docs/UTG_CBET_VS_BTN_SIMPLIFICATION.md` for the approved UTG c-bet against BTN
-17. `docs/BTN_STAB_VS_UTG_SIMPLIFICATION.md` for the approved BTN stab after the UTG check
-18. `docs/BB_DONK_SIMPLIFICATION.md` for the approved BB donk initiative table
-19. `docs/BATCHER_EVOLUTION.md` for the short project chronology
-20. `docs/WORK_LOG.md` for the active task record
+15. `docs/BTN_RESPONSE_TO_BB_CHECK_RAISE_SIMPLIFICATION.md` for the approved BTN response to the BB check-raise
+16. `docs/UTG_CBET_VS_BB_SIMPLIFICATION.md` for the approved UTG c-bet against BB
+17. `docs/UTG_CBET_VS_BTN_SIMPLIFICATION.md` for the approved UTG c-bet against BTN
+18. `docs/BTN_STAB_VS_UTG_SIMPLIFICATION.md` for the approved BTN stab after the UTG check
+19. `docs/BB_DONK_SIMPLIFICATION.md` for the approved BB donk initiative table
+20. `docs/BATCHER_EVOLUTION.md` for the short project chronology
+21. `docs/WORK_LOG.md` for the active task record
