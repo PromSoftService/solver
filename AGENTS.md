@@ -98,3 +98,104 @@ Only the Windows/NVIDIA host can prove a CUDA solve. Never claim a runtime resul
 21. `docs/BB_DONK_SIMPLIFICATION.md` for the approved BB donk initiative table
 22. `docs/BATCHER_EVOLUTION.md` for the short project chronology
 23. `docs/WORK_LOG.md` for the active task record
+
+## Local checkout and branch workflow
+
+- Canonical Windows checkout: `D:\current\manuals\покер\sotf\tsgpu-batch-production-v012`.
+- Primary remote: `origin` -> `https://github.com/PromSoftService/solver.git`.
+- Default and integration branch: `main`.
+- Fetch `origin` and confirm `main...origin/main` before repository changes.
+- Small completed tasks may be committed directly to `main`, as authorized above.
+  Use a named task branch for long-running or explicitly isolated work; after
+  local validation, push it, merge it into `main` without rewriting history,
+  revalidate, push `main`, and verify the remote SHA.
+- Preserve unrelated user changes and active local solver output. Never use
+  `git reset --hard`, `git clean`, force push, or automatic conflict resolution.
+
+## Dependencies, build and validation
+
+This repository has no package installation or compiled build step. Required
+runtime tools are Windows PowerShell, Python 3, Node.js and the original
+TexasSolverGPU v0.2.0 Windows x64 distribution with a supported NVIDIA/CUDA
+host. The workbook generator additionally requires `openpyxl`:
+
+```powershell
+python -m pip install openpyxl
+```
+
+Use these static checks for repository-wide script changes:
+
+```powershell
+python -m py_compile scripts\flop_strategy.py scripts\flop_workbook.py scripts\generate-flop-strategies.py
+node --check scripts\generate-study-config.mjs
+
+$parseErrors = @()
+Get-ChildItem -Recurse -Filter *.ps1 | ForEach-Object {
+    $tokens = $null
+    $errors = $null
+    [System.Management.Automation.Language.Parser]::ParseFile(
+        $_.FullName,
+        [ref]$tokens,
+        [ref]$errors
+    ) | Out-Null
+    $parseErrors += $errors
+}
+if ($parseErrors.Count) { $parseErrors; throw 'PowerShell parse errors found.' }
+
+Get-ChildItem -Recurse -Filter *.json | ForEach-Object {
+    Get-Content -Raw -LiteralPath $_.FullName | ConvertFrom-Json | Out-Null
+}
+```
+
+There is no separate unit-test suite. For runner changes, execute the smallest
+relevant Windows/NVIDIA smoke fixture and inspect its produced summary. The
+canonical documented smoke command is:
+
+```powershell
+.\tsgpu-batch.cmd .\smoke\CFG001-one-board.json .\smoke\boards.txt .\output\smoke
+```
+
+Do not use the 286-board BRD001 list as a routine smoke test. Strategy-only
+changes should regenerate and validate only the affected tracked study using:
+
+```powershell
+python scripts\generate-flop-strategies.py <study-directory> [--run <run-name>]
+```
+
+Before every commit run `git status --short`, `git diff --check`,
+`git diff --stat`, and the checks relevant to the changed files. GitHub Actions
+are not the validation path for this repository.
+
+## Key directories and generated data
+
+- `tsgpu-worker.ps1`, `tsgpu-batch.ps1`, `tsgpu-batch.cmd`: stock bridge and batch runner.
+- `scripts/`: shared config, aggregation and workbook tools.
+- `studies/`: reproducible study packages and branch launchers.
+- `ranges/` and `boards/`: canonical solver inputs.
+- `smoke/` and `example/`: small validation and usage fixtures.
+- `datasets/`: only explicitly approved compact tracked reports and analyses.
+- `docs/`: baseline, workflow, history, audits and task work log.
+- `output/` and `_diagnostics/`: local generated runtime data; never commit.
+
+Do not modify or commit solver binaries. Raw node exports, transcripts and
+unapproved solver output remain local. Never regenerate, normalize, or delete
+active solver datasets as a side effect of documentation or Git maintenance.
+Human teaching tables remain manually reviewed documentation and must not be
+turned into generated production inputs.
+
+## Running and deployment
+
+Run the documented five-board example with:
+
+```powershell
+.\tsgpu-batch.cmd .\example\config.json .\example\boards.txt .\output\example-five-flops
+```
+
+Study launch commands live in each `studies/<study>/README.md`. Use the
+repository scripts exactly as documented and never start a duplicate runner
+while a study runner or `TexasSolverGpu_131.exe` is active.
+
+Deployment: not provided for this repository. It is a local Windows/NVIDIA
+batch and analysis tool; there is no production service, container, Caddy,
+systemd or database deployment. Never place secrets, `.env` values, tokens,
+passwords or private keys in Git.

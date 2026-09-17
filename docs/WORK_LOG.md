@@ -922,3 +922,36 @@ Result:
 - left the standalone trainer update for the complete BTN-vs-BB publication
   pass and kept generator, workbooks and solver data unchanged;
 - validated locally only; GitHub Actions were not used.
+
+## 2026-09-17 - one-time repository workflow initialization
+
+Status: COMPLETED
+
+Base commit: `a8bf611da207addad2af815abc543591e302f5ea` (`main` synchronized with `origin/main`).
+
+Scope: audit the Windows checkout and repository branches, complete the root
+`AGENTS.md` with project-specific local path, dependency, validation, layout,
+generated-data, run and deployment rules, then commit and push the
+initialization to `main` without touching the active untracked STU005 dataset.
+
+Constraints: use local validation only; preserve every solver output; do not
+run GitHub Actions, CUDA solves or deployment; do not delete historical
+branches; do not modify production infrastructure.
+
+Plan: confirm branch ancestry and origin divergence, update only `AGENTS.md`
+and this work log, run syntax/static documentation checks, commit, push, and
+verify the exact remote `main` SHA.
+Result:
+
+- verified the checkout on DESKTOP-MS128V9, fetched origin and confirmed
+  main started synchronized at a8bf611da207addad2af815abc543591e302f5ea;
+- confirmed the three historical local work branches have no commits outside
+  main; they remain as non-destructive historical references and need no merge;
+- completed root AGENTS.md with the checkout, remote, branch workflow,
+  dependencies, validation commands, directory map, generated-data boundaries,
+  run procedure, secret rules and the explicit absence of deployment;
+- passed Python syntax checks, openpyxl import, Node syntax validation,
+  parsing of 12 tracked PowerShell scripts and 56 tracked JSON files, the
+  strategy CLI help check and git diff --check;
+- left the untracked STU005 dataset untouched and excluded from the commit;
+- did not run GitHub Actions, a CUDA solve, deployment or production changes.
