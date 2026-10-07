@@ -2,6 +2,56 @@
 
 This file records each repository-changing task before implementation and closes it after validation and push. It is intentionally concise.
 
+## 2026-10-07 — absolute preflop range height
+
+Status: STARTED
+
+Base commit: `79d17425df8e73be220d91ffbcd630324335fef4`; fetched
+`origin/main` is `4323a2b22e603ef310a637cf295a0a5cae298456`. The local commit
+contains the preceding actor-only reach correction and is not yet pushed.
+
+Observed defect: the viewer retained the weighted preflop range internally but
+divided every displayed hand by its own starting weight. A 13% preflop hand
+therefore appeared at full height on the flop.
+
+Scope: use the tracked range files as the absolute 0-100% starting height,
+multiply that height only by the displayed actor's earlier postflop actions,
+shorten the BDFD label, and rotate the top suit-grid labels 180 degrees. Keep
+solver strategies, EVs, source exports and unrelated local work unchanged.
+
+Plan: load actor weights from the study's range manifest, expose both absolute
+remaining weight and own-action retention, update both matrices to use absolute
+height, add focused tests, validate STU005 ATs against its 13% BB call weight,
+and browser-check the labels and orientation.
+
+Status: COMPLETED
+
+Result:
+
+- loaded each actor's exact 0-1 preflop weights from the tracked range manifest
+  and made those weights the absolute initial cell heights;
+- retained the actor-only postflop rule: only the displayed player's earlier
+  actions multiply that player's preflop weight;
+- updated both the 169-hand and exact-suit matrices, legend and tooltips to use
+  absolute remaining range weight;
+- shortened the draw label to `БДФД` and rotated the top suit-axis labels 180
+  degrees so they read with the head tilted left;
+- lightly shaded every 169-hand cell containing a flop rank and every exact
+  suit-grid row or column containing a physical flop card.
+
+Validation:
+
+- Python compilation, six unit tests, Node syntax and `git diff --check`
+  passed;
+- on STU005 `Q76`, root BB `ATs` is exactly 13% and `ATo` exactly 91.8%;
+  after `BB Check -> BTN Bet`, `ATs` remains 13% and `ATo` remains
+  91.7986-91.8%, proving BTN's action does not reduce BB's displayed range;
+- browser validation on `Q75` showed `ATs` at 13%, 69 rank-blocked cells in
+  the 169 matrix, 303 exact-card-blocked cells in the suit matrix, the `БДФД`
+  label, a computed 180-degree top-axis transform and no console errors;
+- the LAN server was restarted on port 8765 without a password; solver data,
+  source exports, firewall settings and unrelated local work were untouched.
+
 ## 2026-10-07 — actor-only range reach correction
 
 Status: STARTED

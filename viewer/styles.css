@@ -77,6 +77,10 @@ select:focus, input:focus { border-color: var(--accent); box-shadow: 0 0 0 2px #
   position: relative; overflow: hidden; border: 1px solid #465165; border-radius: 2px;
   background: #151a23; cursor: pointer; isolation: isolate;
 }
+.range-cell.board-blocked::after {
+  content: ""; position: absolute; inset: 0; z-index: 1; pointer-events: none;
+  background: rgba(184, 194, 208, .11);
+}
 .range-cell:hover, .range-cell.selected { border-color: #d8e3f2; z-index: 2; box-shadow: 0 0 0 1px #d8e3f255; }
 .range-cell.empty { cursor: default; opacity: .45; }
 .cell-fill { position: absolute; left: 0; right: 0; bottom: 0; display: flex; opacity: .94; }
@@ -123,6 +127,7 @@ h2 { margin: 0 0 10px; font-size: 14px; font-weight: 700; }
   gap: 0; width: max-content;
 }
 .axis-card { display: grid; place-items: center; color: var(--muted); font-size: 10px; writing-mode: vertical-rl; border-left: 1px solid transparent; }
+.axis-card:not(.left) { transform: rotate(180deg); }
 .axis-card.left { writing-mode: horizontal-tb; }
 .axis-card.red { color: #e27474; }
 .axis-card.rank-start { color: #d8dfeb; font-weight: 800; border-left-color: #596579; }
@@ -131,6 +136,10 @@ h2 { margin: 0 0 10px; font-size: 14px; font-weight: 700; }
 .suit-cell:hover, .suit-cell.selected { outline: 1px solid #fff; z-index: 2; }
 .suit-cell.blocked { background: #171c25; cursor: default; }
 .suit-cell.invalid { background: #11161e; }
+.suit-cell.flop-card-blocked::after {
+  content: ""; position: absolute; inset: 0; z-index: 1; pointer-events: none;
+  background: rgba(184, 194, 208, .2);
+}
 .suit-cell.rank-top { border-top-color: #647086; border-top-width: 2px; }
 .suit-cell.rank-bottom { border-bottom-color: #647086; border-bottom-width: 2px; }
 .suit-cell.rank-left { border-left-color: #647086; border-left-width: 2px; }

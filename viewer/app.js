@@ -14,7 +14,7 @@ const MADE_RU = {
   "Low pocket pair": "Low pocket", "2 overcards": "Две оверкарты",
   "A-high": "Туз-хай", Air: "Воздух",
 };
-const DRAW_RU = { OESD: "OESD", Gutshot: "Гатшот", BDFD: "Бэкдор-флеш-дро", "No draw": "Без дро" };
+const DRAW_RU = { OESD: "OESD", Gutshot: "Гатшот", BDFD: "БДФД", "No draw": "Без дро" };
 
 const state = {
   catalog: null, study: null, node: null, view: "range", actor: "BB", branchesByActor: {},
@@ -113,7 +113,9 @@ function renderAll() { renderHeader(); renderFilters(); renderRange(); renderSui
 function renderHeader() {
   const node = state.node;
   const ownPath = node.actorPath.map((step) => step.label).join(" → ");
-  const heightText = ownPath ? `${node.branch.actor} после: ${ownPath}` : `исходный диапазон ${node.branch.actor}`;
+  const heightText = ownPath
+    ? `префлоп-вес × действия ${node.branch.actor}: ${ownPath}`
+    : `префлоп-вес ${node.branch.actor}`;
   $("nodeSummary").textContent = `Диапазон ${node.branch.actor} · ${node.combos.length} конкретных комбинаций · экспорт ${state.study.run}`;
   $("rangeOwner").textContent = `ДИАПАЗОН ${node.branch.actor}`;
   $("lineLabel").textContent = `${node.branch.history} · ${node.branch.actionsText} · высота: ${heightText}`;
@@ -170,14 +172,13 @@ function rangeGroups() {
   }); return groups;
 }
 function aggregateCell(combos) {
-  const allBaseline = combos.reduce((sum, combo) => sum + combo.baselineReach, 0);
   const matching = combos.filter(categoryMatches);
   const reach = matching.reduce((sum, combo) => sum + combo.reach * actionMass(combo), 0);
   const actionTotals = Object.fromEntries(state.node.actions.map((action) => [action, 0]));
   matching.forEach((combo) => state.node.actions.forEach((action) => {
     if (!state.actionFilters.size || state.actionFilters.has(action)) actionTotals[action] += combo.reach * combo.frequencies[action];
   }));
-  return { reach, height: allBaseline ? Math.min(1, reach / allBaseline) : 0, actionTotals };
+  return { reach, height: combos.length ? Math.min(1, reach / combos.length) : 0, actionTotals };
 }
 function addSlices(fill, totals, total) {
   state.node.actions.forEach((action) => {
@@ -188,15 +189,17 @@ function addSlices(fill, totals, total) {
 }
 function renderRange() {
   const holder = $("rangeView"); holder.replaceChildren(); const groups = rangeGroups();
+  const boardRanks = new Set(state.node.board.split(/\s+/).map((card) => card[0].toUpperCase()));
   for (let row = 0; row < 13; row += 1) for (let col = 0; col < 13; col += 1) {
     const label = row === col ? RANKS[row] + RANKS[col] : row < col ? RANKS[row] + RANKS[col] + "s" : RANKS[col] + RANKS[row] + "o";
     const combos = groups.get(label) || []; const agg = aggregateCell(combos); const cell = document.createElement("button");
-    cell.type = "button"; cell.className = `range-cell ${combos.length ? "" : "empty"} ${state.selectedCell === label ? "selected" : ""}`;
+    const boardBlocked = [...boardRanks].some((rank) => label.includes(rank));
+    cell.type = "button"; cell.className = `range-cell ${boardBlocked ? "board-blocked" : ""} ${combos.length ? "" : "empty"} ${state.selectedCell === label ? "selected" : ""}`;
     cell.innerHTML = `<span class="cell-fill"></span><span class="cell-label"></span>`;
     cell.querySelector(".cell-label").textContent = label;
     const fill = cell.querySelector(".cell-fill"); fill.style.height = `${agg.height * 100}%`; addSlices(fill, agg.actionTotals, agg.reach);
     if (combos.length) {
-      cell.title = `${label}: дошло ${fmtPct(agg.height)} · ${combos.length} комбинаций в экспорте`;
+      cell.title = `${label}: осталось ${fmtPct(agg.height)} · ${combos.length} комбинаций в экспорте`;
       cell.addEventListener("click", () => {
         state.selectedCell = state.selectedCell === label ? null : label; state.selectedCombo = null;
         renderRange(); renderSuits(); renderDetail();
@@ -225,6 +228,7 @@ function isPokerMatrixSlot(row, col) {
 }
 function renderSuits() {
   const holder = $("suitsGrid"); holder.replaceChildren(); const deck = cardDeck(); holder.append(document.createElement("span"));
+  const boardCards = new Set(state.node.board.split(/\s+/).map((card) => `${card[0].toUpperCase()}${card[1].toLowerCase()}`));
   deck.forEach((card, index) => holder.append(axisCard(card, index, false)));
   const combos = new Map(state.node.combos.map((combo) => [[...combo.cards].sort().join(""), combo]));
   deck.forEach((rowCard, row) => {
@@ -232,15 +236,16 @@ function renderSuits() {
     deck.forEach((colCard, col) => {
       const cell = document.createElement("span");
       const validSlot = isPokerMatrixSlot(row, col);
+      const flopCardBlocked = boardCards.has(rowCard) || boardCards.has(colCard);
       const combo = validSlot ? combos.get([rowCard, colCard].sort().join("")) : null;
-      cell.className = `suit-cell ${suitGridClasses(row, col)} ${validSlot ? "" : "invalid"} ${combo ? "" : "blocked"} ${state.selectedCombo === combo?.combo ? "selected" : ""}`;
+      cell.className = `suit-cell ${suitGridClasses(row, col)} ${flopCardBlocked ? "flop-card-blocked" : ""} ${validSlot ? "" : "invalid"} ${combo ? "" : "blocked"} ${state.selectedCombo === combo?.combo ? "selected" : ""}`;
       if (combo) {
         const mass = categoryMatches(combo) ? actionMass(combo) : 0;
-        const reachHeight = combo.baselineReach ? Math.min(1, combo.reach * mass / combo.baselineReach) : 0;
+        const reachHeight = Math.min(1, combo.reach * mass);
         const fill = document.createElement("span"); fill.className = "cell-fill"; fill.style.height = `${reachHeight * 100}%`;
         const totals = Object.fromEntries(state.node.actions.map((action) => [action, (!state.actionFilters.size || state.actionFilters.has(action)) ? combo.frequencies[action] : 0]));
         addSlices(fill, totals, Object.values(totals).reduce((a, b) => a + b, 0)); cell.append(fill);
-        cell.title = `${prettyCombo(combo.combo)} · ${combo.category} · дошло ${fmtPct(combo.reachFraction)}`;
+        cell.title = `${prettyCombo(combo.combo)} · ${combo.category} · осталось ${fmtPct(combo.reachFraction)}`;
         cell.addEventListener("click", () => {
           state.selectedCombo = state.selectedCombo === combo.combo ? null : combo.combo; state.selectedCell = combo.label;
           renderRange(); renderSuits(); renderDetail();

@@ -4,7 +4,14 @@ import unittest
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
-from server import actor_action_sources, combo_cell, rank_signature, resolve_board, select_exports
+from server import (
+    actor_action_sources,
+    combo_cell,
+    parse_weighted_range,
+    rank_signature,
+    resolve_board,
+    select_exports,
+)
 
 
 class ViewerHelpersTest(unittest.TestCase):
@@ -45,6 +52,10 @@ class ViewerHelpersTest(unittest.TestCase):
         btn_sources = actor_action_sources(entry, branches[3])
         self.assertEqual([(source["id"], action) for source, action, _ in bb_sources], [("01_BB_FIRST", "check")])
         self.assertEqual([(source["id"], action) for source, action, _ in btn_sources], [("02_BTN_AFTER_CHECK", "bet")])
+
+    def test_weighted_preflop_range_is_parsed_as_absolute_height(self) -> None:
+        weights = parse_weighted_range("ATs:0.13, ATo:0.918,22:1.0\n")
+        self.assertEqual(weights, {"ATs": 0.13, "ATo": 0.918, "22": 1.0})
 
 
 if __name__ == "__main__":

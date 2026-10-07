@@ -143,6 +143,31 @@ def select_exports(dataset_root: Path, branches: list[dict]) -> tuple[str | None
     return None, {}
 
 
+def parse_weighted_range(text: str) -> dict[str, float]:
+    weights = {}
+    for item in text.replace("\n", "").split(","):
+        item = item.strip()
+        if not item:
+            continue
+        label, value = item.split(":", 1)
+        weights[label.strip()] = float(value)
+    return weights
+
+
+def load_preflop_weights(root: Path, study: dict) -> dict[str, dict[str, float]]:
+    range_id = study.get("range_id")
+    manifests = sorted((root / "ranges").glob(f"{range_id}__*.json")) if range_id else []
+    if len(manifests) != 1:
+        raise ValueError(f"Expected one range manifest for {range_id}, found {len(manifests)}")
+    with manifests[0].open(encoding="utf-8-sig") as handle:
+        manifest = json.load(handle)
+    result = {}
+    for actor, filename in manifest.get("files", {}).items():
+        path = manifests[0].parent / filename
+        result[actor] = parse_weighted_range(path.read_text(encoding="utf-8-sig"))
+    return result
+
+
 class Repository:
     def __init__(self, root: Path = REPO) -> None:
         self.root = root
@@ -177,6 +202,7 @@ class Repository:
                 "exports": exports,
                 "branch_by_id": branch_by_id,
                 "actor_baseline": actor_baseline,
+                "preflop_weights": load_preflop_weights(self.root, study),
             }
 
     def catalog(self) -> dict:
@@ -226,7 +252,11 @@ class Repository:
         baseline_actions = ACTION_SHAPES[baseline_branch["action_shape"]]
         baseline_path = entry["exports"][baseline_id]
         baseline_rows = read_board_rows(str(baseline_path), board, tuple(baseline_actions))
-        baseline = {row["combo"]: row["reach"] for row in baseline_rows}
+        preflop_by_label = entry["preflop_weights"].get(branch["acting_player"], {})
+        baseline = {
+            row["combo"]: preflop_by_label.get(combo_cell(row["combo"])["label"], 0.0)
+            for row in baseline_rows
+        }
         actor_reach = dict(baseline)
         own_path = actor_action_sources(entry, branch)
         for source_branch, source_action, _ in own_path:
@@ -245,9 +275,11 @@ class Repository:
         result = []
         for row in current:
             base, direct, bdfd, category = hand_category(board, row["combo"])
-            start_reach = baseline.get(row["combo"], row["reach"])
+            start_reach = baseline.get(
+                row["combo"], preflop_by_label.get(combo_cell(row["combo"])["label"], 0.0)
+            )
             display_reach = actor_reach.get(row["combo"], start_reach)
-            reach_fraction = display_reach / start_reach if start_reach > 0 else 0.0
+            own_action_fraction = display_reach / start_reach if start_reach > 0 else 0.0
             result.append(
                 {
                     **row,
@@ -255,7 +287,9 @@ class Repository:
                     "nativeReach": row["reach"],
                     "reach": display_reach,
                     "baselineReach": start_reach,
-                    "reachFraction": max(0.0, min(1.0, reach_fraction)),
+                    "preflopWeight": start_reach,
+                    "reachFraction": max(0.0, min(1.0, display_reach)),
+                    "ownActionFraction": max(0.0, min(1.0, own_action_fraction)),
                     "base": base,
                     "draw": direct,
                     "bdfd": bdfd,
