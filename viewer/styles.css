@@ -105,6 +105,7 @@ h2 { margin: 0 0 10px; font-size: 14px; font-weight: 700; }
 }
 .filter-button:hover { border-color: #505a6d; }
 .filter-button.active { border-color: var(--accent); background: #27333c; }
+.filter-button.preview { border-color: #e4eaf3; background: #33404e; }
 .filter-button.dim { opacity: .42; border-color: transparent; }
 .filter-dot { width: 8px; height: 20px; border-radius: 2px; background: #738096; }
 .filter-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }

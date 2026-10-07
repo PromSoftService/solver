@@ -20,6 +20,7 @@ const DRAW_RU = { OESD: "OESD", Gutshot: "Гатшот", BDFD: "БДФД", "No d
 const state = {
   catalog: null, study: null, node: null, view: "range", actor: "BB", branchesByActor: {},
   actionFilters: new Set(), madeFilters: new Set(), drawFilters: new Set(),
+  madePreview: null, drawPreview: null,
   selectedCell: null, selectedCombo: null,
 };
 const $ = (id) => document.getElementById(id);
@@ -94,6 +95,7 @@ async function loadNode() {
     const query = new URLSearchParams({ study: $("studySelect").value, branch: $("branchSelect").value, board: $("boardInput").value.trim() });
     state.node = await getJSON(`/api/node?${query}`); $("boardInput").value = state.node.board;
     state.actionFilters.clear(); state.madeFilters.clear(); state.drawFilters.clear();
+    state.madePreview = null; state.drawPreview = null;
     state.selectedCell = null; state.selectedCombo = null; renderAll();
   } catch (error) { showError(error.message); } finally { setLoading(false); }
 }
@@ -103,8 +105,8 @@ function comboDraws(combo) {
   if (!values.length) values.push("No draw"); return values;
 }
 function categoryMatches(combo) {
-  if (state.madeFilters.size && !state.madeFilters.has(combo.base)) return false;
-  if (state.drawFilters.size && !comboDraws(combo).some((draw) => state.drawFilters.has(draw))) return false;
+  if (state.madePreview ? combo.base !== state.madePreview : state.madeFilters.size && !state.madeFilters.has(combo.base)) return false;
+  if (state.drawPreview ? !comboDraws(combo).includes(state.drawPreview) : state.drawFilters.size && !comboDraws(combo).some((draw) => state.drawFilters.has(draw))) return false;
   return true;
 }
 function actionMass(combo) {
@@ -113,6 +115,29 @@ function actionMass(combo) {
 }
 function filteredWeight(combo) { return categoryMatches(combo) ? combo.reach * actionMass(combo) : 0; }
 function renderAll() { renderHeader(); renderFilters(); renderRange(); renderSuits(); renderLegend(); renderDetail(); }
+
+function previewCategory(group, name, active) {
+  const stateKey = group === "made" ? "madePreview" : "drawPreview";
+  const holder = $(group === "made" ? "madeFilters" : "drawFilters");
+  const selected = group === "made" ? state.madeFilters : state.drawFilters;
+  state[stateKey] = active ? name : null;
+  holder.querySelectorAll(".filter-button").forEach((button) => {
+    const isPreview = active && button.dataset.filterKey === name;
+    button.classList.toggle("preview", isPreview);
+    button.classList.toggle("active", active ? isPreview : selected.has(button.dataset.filterKey));
+    button.classList.toggle("dim", active && !isPreview);
+  });
+  renderRange(); renderSuits(); renderDetail();
+}
+
+function bindCategoryPreview(button, group, name) {
+  button.dataset.filterKey = name;
+  button.addEventListener("pointerenter", () => previewCategory(group, name, true));
+  button.addEventListener("pointerleave", () => {
+    const stateKey = group === "made" ? "madePreview" : "drawPreview";
+    if (state[stateKey] === name) previewCategory(group, name, false);
+  });
+}
 
 function renderHeader() {
   const node = state.node;
@@ -149,12 +174,18 @@ function renderFilters() {
   const madeHolder = $("madeFilters"); madeHolder.replaceChildren();
   MADE_ORDER.filter((name) => state.node.combos.some((combo) => combo.base === name)).forEach((name) => {
     const weight = state.node.combos.filter((combo) => combo.base === name).reduce((sum, combo) => sum + combo.reach * actionMass(combo), 0);
-    madeHolder.append(filterButton(name, MADE_RU[name], weight / totalReach, state.madeFilters, null, renderAll));
+    const button = filterButton(name, MADE_RU[name], weight / totalReach, state.madeFilters, null, () => {
+      state.madePreview = null; renderAll();
+    });
+    bindCategoryPreview(button, "made", name); madeHolder.append(button);
   });
   const drawHolder = $("drawFilters"); drawHolder.replaceChildren();
   ["OESD", "Gutshot", "BDFD", "No draw"].forEach((name) => {
     const weight = state.node.combos.filter((combo) => comboDraws(combo).includes(name)).reduce((sum, combo) => sum + combo.reach * actionMass(combo), 0);
-    drawHolder.append(filterButton(name, DRAW_RU[name], weight / totalReach, state.drawFilters, null, renderAll));
+    const button = filterButton(name, DRAW_RU[name], weight / totalReach, state.drawFilters, null, () => {
+      state.drawPreview = null; renderAll();
+    });
+    bindCategoryPreview(button, "draw", name); drawHolder.append(button);
   });
 }
 function filterButton(key, label, value, selectedSet, color, onChange) {
@@ -312,7 +343,8 @@ function bindEvents() {
   });
   $("loadBoard").addEventListener("click", loadNode); $("boardInput").addEventListener("keydown", (event) => { if (event.key === "Enter") loadNode(); });
   $("clearFilters").addEventListener("click", () => {
-    state.actionFilters.clear(); state.madeFilters.clear(); state.drawFilters.clear(); state.selectedCell = null; state.selectedCombo = null; renderAll();
+    state.actionFilters.clear(); state.madeFilters.clear(); state.drawFilters.clear(); state.madePreview = null; state.drawPreview = null;
+    state.selectedCell = null; state.selectedCombo = null; renderAll();
   });
   document.querySelectorAll("[data-view]").forEach((button) => button.addEventListener("click", () => {
     state.view = button.dataset.view;

@@ -2,6 +2,38 @@
 
 This file records each repository-changing task before implementation and closes it after validation and push. It is intentionally concise.
 
+## 2026-10-07 — transient category hover preview
+
+Status: STARTED
+
+Base commit: `c65101bdcfaa5008a92cc34444f32566cf738b1d`; fetched
+`origin/main` is `4323a2b22e603ef310a637cf295a0a5cae298456`.
+
+Scope: hovering a made-hand or draw category should temporarily isolate that
+category in both matrices and dim sibling category buttons; leaving must restore
+the previously pinned filters, while clicking must retain the existing pinned
+multi-filter behavior. Preserve solver data and unrelated local work.
+
+Status: COMPLETED
+
+Result:
+
+- added independent transient previews for made-hand and draw categories;
+- pointer entry temporarily isolates the hovered category in both matrices,
+  highlights its button and dims sibling buttons without changing pinned sets;
+- pointer leave restores the exact pinned filters that existed before hover;
+- clicks still toggle persistent multi-category filters and clear any transient
+  preview before rebuilding the interface.
+
+Validation:
+
+- Node syntax, six Python viewer tests and `git diff --check` passed;
+- browser validation showed Top Pair alone reducing visible 169-matrix cells
+  from 94 to 13 while hovered/selected and restoring all 94 after pointer leave;
+- category buttons carry their preview keys, the preview style is loaded, and
+  the page produced no console errors;
+- solver data, exports and unrelated local work were not changed.
+
 ## 2026-10-07 — expose both actors in every viewer study
 
 Status: STARTED
