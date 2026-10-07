@@ -2,6 +2,32 @@
 
 This file records each repository-changing task before implementation and closes it after validation and push. It is intentionally concise.
 
+## 2026-10-07 — expose both actors in every viewer study
+
+Status: STARTED
+
+Base commit: `17e03a3f9821edb2f4ad5494c84f534eba5daae6`; fetched
+`origin/main` is `4323a2b22e603ef310a637cf295a0a5cae298456`.
+
+Observed defect: the frontend constructed actor tabs from the fixed list
+`BTN, BB`, hiding UTG even though UTG branches and combo exports were loaded.
+
+Scope: derive actor tabs from the selected study, preserve conventional
+position order, validate all three available studies in the browser, and leave
+solver data and unrelated local work unchanged.
+
+Status: COMPLETED
+
+Result:
+
+- replaced the fixed `BTN, BB` tab list with the distinct actors present in
+  the selected study, ordered by conventional table position;
+- STU002 now exposes `UTG, BB`, STU004 exposes `UTG, BTN`, and STU005 exposes
+  `BTN, BB`;
+- browser validation loaded every actor tab and all 16 corresponding branch
+  options without console errors;
+- solver data, source exports and unrelated local work were not changed.
+
 ## 2026-10-07 — absolute preflop range height
 
 Status: STARTED

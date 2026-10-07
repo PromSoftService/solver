@@ -5,6 +5,7 @@ const ACTIONS = {
 };
 const RANKS = "AKQJT98765432".split("");
 const SUITS = ["c", "s", "h", "d"];
+const POSITION_ORDER = ["UTG", "HJ", "CO", "BTN", "SB", "BB"];
 const SUIT_SYMBOL = { s: "♠", h: "♥", d: "♦", c: "♣" };
 const MADE_ORDER = ["Two pair+", "Overpair", "Top pair", "Underpair", "Second pair", "Weak pair", "Third pair", "Low pocket pair", "2 overcards", "A-high", "Air"];
 const MADE_RU = {
@@ -50,7 +51,10 @@ function populateStudyControls() {
   state.study = currentStudy();
   const boardList = $("boardList"); boardList.replaceChildren();
   state.study.boards.forEach((board) => boardList.append(option(board, board)));
-  const actors = ["BTN", "BB"].filter((actor) => state.study.branches.some((branch) => branch.actor === actor));
+  const actors = [...new Set(state.study.branches.map((branch) => branch.actor))].sort((left, right) => {
+    const leftIndex = POSITION_ORDER.indexOf(left); const rightIndex = POSITION_ORDER.indexOf(right);
+    return (leftIndex < 0 ? POSITION_ORDER.length : leftIndex) - (rightIndex < 0 ? POSITION_ORDER.length : rightIndex) || left.localeCompare(right);
+  });
   if (!actors.includes(state.actor)) state.actor = actors[0];
   renderActorTabs(actors);
   populateActorBranches();
