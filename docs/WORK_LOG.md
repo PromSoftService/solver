@@ -2,6 +2,59 @@
 
 This file records each repository-changing task before implementation and closes it after validation and push. It is intentionally concise.
 
+## 2026-10-07 — actor-only range reach correction
+
+Status: STARTED
+
+Base commit: `4323a2b22e603ef310a637cf295a0a5cae298456` (`main` synchronized with
+`origin/main`).
+
+Observed defect: cell height used the native exported node reach, which carries
+the probability of both players' actions. After `BB Check -> BTN Bet`, this
+incorrectly removed BB hands according to BTN's betting frequency even though
+BTN's action must not narrow BB's displayed range.
+
+Scope: reconstruct each actor's displayed range from the actor's baseline
+weights and only that actor's earlier actions in the history. Keep current-node
+action frequencies and EVs unchanged. Show the actor-only path explicitly in
+the UI and retain action-filter height semantics on top of the corrected range.
+
+Plan: derive earlier actor decisions generically from study history prefixes,
+apply their exact combo action frequencies to baseline weights, validate all
+STU002/STU004/STU005 branches, reproduce `Q76` where BB height must remain near
+its 99.7% check frequency, browser-test the corrected display, then commit and
+push only this correction and log entry.
+
+Status: COMPLETED
+
+Result:
+
+- replaced native whole-history reach in the displayed range with baseline
+  actor weights multiplied only by that actor's earlier action frequencies;
+- derived those earlier decisions generically from each study's exported
+  history prefixes instead of hard-coding STU005 branch IDs;
+- kept native reach as diagnostic `nativeReach`, while all matrix aggregation,
+  category percentages, action frequencies and selected-action heights now use
+  the corrected actor-only reach;
+- added `actorPath` to the API and made the UI state the exact height basis,
+  for example `Высота — BB после: BB Check`;
+- normalized exact-combo tooltip card order by rank, so raw `9Q` exports are
+  always displayed as `Q9`.
+
+Validation:
+
+- Python compilation, five unit tests, Node syntax and `git diff --check`
+  passed;
+- all 16 exported nodes across STU002/STU004/STU005 loaded on `Q72` with the
+  expected actor paths (`ROOT`, `check`, `bet` or `donk`);
+- on STU005 `Q76`, corrected BB reach after `BB Check -> BTN Bet` is 99.7024%,
+  matching BB's own check range instead of the previous 62.7446% whole-line
+  reach; all 16 AT combos retain 99.9985-100% height;
+- browser validation showed ATo at 99.9994%, the explicit `BB Check` height
+  label, ordered `Q9` tooltips and no console warnings/errors;
+- solver data, action frequencies, EVs, datasets, firewall and unrelated local
+  documentation were not changed; no solve or GitHub Action was run.
+
 ## 2026-10-07 — actor tabs, suit-grid framing and LAN mode
 
 Status: STARTED

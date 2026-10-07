@@ -112,9 +112,12 @@ function renderAll() { renderHeader(); renderFilters(); renderRange(); renderSui
 
 function renderHeader() {
   const node = state.node;
+  const ownPath = node.actorPath.map((step) => step.label).join(" → ");
+  const heightText = ownPath ? `${node.branch.actor} после: ${ownPath}` : `исходный диапазон ${node.branch.actor}`;
   $("nodeSummary").textContent = `Диапазон ${node.branch.actor} · ${node.combos.length} конкретных комбинаций · экспорт ${state.study.run}`;
   $("rangeOwner").textContent = `ДИАПАЗОН ${node.branch.actor}`;
-  $("lineLabel").textContent = `${node.branch.history} · ${node.branch.actionsText} · reach относительно ${node.baselineBranch}`;
+  $("lineLabel").textContent = `${node.branch.history} · ${node.branch.actionsText} · высота: ${heightText}`;
+  $("reachLegend").lastChild.textContent = ` Высота — ${heightText}`;
   $("boardCards").replaceChildren(...node.board.split(/\s+/).map(cardElement));
 }
 function cardElement(card) {
@@ -267,7 +270,10 @@ function renderLegend() {
   });
 }
 function prettyCombo(combo) {
-  return combo.match(/.{2}/g).map((card) => `${card[0].toUpperCase()}${SUIT_SYMBOL[card[1].toLowerCase()]}`).join("");
+  return combo.match(/.{2}/g)
+    .sort((first, second) => RANKS.indexOf(first[0].toUpperCase()) - RANKS.indexOf(second[0].toUpperCase()) || SUITS.indexOf(first[1].toLowerCase()) - SUITS.indexOf(second[1].toLowerCase()))
+    .map((card) => `${card[0].toUpperCase()}${SUIT_SYMBOL[card[1].toLowerCase()]}`)
+    .join("");
 }
 function renderDetail() {
   const panel = $("detailPanel"); let combos = []; let title = "Выбранная рука";

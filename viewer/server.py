@@ -27,6 +27,14 @@ ACTION_SHAPES = {
 }
 RANKS = "AKQJT98765432"
 RANK_INDEX = {rank: index for index, rank in enumerate(RANKS)}
+HISTORY_ACTIONS = {
+    "check": "check",
+    "bet": "bet",
+    "donk": "donk",
+    "raise": "raise",
+    "call": "call",
+    "fold": "fold",
+}
 
 
 def combo_cell(combo: str) -> dict[str, object]:
@@ -62,6 +70,43 @@ def resolve_board(value: str, boards: list[str]) -> str:
             if rank_signature(board) == wanted:
                 return board
     raise ValueError(f"Flop {value!r} is not present in this study")
+
+
+def normalize_history(value: str) -> str:
+    return re.sub(r"\s+", " ", value.strip()).lower()
+
+
+def actor_action_sources(entry: dict, branch: dict) -> list[tuple[dict, str, str]]:
+    history = branch.get("history", "")
+    if normalize_history(history) == "flop root":
+        return []
+    parts = [part.strip() for part in history.split("->")]
+    actor = branch["acting_player"]
+    sources = []
+    for index, part in enumerate(parts):
+        match = re.match(r"^(BB|BTN|UTG)\s+(Check|Bet|Donk|Raise|Call|Fold)\b", part, re.I)
+        if not match or match.group(1).upper() != actor.upper():
+            continue
+        action = HISTORY_ACTIONS[match.group(2).lower()]
+        prefix = "flop root" if index == 0 else " -> ".join(parts[:index])
+        source = next(
+            (
+                candidate
+                for candidate in entry["study"]["branches"]
+                if candidate["acting_player"].upper() == actor.upper()
+                and normalize_history(candidate.get("history", "")) == normalize_history(prefix)
+                and candidate["id"] in entry["exports"]
+            ),
+            None,
+        )
+        if source is None:
+            raise ValueError(
+                f"Cannot reconstruct {actor} range: no exported decision for {prefix!r}"
+            )
+        if action not in ACTION_SHAPES[source["action_shape"]]:
+            raise ValueError(f"{source['id']} does not export action {action!r}")
+        sources.append((source, action, part))
+    return sources
 
 
 def select_exports(dataset_root: Path, branches: list[dict]) -> tuple[str | None, dict[str, Path]]:
@@ -182,16 +227,33 @@ class Repository:
         baseline_path = entry["exports"][baseline_id]
         baseline_rows = read_board_rows(str(baseline_path), board, tuple(baseline_actions))
         baseline = {row["combo"]: row["reach"] for row in baseline_rows}
+        actor_reach = dict(baseline)
+        own_path = actor_action_sources(entry, branch)
+        for source_branch, source_action, _ in own_path:
+            source_actions = ACTION_SHAPES[source_branch["action_shape"]]
+            source_rows = read_board_rows(
+                str(entry["exports"][source_branch["id"]]), board, tuple(source_actions)
+            )
+            source_frequencies = {
+                row["combo"]: row["frequencies"][source_action] for row in source_rows
+            }
+            actor_reach = {
+                combo: reach * source_frequencies.get(combo, 0.0)
+                for combo, reach in actor_reach.items()
+            }
 
         result = []
         for row in current:
             base, direct, bdfd, category = hand_category(board, row["combo"])
             start_reach = baseline.get(row["combo"], row["reach"])
-            reach_fraction = row["reach"] / start_reach if start_reach > 0 else 0.0
+            display_reach = actor_reach.get(row["combo"], start_reach)
+            reach_fraction = display_reach / start_reach if start_reach > 0 else 0.0
             result.append(
                 {
                     **row,
                     **combo_cell(row["combo"]),
+                    "nativeReach": row["reach"],
+                    "reach": display_reach,
                     "baselineReach": start_reach,
                     "reachFraction": max(0.0, min(1.0, reach_fraction)),
                     "base": base,
@@ -215,6 +277,14 @@ class Repository:
             "boardIndex": entry["boards"].index(board) + 1,
             "actions": actions,
             "baselineBranch": baseline_id,
+            "actorPath": [
+                {
+                    "branch": source_branch["id"],
+                    "action": source_action,
+                    "label": label,
+                }
+                for source_branch, source_action, label in own_path
+            ],
             "combos": result,
         }
 
