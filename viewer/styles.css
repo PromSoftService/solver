@@ -83,6 +83,7 @@ select:focus, input:focus { border-color: var(--accent); box-shadow: 0 0 0 2px #
 }
 .range-cell:hover, .range-cell.selected { border-color: #d8e3f2; z-index: 2; box-shadow: 0 0 0 1px #d8e3f255; }
 .range-cell.empty { cursor: default; opacity: .45; }
+.range-cell.preview-dim, .suit-cell.preview-dim { opacity: var(--preview-opacity, .28); }
 .cell-fill { position: absolute; left: 0; right: 0; bottom: 0; display: flex; opacity: .94; }
 .action-slice { height: 100%; min-width: 0; }
 .cell-label { position: relative; z-index: 2; display: grid; place-items: center; height: 100%; font-size: 14px; font-weight: 650; text-shadow: 0 1px 2px #000, 0 0 4px #000; pointer-events: none; }

@@ -105,9 +105,22 @@ function comboDraws(combo) {
   if (!values.length) values.push("No draw"); return values;
 }
 function categoryMatches(combo) {
-  if (state.madePreview ? combo.base !== state.madePreview : state.madeFilters.size && !state.madeFilters.has(combo.base)) return false;
-  if (state.drawPreview ? !comboDraws(combo).includes(state.drawPreview) : state.drawFilters.size && !comboDraws(combo).some((draw) => state.drawFilters.has(draw))) return false;
+  if (!state.madePreview && state.madeFilters.size && !state.madeFilters.has(combo.base)) return false;
+  if (!state.drawPreview && state.drawFilters.size && !comboDraws(combo).some((draw) => state.drawFilters.has(draw))) return false;
   return true;
+}
+function previewActive() { return Boolean(state.madePreview || state.drawPreview); }
+function previewMatches(combo) {
+  if (state.madePreview && combo.base !== state.madePreview) return false;
+  if (state.drawPreview && !comboDraws(combo).includes(state.drawPreview)) return false;
+  return true;
+}
+function previewRatio(combos) {
+  if (!previewActive()) return 1;
+  const eligible = combos.filter(categoryMatches);
+  const total = eligible.reduce((sum, combo) => sum + combo.reach * actionMass(combo), 0);
+  const highlighted = eligible.filter(previewMatches).reduce((sum, combo) => sum + combo.reach * actionMass(combo), 0);
+  return total ? highlighted / total : 0;
 }
 function actionMass(combo) {
   if (!state.actionFilters.size) return 1;
@@ -229,7 +242,9 @@ function renderRange() {
     const label = row === col ? RANKS[row] + RANKS[col] : row < col ? RANKS[row] + RANKS[col] + "s" : RANKS[col] + RANKS[row] + "o";
     const combos = groups.get(label) || []; const agg = aggregateCell(combos); const cell = document.createElement("button");
     const boardBlocked = [...boardRanks].some((rank) => label.includes(rank));
-    cell.type = "button"; cell.className = `range-cell ${boardBlocked ? "board-blocked" : ""} ${combos.length ? "" : "empty"} ${state.selectedCell === label ? "selected" : ""}`;
+    const emphasis = previewRatio(combos); const previewDim = previewActive() && emphasis < 0.999;
+    cell.type = "button"; cell.className = `range-cell ${previewDim ? "preview-dim" : ""} ${boardBlocked ? "board-blocked" : ""} ${combos.length ? "" : "empty"} ${state.selectedCell === label ? "selected" : ""}`;
+    if (previewDim) cell.style.setProperty("--preview-opacity", String(0.28 + 0.72 * emphasis));
     cell.innerHTML = `<span class="cell-fill"></span><span class="cell-label"></span>`;
     cell.querySelector(".cell-label").textContent = label;
     const fill = cell.querySelector(".cell-fill"); fill.style.height = `${agg.height * 100}%`; addSlices(fill, agg.actionTotals, agg.reach);
@@ -273,7 +288,8 @@ function renderSuits() {
       const validSlot = isPokerMatrixSlot(row, col);
       const flopCardBlocked = boardCards.has(rowCard) || boardCards.has(colCard);
       const combo = validSlot ? combos.get([rowCard, colCard].sort().join("")) : null;
-      cell.className = `suit-cell ${suitGridClasses(row, col)} ${flopCardBlocked ? "flop-card-blocked" : ""} ${validSlot ? "" : "invalid"} ${combo ? "" : "blocked"} ${state.selectedCombo === combo?.combo ? "selected" : ""}`;
+      const previewDim = combo && previewActive() && !previewMatches(combo);
+      cell.className = `suit-cell ${previewDim ? "preview-dim" : ""} ${suitGridClasses(row, col)} ${flopCardBlocked ? "flop-card-blocked" : ""} ${validSlot ? "" : "invalid"} ${combo ? "" : "blocked"} ${state.selectedCombo === combo?.combo ? "selected" : ""}`;
       if (combo) {
         const mass = categoryMatches(combo) ? actionMass(combo) : 0;
         const reachHeight = Math.min(1, combo.reach * mass);

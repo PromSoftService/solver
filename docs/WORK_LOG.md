@@ -2,6 +2,41 @@
 
 This file records each repository-changing task before implementation and closes it after validation and push. It is intentionally concise.
 
+## 2026-10-07 — dim non-hovered categories instead of hiding them
+
+Status: STARTED
+
+Base commit: `0b25c387dbd96f9412373069bd781f66a7e28560`; fetched
+`origin/main` is `4323a2b22e603ef310a637cf295a0a5cae298456`.
+
+Scope: change transient category hover from a hard filter to visual emphasis:
+keep all otherwise eligible hands visible, show the hovered category at full
+opacity, dim other categories proportionally, and preserve hard filtering only
+for clicks. Validate both matrices and leave solver data untouched.
+
+Status: COMPLETED
+
+Result:
+
+- hover now keeps all hands eligible under pinned filters visible;
+- exact suit combinations outside the hovered category render at 28% opacity;
+- 169-hand cells use proportional emphasis when only some suit combinations in
+  the cell belong to the hovered category;
+- a pinned filter from the hovered category group is temporarily suspended for
+  preview and restored unchanged on pointer leave;
+- clicks remain hard filters and remove non-selected categories as before.
+
+Validation:
+
+- Node syntax, six Python viewer tests and `git diff --check` passed;
+- browser hover on Top Pair kept all 94 populated 169 cells visible, with 13
+  fully emphasized and 81 dimmed to as little as 28% opacity;
+- the exact-suit matrix kept all 534 populated cells visible, with 69 fully
+  emphasized and 465 dimmed;
+- clicking Top Pair still hard-filtered the matrix from 94 cells to 13, and a
+  second click restored all 94; no page console errors were reported;
+- solver data, exports and unrelated local work were not changed.
+
 ## 2026-10-07 — transient category hover preview
 
 Status: STARTED
