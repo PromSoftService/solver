@@ -2,6 +2,65 @@
 
 This file records each repository-changing task before implementation and closes it after validation and push. It is intentionally concise.
 
+## 2026-10-07 — actor tabs, suit-grid framing and LAN mode
+
+Status: STARTED
+
+Base commit: `1958b4573580176ec8f272c96622fa7780451ea5` (`main` synchronized with
+`origin/main`).
+
+Scope: clarify whose range is displayed, provide separate BTN/BB tabs with
+actor-specific exported nodes, make action buttons additive visibility
+toggles, remove percentages from range cells, correct the Russian hand labels,
+frame exact-suit cells and their 4x4 starting-hand blocks, and add an explicit
+trusted-LAN launch mode for phone access.
+
+Constraints: keep the separate 169-hand and exact-suit views; preserve all
+existing solver data and unrelated local documentation changes; expose only
+real exported nodes/sizings; LAN access is explicitly authorized on every
+interface without a password; do not modify Windows Firewall automatically or
+run a solver/GitHub Action.
+
+Plan: update the local server binding option and launcher, restructure the UI
+around actor tabs, improve action-toggle state and suit-grid borders, validate
+both views and actor switching in the browser, test access through the local
+IPv4 address, then commit and push only this visualizer revision and log entry.
+
+Status: COMPLETED
+
+Result:
+
+- added persistent `BTN` and `BB` range tabs; each tab lists only that actor's
+  real exported decision nodes and labels the displayed range prominently;
+- made action buttons explicit additive visibility toggles: the first click
+  isolates one action and later clicks add or remove actions;
+- removed reach percentages from the 169 hand cells and renamed the requested
+  rows to `Андерпара`, `Weak pair` and `Low pocket`;
+- rebuilt the exact-suit matrix in poker orientation: suited blocks above the
+  diagonal, offsuit below it and pocket pairs on it, with one rank label per
+  four suits in `clubs/spades/hearts/diamonds` order;
+- added visible borders around all 2,704 exact-card slots and stronger frames
+  around all 169 four-by-four starting-hand blocks;
+- added `viewer/start-lan.cmd`; as explicitly requested, LAN mode listens on
+  all interfaces without authentication and prints every detected private
+  address without changing Windows Firewall.
+
+Validation:
+
+- Python compilation, four unit tests, Node syntax and `git diff --check`
+  passed;
+- browser checks switched BB to BTN, found the correct three BTN nodes, removed
+  all in-cell percentages and found no console warning/error;
+- exact-suit browser audit found 169 framed blocks, 261 populated upper-half
+  suited/pair slots and 291 populated lower-half offsuit slots on the tested
+  BTN `Q72` node; rank labels rendered once as `A♣ ♠ ♥ ♦`, then `K♣ ♠ ♥ ♦`;
+- action audit produced exactly `Check`, then `Check + Bet`, on consecutive
+  clicks;
+- LAN audit reached `192.168.0.78:8765`; the final explicitly requested
+  password-free mode was revalidated after removing authentication;
+- no solver, CUDA solve, dataset mutation, automatic firewall change or
+  GitHub Action was used.
+
 ## 2026-10-07 — local solver decision visualizer
 
 Status: STARTED

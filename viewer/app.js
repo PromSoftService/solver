@@ -4,20 +4,20 @@ const ACTIONS = {
   bet: { label: "Бет", color: "var(--bet)" }, donk: { label: "Донк", color: "var(--donk)" },
 };
 const RANKS = "AKQJT98765432".split("");
-const SUITS = ["s", "h", "d", "c"];
+const SUITS = ["c", "s", "h", "d"];
 const SUIT_SYMBOL = { s: "♠", h: "♥", d: "♦", c: "♣" };
 const MADE_ORDER = ["Two pair+", "Overpair", "Top pair", "Underpair", "Second pair", "Weak pair", "Third pair", "Low pocket pair", "2 overcards", "A-high", "Air"];
 const MADE_RU = {
   "Two pair+": "Две пары+", Overpair: "Оверпара", "Top pair": "Топ-пара",
-  Underpair: "Карманка между 1-й и 2-й", "Second pair": "Вторая пара",
-  "Weak pair": "Карманка между 2-й и 3-й", "Third pair": "Третья пара",
-  "Low pocket pair": "Низкая карманка", "2 overcards": "Две оверкарты",
+  Underpair: "Андерпара", "Second pair": "Вторая пара",
+  "Weak pair": "Weak pair", "Third pair": "Третья пара",
+  "Low pocket pair": "Low pocket", "2 overcards": "Две оверкарты",
   "A-high": "Туз-хай", Air: "Воздух",
 };
 const DRAW_RU = { OESD: "OESD", Gutshot: "Гатшот", BDFD: "Бэкдор-флеш-дро", "No draw": "Без дро" };
 
 const state = {
-  catalog: null, study: null, node: null, view: "range",
+  catalog: null, study: null, node: null, view: "range", actor: "BB", branchesByActor: {},
   actionFilters: new Set(), madeFilters: new Set(), drawFilters: new Set(),
   selectedCell: null, selectedCombo: null,
 };
@@ -48,16 +48,41 @@ function populateStudies() {
 }
 function populateStudyControls() {
   state.study = currentStudy();
-  const branchSelect = $("branchSelect"); branchSelect.replaceChildren();
-  state.study.branches.forEach((branch) => {
-    branchSelect.append(option(branch.id, `${branch.history}  →  ${branch.actor}: ${branch.actionsText}`));
-  });
   const boardList = $("boardList"); boardList.replaceChildren();
   state.study.boards.forEach((board) => boardList.append(option(board, board)));
-  const preferredBranch = state.study.branches.find((branch) => branch.id.includes("AFTER_CBET")) || state.study.branches[0];
-  branchSelect.value = preferredBranch.id;
+  const actors = ["BTN", "BB"].filter((actor) => state.study.branches.some((branch) => branch.actor === actor));
+  if (!actors.includes(state.actor)) state.actor = actors[0];
+  renderActorTabs(actors);
+  populateActorBranches();
   $("boardInput").value = state.study.boards.find((board) => /Q.\s+7.\s+2./i.test(board)) || state.study.boards[0];
   loadNode();
+}
+function renderActorTabs(actors) {
+  const holder = $("actorTabs"); holder.replaceChildren();
+  actors.forEach((actor) => {
+    const button = document.createElement("button"); button.type = "button"; button.role = "tab";
+    button.textContent = actor; button.className = actor === state.actor ? "active" : "";
+    button.setAttribute("aria-selected", String(actor === state.actor));
+    button.addEventListener("click", () => {
+      if (state.actor === actor) return;
+      state.actor = actor; renderActorTabs(actors); populateActorBranches(); loadNode();
+    });
+    holder.append(button);
+  });
+}
+function preferredBranchForActor(branches) {
+  const saved = state.branchesByActor[state.actor];
+  if (saved && branches.some((branch) => branch.id === saved)) return saved;
+  const preferred = state.actor === "BB"
+    ? branches.find((branch) => branch.id.includes("AFTER_CBET")) || branches.find((branch) => branch.id.includes("FIRST"))
+    : branches.find((branch) => /AFTER_CHECK$/.test(branch.id)) || branches.find((branch) => branch.id.includes("AFTER_DONK"));
+  return (preferred || branches[0]).id;
+}
+function populateActorBranches() {
+  const branches = state.study.branches.filter((branch) => branch.actor === state.actor);
+  const select = $("branchSelect"); select.replaceChildren();
+  branches.forEach((branch) => select.append(option(branch.id, `${branch.history}  →  ${branch.actionsText}`)));
+  select.value = preferredBranchForActor(branches); state.branchesByActor[state.actor] = select.value;
 }
 async function loadNode() {
   setLoading(true);
@@ -87,7 +112,8 @@ function renderAll() { renderHeader(); renderFilters(); renderRange(); renderSui
 
 function renderHeader() {
   const node = state.node;
-  $("nodeSummary").textContent = `${node.branch.actor} принимает решение · ${node.combos.length} конкретных комбинаций · экспорт ${state.study.run}`;
+  $("nodeSummary").textContent = `Диапазон ${node.branch.actor} · ${node.combos.length} конкретных комбинаций · экспорт ${state.study.run}`;
+  $("rangeOwner").textContent = `ДИАПАЗОН ${node.branch.actor}`;
   $("lineLabel").textContent = `${node.branch.history} · ${node.branch.actionsText} · reach относительно ${node.baselineBranch}`;
   $("boardCards").replaceChildren(...node.board.split(/\s+/).map(cardElement));
 }
@@ -105,9 +131,12 @@ function weightedStats(combos) {
 function renderFilters() {
   const { totalReach, actionTotals } = weightedStats(state.node.combos);
   const actionHolder = $("actionFilters"); actionHolder.replaceChildren();
-  state.node.actions.forEach((action) => actionHolder.append(filterButton(
-    action, ACTIONS[action].label, actionTotals[action] / totalReach, state.actionFilters, ACTIONS[action].color, renderAll,
-  )));
+  state.node.actions.forEach((action) => {
+    const button = filterButton(action, ACTIONS[action].label, actionTotals[action] / totalReach, state.actionFilters, ACTIONS[action].color, renderAll);
+    const shown = !state.actionFilters.size || state.actionFilters.has(action);
+    button.classList.toggle("active", shown); button.classList.toggle("dim", !shown);
+    actionHolder.append(button);
+  });
   const madeHolder = $("madeFilters"); madeHolder.replaceChildren();
   MADE_ORDER.filter((name) => state.node.combos.some((combo) => combo.base === name)).forEach((name) => {
     const weight = state.node.combos.filter((combo) => combo.base === name).reduce((sum, combo) => sum + combo.reach * actionMass(combo), 0);
@@ -160,9 +189,8 @@ function renderRange() {
     const label = row === col ? RANKS[row] + RANKS[col] : row < col ? RANKS[row] + RANKS[col] + "s" : RANKS[col] + RANKS[row] + "o";
     const combos = groups.get(label) || []; const agg = aggregateCell(combos); const cell = document.createElement("button");
     cell.type = "button"; cell.className = `range-cell ${combos.length ? "" : "empty"} ${state.selectedCell === label ? "selected" : ""}`;
-    cell.innerHTML = `<span class="cell-fill"></span><span class="cell-label"></span><small class="cell-sub"></small>`;
+    cell.innerHTML = `<span class="cell-fill"></span><span class="cell-label"></span>`;
     cell.querySelector(".cell-label").textContent = label;
-    cell.querySelector(".cell-sub").textContent = combos.length && agg.height > 0 ? fmtPct(agg.height, 0) : "";
     const fill = cell.querySelector(".cell-fill"); fill.style.height = `${agg.height * 100}%`; addSlices(fill, agg.actionTotals, agg.reach);
     if (combos.length) {
       cell.title = `${label}: дошло ${fmtPct(agg.height)} · ${combos.length} комбинаций в экспорте`;
@@ -177,17 +205,32 @@ function renderRange() {
 }
 
 function cardDeck() { return RANKS.flatMap((rank) => SUITS.map((suit) => `${rank}${suit}`)); }
+function suitGridClasses(row, col) {
+  const classes = [];
+  if (row % 4 === 0) classes.push("rank-top");
+  if (row % 4 === 3) classes.push("rank-bottom");
+  if (col % 4 === 0) classes.push("rank-left");
+  if (col % 4 === 3) classes.push("rank-right");
+  return classes.join(" ");
+}
+function isPokerMatrixSlot(row, col) {
+  const rowRank = Math.floor(row / 4); const colRank = Math.floor(col / 4);
+  const rowSuit = row % 4; const colSuit = col % 4;
+  if (rowRank === colRank) return rowSuit < colSuit;
+  if (rowRank < colRank) return rowSuit === colSuit;
+  return rowSuit !== colSuit;
+}
 function renderSuits() {
   const holder = $("suitsGrid"); holder.replaceChildren(); const deck = cardDeck(); holder.append(document.createElement("span"));
-  deck.forEach((card) => holder.append(axisCard(card, false)));
+  deck.forEach((card, index) => holder.append(axisCard(card, index, false)));
   const combos = new Map(state.node.combos.map((combo) => [[...combo.cards].sort().join(""), combo]));
   deck.forEach((rowCard, row) => {
-    holder.append(axisCard(rowCard, true));
+    holder.append(axisCard(rowCard, row, true));
     deck.forEach((colCard, col) => {
       const cell = document.createElement("span");
-      if (col >= row) { cell.className = "suit-cell blocked"; holder.append(cell); return; }
-      const combo = combos.get([rowCard, colCard].sort().join(""));
-      cell.className = `suit-cell ${combo ? "" : "blocked"} ${state.selectedCombo === combo?.combo ? "selected" : ""}`;
+      const validSlot = isPokerMatrixSlot(row, col);
+      const combo = validSlot ? combos.get([rowCard, colCard].sort().join("")) : null;
+      cell.className = `suit-cell ${suitGridClasses(row, col)} ${validSlot ? "" : "invalid"} ${combo ? "" : "blocked"} ${state.selectedCombo === combo?.combo ? "selected" : ""}`;
       if (combo) {
         const mass = categoryMatches(combo) ? actionMass(combo) : 0;
         const reachHeight = combo.baselineReach ? Math.min(1, combo.reach * mass / combo.baselineReach) : 0;
@@ -205,9 +248,11 @@ function renderSuits() {
   });
   $("suitsView").classList.toggle("hidden", state.view !== "suits");
 }
-function axisCard(card, left) {
-  const span = document.createElement("span"); span.className = `axis-card ${left ? "left" : ""} ${["h", "d"].includes(card[1]) ? "red" : ""}`;
-  span.textContent = `${card[0]}${SUIT_SYMBOL[card[1]]}`; return span;
+function axisCard(card, index, left) {
+  const startsRank = index % 4 === 0;
+  const span = document.createElement("span");
+  span.className = `axis-card ${left ? "left" : ""} ${startsRank ? "rank-start" : ""} ${["h", "d"].includes(card[1]) ? "red" : ""}`;
+  span.textContent = `${startsRank ? card[0] : ""}${SUIT_SYMBOL[card[1]]}`; return span;
 }
 function renderLegend() {
   const holder = $("actionLegend"); holder.replaceChildren(); const combos = state.node.combos.filter(categoryMatches);
@@ -246,7 +291,10 @@ function renderDetail() {
 }
 
 function bindEvents() {
-  $("studySelect").addEventListener("change", populateStudyControls); $("branchSelect").addEventListener("change", loadNode);
+  $("studySelect").addEventListener("change", populateStudyControls);
+  $("branchSelect").addEventListener("change", () => {
+    state.branchesByActor[state.actor] = $("branchSelect").value; loadNode();
+  });
   $("loadBoard").addEventListener("click", loadNode); $("boardInput").addEventListener("keydown", (event) => { if (event.key === "Enter") loadNode(); });
   $("clearFilters").addEventListener("click", () => {
     state.actionFilters.clear(); state.madeFilters.clear(); state.drawFilters.clear(); state.selectedCell = null; state.selectedCombo = null; renderAll();

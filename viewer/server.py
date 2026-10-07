@@ -2,8 +2,10 @@ from __future__ import annotations
 
 import argparse
 import csv
+import ipaddress
 import json
 import re
+import socket
 import sys
 from functools import lru_cache
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
@@ -307,15 +309,44 @@ class ViewerHandler(BaseHTTPRequestHandler):
         print(f"[{self.log_date_time_string()}] {fmt % args}")
 
 
+def private_lan_addresses() -> list[str]:
+    addresses = {
+        item[4][0]
+        for item in socket.getaddrinfo(socket.gethostname(), None, socket.AF_INET)
+        if ipaddress.ip_address(item[4][0]).is_private
+        and not ipaddress.ip_address(item[4][0]).is_loopback
+    }
+    return sorted(addresses)
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="Browse exported TexasSolver combo decisions")
+    parser.add_argument("--host", default="127.0.0.1")
     parser.add_argument("--port", type=int, default=8765)
+    parser.add_argument(
+        "--lan",
+        action="store_true",
+        help="listen on every network interface without authentication",
+    )
     args = parser.parse_args()
     ViewerHandler.repository = Repository()
     if not ViewerHandler.repository.studies:
         raise SystemExit("No studies with combos.csv exports were found")
-    server = ThreadingHTTPServer(("127.0.0.1", args.port), ViewerHandler)
-    print(f"Solver visualizer: http://127.0.0.1:{args.port}")
+    host = args.host
+    lan_addresses: list[str] = []
+    if args.lan:
+        lan_addresses = private_lan_addresses()
+        if not lan_addresses:
+            raise SystemExit("No private LAN address found; use --host with the Wi-Fi IPv4 address")
+        host = "0.0.0.0"
+    server = ThreadingHTTPServer((host, args.port), ViewerHandler)
+    if args.lan:
+        for address in lan_addresses:
+            print(f"Solver visualizer: http://{address}:{args.port}")
+    else:
+        print(f"Solver visualizer: http://{host}:{args.port}")
+    if args.lan:
+        print("LAN mode has no password and listens on every interface.")
     print("Press Ctrl+C to stop.")
     try:
         server.serve_forever()

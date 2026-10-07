@@ -18,6 +18,10 @@
   <main>
     <section class="controls panel">
       <label><span>Спот</span><select id="studySelect"></select></label>
+      <div class="actor-control">
+        <span>Диапазон</span>
+        <div class="actor-tabs" id="actorTabs" role="tablist" aria-label="Чей диапазон"></div>
+      </div>
       <label class="line-control"><span>Линия и действие</span><select id="branchSelect"></select></label>
       <label class="flop-control">
         <span>Флоп</span>
@@ -36,7 +40,11 @@
     <section class="workspace">
       <div class="matrix-panel panel">
         <div class="matrix-head">
-          <div><div class="board-cards" id="boardCards"></div><div class="line-label" id="lineLabel"></div></div>
+          <div>
+            <div class="range-owner" id="rangeOwner"></div>
+            <div class="board-cards" id="boardCards"></div>
+            <div class="line-label" id="lineLabel"></div>
+          </div>
           <div class="reach-legend"><i></i>Высота — сколько этой руки дошло до узла</div>
         </div>
         <div id="rangeView" class="range-grid" aria-label="Матрица стартовых рук"></div>
@@ -47,6 +55,7 @@
       <aside class="sidebar">
         <section class="panel filters">
           <div class="section-title"><h2>Действия</h2><button class="text-button" id="clearFilters" type="button">Сбросить</button></div>
+          <p class="filter-help">Первый клик оставляет одно действие, следующие добавляют или убирают.</p>
           <div id="actionFilters" class="filter-list"></div>
         </section>
         <section class="panel filters">

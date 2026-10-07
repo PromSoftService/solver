@@ -12,6 +12,17 @@ python viewer/server.py
 
 Then open `http://127.0.0.1:8765`.
 
+For a phone on the same trusted Wi-Fi, run:
+
+```powershell
+.\viewer\start-lan.cmd
+```
+
+The command listens on every network interface and prints the detected private
+addresses. Use the address from the phone's Wi-Fi subnet. Allow Python on
+**private networks** if Windows Firewall asks. LAN mode has no password, so
+stop it before joining an untrusted network.
+
 The viewer selects the latest local dataset run with the largest number of
 available branch exports. For every exported node it supports:
 

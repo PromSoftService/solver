@@ -7,7 +7,7 @@
 }
 * { box-sizing: border-box; }
 body {
-  margin: 0; min-width: 1040px;
+  margin: 0; min-width: 1120px;
   background: radial-gradient(circle at 80% -10%, #263044 0, var(--bg) 34%);
   color: var(--text); font: 14px/1.35 Inter, "Segoe UI", sans-serif;
 }
@@ -29,10 +29,10 @@ button { color: inherit; }
 main { padding: 14px; }
 .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 9px; }
 .controls {
-  display: grid; grid-template-columns: minmax(220px, 1.1fr) minmax(310px, 1.7fr) minmax(310px, 1.2fr) auto;
+  display: grid; grid-template-columns: minmax(205px, 1fr) 128px minmax(300px, 1.45fr) minmax(285px, 1.1fr) auto;
   gap: 12px; padding: 12px; margin-bottom: 12px; align-items: end;
 }
-.controls label > span { display: block; color: var(--muted); font-size: 12px; margin: 0 0 6px 2px; }
+.controls label > span, .actor-control > span { display: block; color: var(--muted); font-size: 12px; margin: 0 0 6px 2px; }
 select, input {
   width: 100%; height: 38px; border: 1px solid #394153; border-radius: 6px;
   background: #141923; color: var(--text); padding: 0 10px; outline: none;
@@ -48,9 +48,17 @@ select:focus, input:focus { border-color: var(--accent); box-shadow: 0 0 0 2px #
 .view-switch button:first-child { border-radius: 6px 0 0 6px; }
 .view-switch button:last-child { border-radius: 0 6px 6px 0; border-left: 0; }
 .view-switch button.active { color: #081813; background: var(--accent); border-color: var(--accent); font-weight: 700; }
+.actor-tabs { display: flex; height: 38px; }
+.actor-tabs button {
+  flex: 1; border: 1px solid #3b4456; background: #252c39; cursor: pointer; font-weight: 750;
+}
+.actor-tabs button:first-child { border-radius: 6px 0 0 6px; }
+.actor-tabs button:last-child { border-radius: 0 6px 6px 0; border-left: 0; }
+.actor-tabs button.active { color: #081813; background: var(--accent); border-color: var(--accent); }
 .workspace { display: grid; grid-template-columns: minmax(720px, 1fr) 292px; gap: 12px; align-items: start; }
 .matrix-panel { padding: 13px; min-height: 720px; overflow: hidden; }
 .matrix-head { display: flex; align-items: flex-start; justify-content: space-between; min-height: 60px; gap: 18px; }
+.range-owner { color: var(--accent); font-size: 13px; font-weight: 850; letter-spacing: .9px; margin-bottom: 7px; }
 .board-cards { display: flex; gap: 5px; min-height: 34px; }
 .card {
   display: inline-flex; gap: 2px; align-items: center; justify-content: center; min-width: 40px; height: 34px;
@@ -66,7 +74,7 @@ select:focus, input:focus { border-color: var(--accent); box-shadow: 0 0 0 2px #
   gap: 2px; height: min(69vw, 760px); max-height: calc(100vh - 245px); min-height: 570px;
 }
 .range-cell {
-  position: relative; overflow: hidden; border: 1px solid #343b49; border-radius: 2px;
+  position: relative; overflow: hidden; border: 1px solid #465165; border-radius: 2px;
   background: #151a23; cursor: pointer; isolation: isolate;
 }
 .range-cell:hover, .range-cell.selected { border-color: #d8e3f2; z-index: 2; box-shadow: 0 0 0 1px #d8e3f255; }
@@ -93,10 +101,12 @@ h2 { margin: 0 0 10px; font-size: 14px; font-weight: 700; }
 }
 .filter-button:hover { border-color: #505a6d; }
 .filter-button.active { border-color: var(--accent); background: #27333c; }
+.filter-button.dim { opacity: .42; border-color: transparent; }
 .filter-dot { width: 8px; height: 20px; border-radius: 2px; background: #738096; }
 .filter-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .filter-value { color: var(--muted); font-variant-numeric: tabular-nums; }
 .compact .filter-button { min-height: 29px; padding-top: 4px; padding-bottom: 4px; }
+.filter-help { color: var(--muted); font-size: 11px; line-height: 1.35; margin: -3px 0 9px; }
 .detail { min-height: 126px; }
 .muted { color: var(--muted); margin: 0; }
 .detail-title { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; margin-bottom: 10px; }
@@ -109,15 +119,22 @@ h2 { margin: 0 0 10px; font-size: 14px; font-weight: 700; }
 .combo-reach { color: var(--muted); text-align: right; }
 .suits-scroll { overflow: auto; height: calc(100vh - 270px); min-height: 570px; padding: 4px; background: #151a23; border: 1px solid #343b49; }
 .suits-grid {
-  display: grid; grid-template-columns: 33px repeat(52, 18px); grid-template-rows: 25px repeat(52, 18px);
-  gap: 1px; width: max-content;
+  display: grid; grid-template-columns: 38px repeat(52, 19px); grid-template-rows: 29px repeat(52, 19px);
+  gap: 0; width: max-content;
 }
-.axis-card { display: grid; place-items: center; color: var(--muted); font-size: 9px; writing-mode: vertical-rl; }
+.axis-card { display: grid; place-items: center; color: var(--muted); font-size: 10px; writing-mode: vertical-rl; border-left: 1px solid transparent; }
 .axis-card.left { writing-mode: horizontal-tb; }
 .axis-card.red { color: #e27474; }
-.suit-cell { position: relative; background: #202632; border-radius: 1px; overflow: hidden; cursor: pointer; }
+.axis-card.rank-start { color: #d8dfeb; font-weight: 800; border-left-color: #596579; }
+.axis-card.left.rank-start { border-left-color: transparent; border-top: 1px solid #596579; }
+.suit-cell { position: relative; background: #202632; border: 1px solid #2c3442; overflow: hidden; cursor: pointer; }
 .suit-cell:hover, .suit-cell.selected { outline: 1px solid #fff; z-index: 2; }
-.suit-cell.blocked { background: transparent; cursor: default; }
+.suit-cell.blocked { background: #171c25; cursor: default; }
+.suit-cell.invalid { background: #11161e; }
+.suit-cell.rank-top { border-top-color: #647086; border-top-width: 2px; }
+.suit-cell.rank-bottom { border-bottom-color: #647086; border-bottom-width: 2px; }
+.suit-cell.rank-left { border-left-color: #647086; border-left-width: 2px; }
+.suit-cell.rank-right { border-right-color: #647086; border-right-width: 2px; }
 .suit-cell .cell-fill { opacity: 1; }
 .hidden { display: none !important; }
 .loading, .toast {
@@ -129,7 +146,7 @@ h2 { margin: 0 0 10px; font-size: 14px; font-weight: 700; }
 .toast { top: auto; bottom: 22px; border-color: #a54545; color: #ffdada; }
 @keyframes spin { to { transform: rotate(360deg); } }
 @media (max-width: 1200px) {
-  .controls { grid-template-columns: 1fr 1.35fr 1fr; }
+  .controls { grid-template-columns: 1fr 128px 1.35fr 1fr; }
   .view-switch { grid-column: 1 / -1; width: max-content; }
   .range-grid { min-height: 535px; }
 }
