@@ -2,6 +2,59 @@
 
 This file records each repository-changing task before implementation and closes it after validation and push. It is intentionally concise.
 
+## 2026-10-07 — local solver decision visualizer
+
+Status: STARTED
+
+Base commit: `9df15c46610711829d0b64cbdd82f5a7c28b5a15` (`main` synchronized with
+`origin/main`).
+
+Scope: add a read-only local browser for the compact current-street combo
+exports. The first target is STU005 BTN versus BB: choose an exported flop
+node and board, inspect the 13x13 starting-hand matrix or exact suit combos,
+and intersect action and hand-category filters.
+
+Constraints: preserve the existing uncommitted documentation handoff and the
+untracked STU005 dataset; do not alter solver output, ranges, studies or the
+external solver distribution; expose only actually exported nodes and actual
+configured sizings; do not run a solve or use GitHub Actions.
+
+Plan: build a dependency-free localhost server and static interface over the
+existing `combos.csv` exports, normalize node reach against the actor's first
+available range node for cell height, reuse the canonical flop classifier,
+validate parsing and browser behavior against STU005, then record checks and
+limitations here before committing only the visualizer changes.
+
+Status: COMPLETED
+
+Result:
+
+- added `viewer/server.py` and a dependency-free local interface with study,
+  exported-line and rank/isomorphic-flop selection;
+- added the standard 13x13 range matrix plus a 52-card exact-suit matrix,
+  action stacks, reach height, exact-combo detail and intersecting action,
+  made-hand and draw filters;
+- reused `scripts/flop_strategy.py` for the canonical hand/draw categories;
+- normalized each combo's node reach to the first available export for the
+  same actor and flop, instead of presenting native reach as a percentage;
+- supported both shared-run STU004/STU005 datasets and the older per-branch
+  STU002 layout without moving or changing any export.
+
+Validation:
+
+- Python compilation and four focused unit tests passed;
+- Node syntax validation passed for `viewer/app.js`;
+- real-data checks discovered STU002/STU004/STU005 with 6/4/6 branches and
+  loaded `Q72` from STU005 and STU002 successfully;
+- browser validation loaded the 534-combo STU005 BB response, reproduced the
+  non-empty `FOLD + Air` intersection, rendered all 534 exact suit combos and
+  reported no console warnings or errors;
+- `git diff --check` passed; no solver, CUDA job or GitHub Action was run.
+
+Limit: this is a current-street export viewer, not a reconstructed full solve
+tree. It shows only branches, sizings and representative boards that actually
+exist in local compact datasets.
+
 ## 2026-09-14 — Human-strategy workflow consolidation
 
 Status: STARTED

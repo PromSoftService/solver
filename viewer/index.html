@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Solver Viewer</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-mark">SV</span>
+      <div><strong>Solver Viewer</strong><small>наши посчитанные решения</small></div>
+    </div>
+    <div class="node-summary" id="nodeSummary">Загрузка экспортов…</div>
+  </header>
+
+  <main>
+    <section class="controls panel">
+      <label><span>Спот</span><select id="studySelect"></select></label>
+      <label class="line-control"><span>Линия и действие</span><select id="branchSelect"></select></label>
+      <label class="flop-control">
+        <span>Флоп</span>
+        <div class="flop-input-wrap">
+          <input id="boardInput" list="boardList" autocomplete="off" spellcheck="false" placeholder="Q72 или Qs 7h 2d">
+          <datalist id="boardList"></datalist>
+          <button id="loadBoard" type="button">Показать</button>
+        </div>
+      </label>
+      <div class="view-switch" role="group" aria-label="Вид матрицы">
+        <button class="active" data-view="range" type="button">169 рук</button>
+        <button data-view="suits" type="button">Все масти</button>
+      </div>
+    </section>
+
+    <section class="workspace">
+      <div class="matrix-panel panel">
+        <div class="matrix-head">
+          <div><div class="board-cards" id="boardCards"></div><div class="line-label" id="lineLabel"></div></div>
+          <div class="reach-legend"><i></i>Высота — сколько этой руки дошло до узла</div>
+        </div>
+        <div id="rangeView" class="range-grid" aria-label="Матрица стартовых рук"></div>
+        <div id="suitsView" class="suits-scroll hidden"><div id="suitsGrid" class="suits-grid" aria-label="Матрица конкретных мастей"></div></div>
+        <div id="actionLegend" class="action-legend"></div>
+      </div>
+
+      <aside class="sidebar">
+        <section class="panel filters">
+          <div class="section-title"><h2>Действия</h2><button class="text-button" id="clearFilters" type="button">Сбросить</button></div>
+          <div id="actionFilters" class="filter-list"></div>
+        </section>
+        <section class="panel filters">
+          <h2>Готовая рука</h2><div id="madeFilters" class="filter-list compact"></div>
+          <h2 class="subheading">Дро</h2><div id="drawFilters" class="filter-list compact"></div>
+        </section>
+        <section class="panel detail" id="detailPanel"><h2>Выбранная рука</h2><p class="muted">Нажми на ячейку матрицы.</p></section>
+      </aside>
+    </section>
+  </main>
+
+  <div class="loading hidden" id="loading"><span></span>Читаю комбинации…</div>
+  <div class="toast hidden" id="toast"></div>
+  <script src="app.js"></script>
+</body>
+</html>
