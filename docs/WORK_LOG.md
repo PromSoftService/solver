@@ -1263,3 +1263,45 @@ Result:
   strategy CLI help check and git diff --check;
 - left the untracked STU005 dataset untouched and excluded from the commit;
 - did not run GitHub Actions, a CUDA solve, deployment or production changes.
+
+## 2026-10-08 - approve nine-class c-bet and BB-defense teaching strategy
+
+Status: STARTED
+
+Base: `f08369567647f0a2a6c901d40517c6b0e70a5fd1`; fetched origin/main;
+local main is five viewer commits ahead, zero behind. Existing unrelated
+AGENTS/README/HISTORY/WORK_LOG edits and untracked STU005 data are preserved.
+
+User approval: retain nine shared flop classes, made-hand-first priority,
+explicit defense fold selectors and borderline folds; use inclusive 30/70
+rounding and exact 50/50 middle mixes. QJT remains an accepted tail, not !QJT.
+Final table order: UTG bet, BB vs UTG, BTN bet, BB vs BTN.
+
+Plan: archive the reviewed calculations and intermediate Markdown; document
+algorithms, provenance, accepted losses and exact approval scope; replace only
+the external strategy's current nine-class section with action tables and
+teaching explanations; verify all cells, classifiers and preserved sections.
+No solver run, no trainer update, no production human-table generator, no
+source data changes. Commit only this task's files and work-log addition.
+
+Status: COMPLETED
+
+Result:
+
+- Saved docs/strategy-nine-20261008: approved and intermediate Markdown,
+  complete method/provenance/decisions, a 99-file calculation archive with
+  four compact source nodes, validation evidence, historical audit programs
+  and results; verified every archive entry against SHA256.
+- Added a scoped precedence notice to HUMAN_STRATEGY_SIMPLIFICATION.md;
+  no production classifier/generator or trainer changed.
+- Cleaned only the current nine-class section in the external strategy MD;
+  retained earlier sections and the complete range-based betting explanation.
+  Four action tables follow the requested UTG/BB/BTN/BB order. Dot separates
+  BDFD/no-BDFD alternatives; slash remains the exact 50/50 action mix.
+- Read-only document validation passed for 467 numeric subcells, all four
+  12x9 tables, K1/K2, asterisks, fold cells, order and external/repository copy.
+- Replayed all final calculations from the verified archive in an isolated
+  temporary directory. Every saved rounding metric matched to 1e-9 relative
+  tolerance; no CUDA solve or external live Markdown dependency.
+- Existing unrelated working-tree changes and original untracked STU005 data
+  remain untouched and excluded from this task's commit.

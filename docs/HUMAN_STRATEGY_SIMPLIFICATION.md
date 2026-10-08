@@ -1,5 +1,17 @@
 # Human strategy simplification
 
+## Approved scoped revision: 2026-10-08
+
+For STU002/STU005 c-bet after BB check and BB's response to that c-bet,
+the user approved a nine-class **made-hand-first** teaching strategy with
+inclusive **30/70** rounding, explicit fold/continue selection and retained
+classifiers. For these four human tables, this supersedes the historical
+draw-first/six-class/25-75 guidance below. See
+[the complete decision record and calculations](strategy-nine-20261008/README.md)
+and [the approved action tables](strategy-nine-20261008/approved-strategy.md).
+Other branches and the production workbook generator are unchanged. The
+archived audit is not a supported human-table generator or a trainer update.
+
 ## 1. Purpose
 
 The generated workbook is the reproducible solver-frequency baseline. A human
