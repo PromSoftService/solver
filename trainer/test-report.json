@@ -1,0 +1,13 @@
+{
+  "boards": 286,
+  "eligibleCombos": 1530926,
+  "cells": 1253,
+  "policyChecks": 1530926,
+  "blocked": 0,
+  "rangeChecks": 10618608,
+  "transitionChecks": 1876349,
+  "sampledPairs": 36250,
+  "coverageMin": 20,
+  "coverageMax": 21,
+  "branches": 14
+}

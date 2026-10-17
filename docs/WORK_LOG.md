@@ -1,5 +1,51 @@
 # Work log
 
+## 2026-10-17 - standalone flop trainer
+
+Status: STARTED. Base: 9c04888b07a2db5b977c0af77840d8131e63d10f;
+origin/main fetched and synchronized. Preserve pre-existing changes in
+AGENTS.md, README.md, HISTORY.md, WORK_LOG.md and untracked STU005 exports.
+
+Scope: standalone offline HTML, sources in trainer/, delivered to manuals/покер.
+Use current approved main tables and secondary branches; do not apply the
+aborted manual rearrangement or new simplified main tables. Snapshot approved
+rules separately from the production workbook pipeline. Reconstruct reached
+ranges from preflop weights and each actor's own observed actions. No solve,
+turn/river strategy, public hosting, external assets, or source-data mutations.
+
+Plan: package all available flop branches; implement hand flow, balanced
+cell coverage, decision/range/explanation tabs and local progress; validate
+rules, coverage and transitions, then browser QA through temporary loopback
+HTTP, verify offline packaging, commit only trainer changes and this entry.
+
+Status: COMPLETED (implementation and verification).
+
+Results: trainer/ contains standalone sources, approved manual snapshot,
+rebuild instructions, data hashes and compact test report. Delivered the
+16,677,843-byte HTML to D:/current/manuals/покер/poker_trainer.html.
+The original manual SHA256 remains
+2df4ab913bf8eee63968d81055806864f2e5891240bea13d3ef600fd62715d1b.
+
+Validation: 286 boards, 14 teaching branches / 16 source nodes, 1,253 eligible
+cells; 1,530,926 policy checks, 10,618,608 range checks, 1,876,349 transition
+checks and 36,250 compatible two-player deals. Twenty complete scheduler
+cycles plus 17 selections produced counts 20-21. Node syntax checks and
+git diff --check passed. Rebuild from repository sources exactly matched the
+delivered HTML SHA256 4eb81664b291ab40607d8b1f0d5cd2177016201c0a1b62134f447d1c6ecaf877.
+
+Browser QA: local HTTP returned 200 and opened in the supported in-app browser;
+all 14 branches, action buttons, c-bet/opponent response, UTG-vs-BTN free play,
+three panels, real manual explanation, 338 range cells and reload-persisted
+progress checked without console errors. At phone viewport no horizontal page
+overflow (375px scroll/client width); corrected action-bubble overlap. HTTP
+was preview-only. Offline architecture has no fetch/import/CDN; direct file://
+navigation was not needed/tested by the browser tool. No public deployment.
+
+Limits: flop only; range-composition comparison is not equity/EV. Exact cell
+coverage applies to targeted exercises, not natural free-play continuations.
+MD remains authoritative where the older HTML cheat sheet differs. Preserve
+legacy draw-first rules only in the untouched older secondary MD branches.
+
 This file records each repository-changing task before implementation and closes it after validation and push. It is intentionally concise.
 
 ## 2026-10-17 - preserve current c-bet/defense method and explanation protocol
