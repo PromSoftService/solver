@@ -1,5 +1,40 @@
 # Work log
 
+## 2026-10-17 - compact trainer interface
+
+Status: STARTED. Base: ad63b44ee1d13b782b8747ab25b0a01277a16d96;
+origin/main fetched and synchronized. Preserve unrelated working-tree edits.
+
+Plan: keep balanced practice only, expose grouped branch checkboxes, remove
+visible progress/settings clutter, unlock all three help tabs, and display
+the current position's standard actions with colored flop corrections.
+Secondary branches retain full tables. Do not change approved actions,
+solver data, reached-range logic, or the manual. Validate all branch filters,
+displayed actions, browser interactions and mobile layout; rebuild the
+standalone artifact, deliver it to manuals/покер, commit and push UI sources.
+
+Completed: app.js/index.html/style.css now expose grouped branch checkboxes,
+balanced practice only, no visible progress or score, and three ungated help
+tabs. Main-table presentation uses the same cream/flop/action colors as the
+reference HTML, but preserves the MD actions (including Two pair+ defense).
+Only the current position's table is rendered. Added test-ui.cjs and updated
+trainer README and artifact manifest. Internal counts remain solely to avoid
+starving eligible training cells; no solver/policy/reach changes were made.
+
+Checks: node syntax check; prepare.cjs passed 1,530,926 policy checks,
+10,618,608 range checks and 1,876,349 transition checks; 1,253 eligible cells,
+14 branches, balanced schedule spread <= 1. UI tests passed 390 displayed
+actions, 10 position-column cases, 14 branch filters, multi/empty selection.
+Browser HTTP QA: checkboxes, empty selection, single UTG c-bet and donk
+response, all tabs before answer, complete check action/continuation;
+no console errors. At 390px viewport, document client/scroll width 375/375.
+Ready artifact delivered to D:/current/manuals/покер/poker_trainer.html;
+SHA-256 f8a888f3fb39dd33423c5b89df7b8fa420559495b7490ddad9ef3e99bb58668b.
+Manual unchanged (SHA-256 2df4ab913bf8eee63968d81055806864f2e5891240bea13d3ef600fd62715d1b).
+Local preview is temporary and stopped after verification. Unrelated edits
+and generated solver exports are excluded from this task's commit.
+
+
 ## 2026-10-17 - standalone flop trainer
 
 Status: STARTED. Base: 9c04888b07a2db5b977c0af77840d8131e63d10f;
