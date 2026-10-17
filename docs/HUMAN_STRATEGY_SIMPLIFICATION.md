@@ -1,5 +1,18 @@
 # Human strategy simplification
 
+## Current scoped method: 2026-10-17
+
+For the four STU002/STU005 nine-class c-bet and BB-response teaching tables,
+read [the current method](strategy-method-20261017/README.md) and
+[the evidence-first explanation protocol](strategy-method-20261017/EXPLANATIONS.md)
+before continuing analysis. They record reach-weighted current aggregation,
+defense F-first 25/30/70, robust BDFD/draw splits, the cost of removing them,
+manual overrides and how to explain actions through specific opponent hands
+and responses. The October 8 EV-prefilter/continuation-only procedure below
+is historical for this scope. Its archive remains a reproducible old version,
+not the current defense algorithm. Other branches and the production workbook
+are unchanged. Latest HTML-only changes are explicitly separated from MD.
+
 ## Approved scoped revision: 2026-10-08
 
 For STU002/STU005 c-bet after BB check and BB's response to that c-bet,

@@ -2,6 +2,43 @@
 
 This file records each repository-changing task before implementation and closes it after validation and push. It is intentionally concise.
 
+## 2026-10-17 - preserve current c-bet/defense method and explanation protocol
+
+Status: STARTED
+
+Base: `f3fc8638bb4672158044312da8d6c80797881ea8`; fetched origin/main,
+zero ahead/behind. User confirmed the active Windows checkout under
+`D:/current/coding/Solver/tsgpu-batch-production-v012`; the older manuals/sotf
+path in AGENTS is historical. This is a documentation-only Windows task.
+
+Scope: record the current nine-class, made-hand-first c-bet and BB-defense
+method, superseded approximations, classifier/EV guardrails, manual overrides,
+and the evidence-first explanation format developed with the user.
+
+Plan: add a scoped method and reusable explanation guide; link the historical
+entry points; verify source references, numeric examples and Markdown; commit
+and push only these changes. No solve, generator/trainer change, strategy edit,
+raw-data publication or external manual update. Existing unrelated
+AGENTS/README/HISTORY/WORK_LOG edits and untracked STU005 data remain untouched.
+
+Result and checks:
+
+- Added docs/strategy-method-20261017/README.md: scope, source nodes and
+  external-source hashes, current weights, F-first 25/30/70, stable classifiers,
+  removal-cost limits, c-bet history and explicit HTML-only Two pair+ override.
+- Added EXPLANATIONS.md: comparison anchors, actual betting/response ranges,
+  share versus conditional rate versus joint mass, blockers, matched-combo
+  checks, equity/EV boundaries, standard teaching format and three worked examples.
+- Linked both from HUMAN_STRATEGY_SIMPLIFICATION.md and the historical archive.
+- Validated relative links, code fences, four source-node paths, 286-board
+  counts, numeric anchors against the manual, unchanged MD/HTML hashes and
+  git diff --check. No numerical solver audit was rerun; examples retain their
+  saved context and uncertainty. No solver or production generator executed.
+- Preserved all pre-existing unrelated modifications and untracked datasets.
+  Only this task's work-log block is included in its commit.
+
+Status: documentation and local validation complete; commit/push follow.
+
 ## 2026-10-07 — dim non-hovered categories instead of hiding them
 
 Status: STARTED
