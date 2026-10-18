@@ -36,6 +36,7 @@ header{padding-top:12px;padding-bottom:10px}.brand{align-items:center;font-size:
 .reference-table .selected-correction{box-shadow:inset 0 0 0 2px #b58d3e}
 .full-reference{table-layout:auto}.full-reference th:first-child{width:auto}.full-reference td{padding:7px 6px}.full-reference .action-chip{font-size:14px}
 .no-hand{color:#939b94}
+.case-summaries{display:grid;gap:12px;margin:18px 0 30px}.case-summary{padding:14px 18px;border-left:3px solid #7cae9f;background:#ffffff05;border-radius:0 7px 7px 0}.case-summary a{color:#a7d5c6;font-weight:700;text-decoration:none}.case-summary a:hover{text-decoration:underline}.case-summary p{margin:8px 0 0}.full-case{border-top:1px solid #ffffff25;padding-top:24px;margin-top:32px;scroll-margin-top:20px}.case-kind{color:#94b8ab;font-size:12px;text-transform:uppercase;letter-spacing:.1em}
 @media(max-width:700px){
  header,main{padding-left:10px;padding-right:10px}.branch-panel{padding:8px}.branch-groups{gap:7px}
  .branch-groups legend{font-size:10px}.branch-option{font-size:10px;margin:5px 0}.branch-groups label{align-items:flex-start;gap:4px}.branch-groups input{width:12px;height:12px;margin-top:1px}

@@ -1,13 +1,13 @@
 {
   "boards": 286,
-  "eligibleCombos": 1530926,
-  "cells": 1253,
-  "policyChecks": 1530926,
+  "eligibleCombos": 1360305,
+  "cells": 1146,
+  "policyChecks": 1360305,
   "blocked": 0,
-  "rangeChecks": 10618608,
-  "transitionChecks": 1876349,
-  "sampledPairs": 36250,
+  "rangeChecks": 9101664,
+  "transitionChecks": 1705728,
+  "sampledPairs": 33125,
   "coverageMin": 20,
   "coverageMax": 21,
-  "branches": 14
+  "branches": 12
 }

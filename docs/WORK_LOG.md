@@ -1,5 +1,47 @@
 # Work log
 
+## 2026-10-18 - trainer explanations by flop category
+
+Status: STARTED
+
+Base: `f1a4057de7d937d066bd81f11c634b283aa17df1`; fetched origin/main,
+zero ahead/behind. Preserve existing unrelated documentation edits and STU005
+dataset. No solver runs or changes to strategy actions.
+
+Plan: read the reorganized manual without changing it; show all explanations
+for the current flop category regardless of the dealt hand, retaining case scope,
+with their opening summaries followed by complete sections. Remove BB responses
+to donk raises from training and transitions. Accept allowed actions with only
+OK; ignore incorrect clicks. Adapt the snapshot reader to the current headings,
+verify retained action tables, run domain/UI/browser checks, back up and replace
+the standalone trainer in manuals, then commit/push only this task's changes.
+
+Status: COMPLETED
+
+Result:
+
+- Adapted the snapshot reader to the reorganized manual; all nine retained
+  action tables are identical to the previous snapshot. Source MD unchanged.
+- Mapped all 16 reviewed cases to nine flop categories; summaries retain the
+  original opening paragraphs, followed by complete texts with nested lists.
+  Cases include both c-bet and BB defense, with position/branch titles intact.
+- Removed both obsolete BB-vs-donk-raise targets, policies, data and transitions.
+  The 12 retained training branches have 1146 reachable cells across 286 boards.
+- Correct allowed actions show only OK, including either side of a mix;
+  wrong clicks leave state and UI untouched. Removed verbose result messages.
+- Domain checks: 1,360,305 policy checks, 9,101,664 reach checks, 33,125 sampled
+  compatible pairs; 20-cycle scheduling spread is one. UI tests: 390 table
+  actions, 324 flop/hand explanation cases, removed filters and answer behavior.
+- In-app HTTP preview verified wrong-click no-op, OK, four CC explanations,
+  summary-to-full-text navigation and 390px layout; no console errors.
+  An existing offline tab's data-URL error page blocked its navigation;
+  the documented fresh-tab path served the HTTP preview normally (200).
+- Delivered manuals/poker_trainer.html with a dated before-change backup;
+  manifest and test report updated. No solver runs or source CSV changes.
+- Publication explicitly approved by the user after the initial auto-review
+  rejection. Commit/push scope remains this trainer task only; unrelated edits
+  remain unstaged.
+
 ## 2026-10-17 - compact trainer interface
 
 Status: STARTED. Base: ad63b44ee1d13b782b8747ab25b0a01277a16d96;

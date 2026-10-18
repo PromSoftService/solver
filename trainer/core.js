@@ -1,20 +1,19 @@
 /* Pure trainer domain logic. No browser access; also tested with Node. */
 (function(root){
 'use strict';
-const PREFIX={0:{'01':[],'02':[['01','check']],'03':[['01','check'],['02','bet']],'04':[['01','check'],['02','bet'],['03','raise']],'05':[['01','donk']],'06':[['01','donk'],['05','raise']]},2:{'01':[],'02':[['01','check']],'03':[['01','bet']],'04':[['01','check'],['02','bet']]}};
-const NEXT={0:{'01':{check:'02',donk:'05'},'02':{bet:'03'},'03':{raise:'04'},'05':{raise:'06'}},2:{'01':{check:'02',bet:'03'},'02':{bet:'04'}}};
-const NAMES={0:{'01':'BB: донк или чек','02':'BTN: c-bet','03':'BB против c-bet BTN','04':'BTN против чек-рейза','05':'BTN против донка','06':'BB против рейза донка BTN'},1:{'01':'BB: донк против UTG','02':'UTG: c-bet против BB','03':'BB против c-bet UTG','04':'UTG против чек-рейза','05':'UTG против донка','06':'BB против рейза донка UTG'},2:{'01':'UTG: c-bet против BTN','02':'BTN: ставка после чека','03':'BTN против c-bet UTG','04':'UTG против ставки BTN'}};
+const PREFIX={0:{'01':[],'02':[['01','check']],'03':[['01','check'],['02','bet']],'04':[['01','check'],['02','bet'],['03','raise']],'05':[['01','donk']]},2:{'01':[],'02':[['01','check']],'03':[['01','bet']],'04':[['01','check'],['02','bet']]}};
+const NEXT={0:{'01':{check:'02',donk:'05'},'02':{bet:'03'},'03':{raise:'04'}},2:{'01':{check:'02',bet:'03'},'02':{bet:'04'}}};
+const NAMES={0:{'01':'BB: донк или чек','02':'BTN: c-bet','03':'BB против c-bet BTN','04':'BTN против чек-рейза','05':'BTN против донка'},1:{'01':'BB: донк против UTG','02':'UTG: c-bet против BB','03':'BB против c-bet UTG','04':'UTG против чек-рейза','05':'UTG против донка'},2:{'01':'UTG: c-bet против BTN','02':'BTN: ставка после чека','03':'BTN против c-bet UTG','04':'UTG против ставки BTN'}};
 function ranks(board){return board.match(/[2-9TJQKA]/g).map(r=>'23456789TJQKA'.indexOf(r)+2).sort((a,b)=>b-a)}
 function nine(board){const [a,b,c]=ranks(board);return c>=10?0:a===14&&b<=5?8:a===14?7:a-b>=4&&b-c>=4?1:a-c<=4?(a>=11?5:6):b>=10?2:a>=10?3:4}
-function oldClass(board){const[a,b,c]=ranks(board);return a===14&&c>=10?0:c>=10?1:a===14?2:a>=10?3:4}
 function row(meta,legacy=false){return legacy&&meta[1]>=0?meta[1]:meta[0]<8?meta[0]:meta[1]>=0?meta[1]:meta[0]}
 function spec(D,s,n,board,m){
- const g=nine(board),[top,mid]=ranks(board),legacy=n==='06'||s===2&&n==='01',r=row(m,legacy);let key,col;
+ const g=nine(board),[top,mid]=ranks(board),legacy=s===2&&n==='01',r=row(m,legacy);let key,col;
  if(s<2){
   if(n==='02'||n==='03'){key=(n==='02'?'cb_':'df_')+(s===0?'btn':'utg');col=g}
   else if(n==='01'){key='donk';col=s===0?0:top>=10?1:top>=8?2:3}
   else if(n==='04'||n==='05'){key=n==='04'?'vsxr':'vsdonk';col=s}
-  else {key=s===0?'dr_btn':'dr_utg';col=oldClass(board)}
+  else return null;
  }else if(n==='01'){key='oopcb';col=top===13||top===14&&mid===13?0:top<=10?2:1}
  else if(n==='04'){key='stabdef';col=g===0?0:top===14?1:top>=10?2:3}
  else return null;
@@ -59,29 +58,7 @@ function weighted(items,weights,rng=Math.random){let total=weights.reduce((a,b)=
 function sample(p,rng=Math.random){const entries=Object.entries(p||{});return weighted(entries.map(x=>x[0]),entries.map(x=>x[1]),rng)}
 function cellKey(s,n,g,r){return[s,n,g,r].join(':')}
 function chooseCell(cells,counts,rng=Math.random){if(!cells.length)return null;let min=Infinity,list=[];for(const c of cells){const n=counts[c.key]||0;if(n<min){min=n;list=[c]}else if(n===min)list.push(c)}return list[Math.floor(rng()*list.length)]}
-function explanation(s,n,g,r){
- if(s<2&&n==='02'){
-  if(s===1&&g===0&&r<8)return'high';
-  if(s===1&&r===5&&[2,7].includes(g))return'weakcb';
-  if(s===0&&g===1&&[2,4,5,6].includes(r))return'dry';
-  if(r===6&&[5,6].includes(g))return'third';
-  if(g===6&&[8,9].includes(r))return'drawlow';
-  if([7,8].includes(g)&&[2,3].includes(r))return'ace';
-  if(s===1&&g===5&&r===2)return'topcc';
-  if(s===0&&g===1&&r===9)return'gutdry';
- }
- if(s<2&&n==='03'){
-  if(r===5&&[2,7].includes(g))return'weakdf';
-  if(r===5&&[1,3].includes(g))return'weakdry';
-  if(s===1&&r===5&&g===4)return'weakxxx';
-  if(s===1&&r===5&&[5,6,8].includes(g))return'weakwheel';
-  if(r===1)return'over';
-  if(s===1&&r===10&&g===6)return'overslow';
-  if(r===9&&g===5)return'gutcc';
-  if(r===9&&g===2)return'gutbb';
- }
- return null;
-}
-const api={NAMES,ranks,nine,row,spec,policy,branch,prefix,next,legal,compatible,decodeBlock,solver,reached,weighted,sample,cellKey,chooseCell,explanation};
+function explanations(D,g){return Object.entries(D.explanations).filter(([,item])=>item.flops.includes(g));}
+const api={NAMES,ranks,nine,row,spec,policy,branch,prefix,next,legal,compatible,decodeBlock,solver,reached,weighted,sample,cellKey,chooseCell,explanations};
 if(typeof module!=='undefined')module.exports=api;else root.TrainerCore=api;
 })(typeof window==='undefined'?{}:window);

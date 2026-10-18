@@ -20,7 +20,7 @@ async function newHand(){
  try{
   const cells=eligible();if(!cells.length){busy=false;branchBusy(false);$('feedback').textContent='Выбери ветку для тренировки.';return}
   let cell=C.chooseCell(cells,progress.counts),s=cell.s,n=cell.n,hero=C.branch(D,s,n).actor,bi,history;
-  bi=cell.boards[Math.floor(Math.random()*cell.boards.length)];history=C.prefix(s,n).map(x=>[...x,s===0&&['05','06'].includes(n)&&x[0]==='01']);
+  bi=cell.boards[Math.floor(Math.random()*cell.boards.length)];history=C.prefix(s,n).map(x=>[...x,s===0&&n==='05'&&x[0]==='01']);
   const block=await load(bi),board=D.boards[bi];if(token!==serial)return;
   const hw=C.reached(D,block,s,board,history,hero,hero),vw=C.reached(D,block,s,board,history,1-hero,hero);
   const vid=vw.map((v,i)=>v>0?i:-1).filter(i=>i>=0),vtotal=vw.reduce((a,b)=>a+b,0);
@@ -55,21 +55,22 @@ function ask(){
 }
 function pickRoll(p,roll){let total=0;for(const a of ORDER){total+=100*(p[a]||0);if(roll<total-1e-9)return a}return Object.keys(p).at(-1)}
 function answer(a){
- if(!state||state.answered||busy)return;const q=state;q.answered=true;q.selected=a;const allowed=(q.p[a]||0)>0,matched=a===q.expected;
- $('actions').querySelectorAll('button').forEach(b=>b.disabled=true);$('feedback').className=allowed?'good':'bad';
- const dist=ORDER.filter(k=>q.p[k]).map(k=>`${ACTION[k]} ${Math.round(q.p[k]*100)}%`).join(' · ');
- $('feedback').textContent=(allowed?(matched?'Верно. ':'Допустимое действие микса. '):'По нашей стратегии здесь другое действие. ')+dist+(!matched?` При числе ${q.roll}: ${ACTION[q.expected]}.`:'');
+ if(!state||state.answered||busy)return;const q=state;
+ if(!(q.p[a]>0))return;
+ q.answered=true;q.selected=a;
+ $('actions').querySelectorAll('button').forEach(b=>b.disabled=true);$('feedback').className='good';
+ $('feedback').textContent='OK';
  $('continue').hidden=false;$('next').disabled=false;renderTabs();
 }
-async function continueHand(){if(!state||busy||!state.answered)return;busy=true;branchBusy(true);const q=state;$('next').disabled=true;$('continue').hidden=true;applyHistory(q.n,q.selected);renderTable();const n=C.next(q.s,q.n,q.selected);if(!n){finish(q.selected==='fold'?'Ты выбросил карты.':'Флоп сыгран. Следующие улицы в эту версию не входят.');busy=false;return}q.n=n;await delay(450);busy=false;await advanceOpponent()}
+async function continueHand(){if(!state||busy||!state.answered)return;busy=true;branchBusy(true);const q=state;$('next').disabled=true;$('continue').hidden=true;applyHistory(q.n,q.selected);renderTable();const n=C.next(q.s,q.n,q.selected);if(!n){finish(q.selected==='fold'?'Фолд.':q.selected==='raise'?'Рейз.':'Флоп сыгран.');busy=false;return}q.n=n;await delay(450);busy=false;await advanceOpponent()}
 async function advanceOpponent(){
  const q=state;if(!q||q.finished)return;
  if(C.branch(D,q.s,q.n).actor===q.hero){ask();return}
  busy=true;branchBusy(true);$('actions').replaceChildren();$('decisionLabel').textContent='Оппонент принимает решение…';$('feedback').textContent='';$('next').disabled=true;
  await delay(650);const p=C.solver(D,q.block,q.s,q.n,q.vc);
- if(!p){finish('Для продолжения этой конкретной руки нет сохранённого ответа. Не подставляем выдуманную стратегию.');busy=false;return}
+ if(!p){finish('Продолжение не разобрано.');busy=false;return}
  const a=C.sample(p);applyHistory(q.n,a);renderTable();const n=C.next(q.s,q.n,a);busy=false;
- if(!n){finish(a==='fold'?'Оппонент выбросил карты.':q.s===2&&a==='raise'?'Оппонент сделал рейз. Ответ на него в этой ветке ещё не разобран.':'Флоп сыгран. Переход к тёрну не моделируется.');return}
+ if(!n){finish(a==='fold'?'Оппонент выбросил карты.':a==='raise'?'Оппонент сделал рейз.':'Флоп сыгран.');return}
  q.n=n;if(C.branch(D,q.s,n).actor===q.hero)ask();else await advanceOpponent();
 }
 function finish(text){state.finished=true;branchBusy(false);$('decisionLabel').textContent='Раздача завершена';$('feedback').textContent=text;$('feedback').className='';$('actions').replaceChildren();$('continue').hidden=true;$('next').disabled=false;addLog(text)}
@@ -107,10 +108,16 @@ function renderRanges(){const q=review,h=rangeData(q.hero),v=rangeData(1-q.hero)
  $('ranges').innerHTML='<p class="note">Только дошедшие руки: префлоп-вес × собственные действия по истории. У вас — принятая учебная стратегия, у соперника — сохранённые частоты солвера. Диапазоны исключают карты флопа, но не раскрывают конкретные закрытые карты игроков. Это не повторное решение солвера.</p><div class="range-layout">'+matrixHTML(h,q.hero)+compare+matrixHTML(v,1-q.hero)+'</div>';
  $('ranges').querySelectorAll('button[data-range]').forEach(b=>b.onclick=()=>{const actor=Number(b.dataset.range),g=(actor===q.hero?h:v).groups[b.dataset.combo];$('rangeDetail'+actor).textContent=g?`${b.dataset.combo}: ${g.ids.map(([id,w])=>D.combos[id].map(c=>D.deck[c]).join('')+' '+pct(w)).join(' · ')}`:`${b.dataset.combo}: не доходит до этого решения.`});
 }
-function renderExplanation(){const q=review,key=C.explanation(q.s,q.n,C.nine(q.board),q.sp.row);$('explanation').innerHTML=key?'<p class="note">Зафиксированный разбор из мануала. Числа относятся к указанным в нём группам флопов, а не только к текущему конкретному флопу.</p>'+D.explanations[key]:'<div class="empty-message"><h2>Отдельного разбора пока нет</h2><p>Для этой ситуации есть принятое действие в таблице. Новое обоснование здесь не придумано.</p></div>'}
+function renderExplanation(){
+ const g=C.nine(review.board),items=C.explanations(D,g);
+ if(!items.length){$('explanation').innerHTML='';return}
+ const summaries=items.map(([key,item])=>`<section class="case-summary"><a href="#case-${key}">${escapeHTML(item.kind)} · ${escapeHTML(item.title)}</a>${item.lead}</section>`).join('');
+ const full=items.map(([key,item])=>`<section class="full-case" id="case-${key}"><div class="case-kind">${escapeHTML(item.kind)}</div>${item.html}</section>`).join('');
+ $('explanation').innerHTML=`<h2>${escapeHTML(D.nine[g])}</h2><div class="case-summaries">${summaries}</div>${full}`;
+}
 $('next').onclick=newHand;$('continue').onclick=continueHand;
 document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{tab=b.dataset.tab;renderTabs()});
-const BRANCH_LABELS=['Донк BB','C-bet','BB против c-bet','Против чек-рейза','Против донка','BB против рейза донка'];
-$('branches').innerHTML=['BTN vs BB','UTG vs BB','UTG vs BTN'].map((name,s)=>`<fieldset><legend><label><input type="checkbox" data-group="${s}" checked> ${name}</label></legend>${(s===2?['01','04']:['01','02','03','04','05','06']).map(n=>`<label class="branch-option"><input type="checkbox" data-branch value="${s}:${n}" checked> ${s===2?(n==='01'?'C-bet UTG':'UTG против ставки BTN'):BRANCH_LABELS[Number(n)-1]}</label>`).join('')}</fieldset>`).join('');
+const BRANCH_LABELS=['Донк BB','C-bet','BB против c-bet','Против чек-рейза','Против донка'];
+$('branches').innerHTML=['BTN vs BB','UTG vs BB','UTG vs BTN'].map((name,s)=>`<fieldset><legend><label><input type="checkbox" data-group="${s}" checked> ${name}</label></legend>${(s===2?['01','04']:['01','02','03','04','05']).map(n=>`<label class="branch-option"><input type="checkbox" data-branch value="${s}:${n}" checked> ${s===2?(n==='01'?'C-bet UTG':'UTG против ставки BTN'):BRANCH_LABELS[Number(n)-1]}</label>`).join('')}</fieldset>`).join('');
 $('branches').onchange=e=>{const input=e.target;if(input.dataset.group!==undefined)$('branches').querySelectorAll(`input[data-branch][value^="${input.dataset.group}:"]`).forEach(el=>el.checked=input.checked);$('branches').querySelectorAll('input[data-group]').forEach(el=>{const items=[...$('branches').querySelectorAll(`input[data-branch][value^="${el.dataset.group}:"]`)];el.checked=items.every(i=>i.checked);el.indeterminate=!el.checked&&items.some(i=>i.checked)});newHand()};
 if(typeof DecompressionStream==='undefined'){$('feedback').className='error';$('feedback').textContent='Нужен современный Chrome, Edge, Firefox или Safari.'}else newHand();

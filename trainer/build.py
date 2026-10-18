@@ -31,16 +31,21 @@ def table(md,heading,cols=None):
 
 def inline(s):
     s=html.escape(s)
+    s=re.sub(r'&lt;br\s*/?&gt;','<br>',s)
     s=re.sub(r'\*\*(.+?)\*\*',r'<strong>\1</strong>',s)
     s=re.sub(r'`(.+?)`',r'<code>\1</code>',s)
     return s
 
 def markdown(md):
-    out=[]; in_table=False; in_list=False
+    out=[]; in_table=False; list_depth=0
+    def close_lists():
+        nonlocal list_depth
+        while list_depth:
+            out.append('</li></ul>');list_depth-=1
     for line in md.splitlines()+['']:
-        if line.lstrip().startswith('- '):line=line.lstrip()
+        bullet=re.match(r'^( *)(?:- )(.+)$',line)
         if in_table and not line.startswith('|'):out.append('</tbody></table></div>');in_table=False
-        if in_list and not line.startswith('- '):out.append('</ul>');in_list=False
+        if list_depth and not bullet:close_lists()
         if line.startswith('|'):
             cells=[inline(x.strip()) for x in line.split('|')[1:-1]]
             if all(re.fullmatch(r'[:\- ]+',c) for c in cells):continue
@@ -48,21 +53,38 @@ def markdown(md):
                 out.append('<div class="scroll"><table><thead><tr>'+''.join('<th>'+c+'</th>' for c in cells)+'</tr></thead><tbody>');in_table=True
             else:out.append('<tr>'+''.join('<td>'+c+'</td>' for c in cells)+'</tr>')
         elif line.startswith('#'):
-            out.append('<h3>'+inline(line.lstrip('# '))+'</h3>')
-        elif line.startswith('- '):
-            if not in_list:out.append('<ul>');in_list=True
-            out.append('<li>'+inline(line[2:])+'</li>')
+            level=max(3,min(6,len(line)-len(line.lstrip('#'))-1))
+            out.append(f'<h{level}>'+inline(line.lstrip('# '))+f'</h{level}>')
+        elif bullet:
+            depth=min(len(bullet[1])//2+1,list_depth+1)
+            while list_depth>depth:out.append('</li></ul>');list_depth-=1
+            if depth>list_depth:out.append('<ul><li>');list_depth+=1
+            else:out.append('</li><li>')
+            out.append(inline(bullet[2]))
         elif line.strip():out.append('<p>'+inline(line)+'</p>')
     return '\n'.join(out)
 
 def snapshot(md):
-    heads={'cb_btn':'### BTN vs BB: BB чек','cb_utg':'### UTG vs BB: BB чек','df_btn':'### BB против BTN: BB чек','df_utg':'### BB против UTG: BB чек',
-           'donk':'### Донк BB —','vsdonk':'### BTN и UTG против донка BB','vsxr':'### BTN и UTG против чек-рейза BB',
-           'oopcb':'#### 5.3.1.','stabdef':'#### 5.3.3.','dr_utg':'#### 5.2.6.','dr_btn':'#### 5.4.6.'}
+    heads={'cb_btn':'#### BTN vs BB: BB чек','cb_utg':'#### UTG vs BB: BB чек','df_btn':'#### BB против BTN: BB чек','df_utg':'#### BB против UTG: BB чек',
+           'donk':'### 4.1. Донк BB —','vsdonk':'### 4.2. BTN и UTG против донка BB','vsxr':'### 4.3. BTN и UTG против чек-рейза BB',
+           'oopcb':'#### 4.4.1.','stabdef':'#### 4.4.2.'}
     tables={k:table(md,h) for k,h in heads.items()}
     ex={}
     for key,h in [('weakcb','#### 1. Weak-пары на BBx'),('dry','#### 2. Пары BTN'),('third','#### 3. Третья пара на'),('drawlow','#### 4. OESD'),('ace','#### 5. Топ-пара'),('topcc','#### 6. Топ-пара'),('gutdry','#### 7. Гатшоты'),('high','#### 8. Пары'),('weakdf','#### Weak-пары BB на BBx'),('weakdry','#### Weak-пары BB на Dry'),('weakxxx','#### Weak-пары против UTG на xxx'),('weakwheel','#### Weak-пары против UTG на Aw'),('over','#### Оверпары BB:'),('overslow','#### Две оверкарты + БДФД против UTG'),('gutcc','#### Гатшоты без пары на СС'),('gutbb','#### Гатшоты без пары на BBx')]:
-        ex[key]=markdown(section(md,h))
+        block=section(md,h)
+        parts=block.split('\n\n')
+        lead=next(p.strip() for p in parts[1:] if p.strip())
+        ex[key]={'title':block.splitlines()[0].lstrip('# '),'lead':markdown(lead),'html':markdown(block)}
+    # All reviewed cases for a flop, independent of the dealt hand or position.
+    # Titles retain the exact position and comparison scope from the manual.
+    scopes={'weakcb':[2,7],'dry':[1],'third':[5,6],'drawlow':[6],
+            'ace':[7,8],'topcc':[5],'gutdry':[1],'high':[0],
+            'weakdf':[2,7],'weakdry':[1,3],'weakxxx':[4],
+            'weakwheel':[5,6,8],'over':[1,3,4,6],'overslow':[6],
+            'gutcc':[5],'gutbb':[2]}
+    for i,(key,value) in enumerate(ex.items()):
+        value['flops']=scopes[key]
+        value['kind']='C-bet' if i<8 else 'Защита BB'
     return dict(tables=tables,explanations=ex,manualSHA=hashlib.sha256(md.encode()).hexdigest(),rows=RU,englishRows=EN,nine=NINE)
 
 def build(repo,manual,out,refresh=False):
@@ -90,7 +112,9 @@ def build(repo,manual,out,refresh=False):
         weights=[[entry['preflop_weights'][actor].get(combo_cell(DECK[a]+DECK[b])['label'],0) for a,b in COMBOS] for actor in actors]
         branches=[]
         for branch in entry['study']['branches']:
-            bid=branch['id']; actions=ACTION_SHAPES[branch['action_shape']];path=entry['exports'][bid]
+            bid=branch['id']
+            if sidx<2 and bid.startswith('06'):continue
+            actions=ACTION_SHAPES[branch['action_shape']];path=entry['exports'][bid]
             branches.append(dict(id=bid,actor=actors.index(branch['acting_player']),actions=actions,history=branch['history'],bet=branch.get('expected_bet_amount',0)/10,raiseTo=branch.get('expected_raise_amount',0)/10))
             provenance.append(dict(path=str(path.relative_to(repo)),sha256=hashlib.sha256(path.read_bytes()).hexdigest()))
             count=0
@@ -109,7 +133,7 @@ def build(repo,manual,out,refresh=False):
     blocks=[]
     for board in board_list:
         raw=dumps(data[board]).encode();blocks.append(base64.b64encode(gzip.compress(raw,compresslevel=9,mtime=0)).decode())
-    payload={**snap,'studies':studies,'boards':board_list,'combos':COMBOS,'deck':DECK,'blocks':blocks,'provenance':provenance,'version':'2026-10-17.1'}
+    payload={**snap,'studies':studies,'boards':board_list,'combos':COMBOS,'deck':DECK,'blocks':blocks,'provenance':provenance,'version':'2026-10-18.1'}
     # Bootstrap is inlined; no fetch, imports, external fonts, or runtime server.
     template=(HERE/'index.html').read_text(encoding='utf-8')
     result=template.replace('/*__CSS__*/',(HERE/'style.css').read_text(encoding='utf-8')).replace('/*__CORE__*/',(HERE/'core.js').read_text(encoding='utf-8')).replace('/*__APP__*/',(HERE/'app.js').read_text(encoding='utf-8')).replace('"__PAYLOAD__"',dumps(payload).replace('</','<\\/'))
