@@ -2,6 +2,11 @@
 const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm'),assert=require('node:assert/strict');
 const D=JSON.parse(fs.readFileSync(path.resolve(process.argv[2]||'output/trainer','trainer-test-data.json'),'utf8'));
 const app=fs.readFileSync(path.join(__dirname,'app.js'),'utf8');
+const gutbb=D.explanations.gutbb.html;
+assert(gutbb.includes('Эквити выбрасываемых рук против нас'));
+assert(gutbb.includes('51,5 → <strong>44,9%</strong>'));
+assert(gutbb.includes('57,8 → <strong>49,2%</strong>'));
+assert(!gutbb.includes('Наше эквити против диапазона фолда'));
 const template=fs.readFileSync(path.join(__dirname,'index.html'),'utf8');
 const elements=new Map(),selected=[];
 function el(id){if(!elements.has(id))elements.set(id,{textContent:id==='trainer-data'?JSON.stringify(D):'',innerHTML:'',querySelectorAll:()=>selected});return elements.get(id)}

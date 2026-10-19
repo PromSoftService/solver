@@ -91,9 +91,14 @@ def build(repo,manual,out,refresh=False):
     sys.path.insert(0,str(repo/'viewer'));sys.path.insert(0,str(repo/'scripts'))
     from server import Repository,combo_cell,ACTION_SHAPES
     from flop_strategy import hand_category
-    repository=Repository(repo); md=manual.read_text(encoding='utf-8-sig'); snap=snapshot(md)
+    repository=Repository(repo)
     saved=HERE/'approved-snapshot.json'
-    if saved.exists():
+    if manual is None:
+        if refresh:raise ValueError('--refresh-snapshot requires an explicit --manual import.')
+        snap=json.loads(saved.read_text(encoding='utf-8'))
+    else:
+        md=manual.read_text(encoding='utf-8-sig'); snap=snapshot(md)
+    if manual is not None and saved.exists():
         prior=json.loads(saved.read_text(encoding='utf-8'))
         if prior!=snap and not refresh:
             raise ValueError('Manual differs from approved-snapshot.json. Review the changes and explicitly update the snapshot before rebuilding.')
@@ -144,4 +149,4 @@ def build(repo,manual,out,refresh=False):
     print('Built',out,len(result.encode()),flush=True)
 
 if __name__=='__main__':
-    p=argparse.ArgumentParser();p.add_argument('--repo',type=Path,required=True);p.add_argument('--manual',type=Path,required=True);p.add_argument('--output',type=Path,required=True);p.add_argument('--refresh-snapshot',action='store_true',help='Explicitly snapshot an already reviewed manual; never select new actions');a=p.parse_args();build(a.repo.resolve(),a.manual,a.output,a.refresh_snapshot)
+    p=argparse.ArgumentParser();p.add_argument('--repo',type=Path,required=True);p.add_argument('--manual',type=Path,help='Optional explicit import from an archived Markdown manual; not the default source');p.add_argument('--output',type=Path,required=True);p.add_argument('--refresh-snapshot',action='store_true',help='Explicitly snapshot an already reviewed manual; never select new actions');a=p.parse_args();build(a.repo.resolve(),a.manual,a.output,a.refresh_snapshot)

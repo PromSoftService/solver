@@ -6,8 +6,9 @@
 
 ## Что является источником стратегии
 
-- `approved-snapshot.json` — точная копия действий из текущего внешнего
-  `strategy_unified_flops.md` и выбранных разобранных ситуаций. Это потребитель
+- `approved-snapshot.json` — принятые действия и тексты разобранных ситуаций,
+  первоначально импортированные из мануала. С 19.10.2026 мануал ведётся в
+  `strategy_unified_flops.html`; внешний MD больше не обновляется. Это потребитель
   уже принятых правил, **не генератор человеческой стратегии**.
 - Основные c-bet / BB-defense — текущие большие 12×9 таблицы MD.
   Отдельная ручная замена Two pair+ на R/C в прежней HTML-шпаргалке не
@@ -81,17 +82,20 @@ BTN против донка доступен во всех категориях 
 Из корня репозитория (Python 3, Node.js; стандартные библиотеки):
 
 ```powershell
-python -B trainer/build.py --repo . --manual "D:/current/manuals/покер/strategy_unified_flops.md" --output output/trainer/poker_trainer.html
+python -B trainer/build.py --repo . --output output/trainer/poker_trainer.html
 node trainer/prepare.cjs output/trainer
 node trainer/test-ui.cjs output/trainer
 ```
 
-Первый шаг пакует существующие CSV из STU002/STU004/STU005, проверяет совпадение
-мануала с сохранённым снимком. Второй проверяет правила, достижение и индекс,
+Первый шаг пакует существующие CSV из STU002/STU004/STU005 и сохранённый
+утверждённый снимок, без чтения MD. Правки разборов в HTML-мануале синхронизируем
+с `approved-snapshot.json`. Второй проверяет правила, достижение и индекс,
 проверяет отсутствие внешних runtime-зависимостей и собирает окончательный
 HTML. Для обновления правил нужно отдельно согласовать и обновить снимок;
-изменившийся MD не принимается незаметно (`--refresh-snapshot` — только для
-явного обновления уже согласованных правил/текста). Production workbook pipeline не
+архивный MD импортируется только явно через `--manual`; `--refresh-snapshot`
+нельзя применять для обычной пересборки, чтобы не вернуть устаревший текст.
+`manualSHA` хранит происхождение исходного импорта, не хеш текущего HTML.
+Production workbook pipeline не
 затрагивается. Источники CSV фиксируются SHA-256 в `trainer-manifest.json`.
 
 `trainer-test-data.json` и готовый HTML — локальные результаты в ignored output,

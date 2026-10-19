@@ -1,5 +1,25 @@
 # Work log
 
+## 2026-10-19 - clarify equity of folded hands in BBx gutshot case
+
+Base: `e0d369bc0f0a4c33038f17e29e572ddd3e094028`; origin/main synchronized.
+Scope: change only the BBx gutshot explanation in the HTML manual and trainer:
+show opponent equity in folded hands (100 minus hero equity), preserving all
+strategy actions and response frequencies. User retired the external Markdown;
+leave it untouched and build from the approved snapshot by default. Preserve
+unrelated working-tree edits; back up HTML outputs, validate and publish task only.
+
+Completed: HTML manual and trainer now show opponent folded-hand equity
+51.5 -> 44.9% vs BTN and 57.8 -> 49.2% vs UTG, with matching interpretation.
+All nine action tables and the other 15 explanations are unchanged. Source MD
+hash remains EA13E6FECF6BD5FC65A345E77F8B16191212001FCBF926402C34422E5F6099A4.
+Default builder uses approved-snapshot.json; explicit legacy MD import remains
+optional. Domain tests passed (286 boards, 1146 cells, 12 branches), UI tests
+passed (390 actions, 324 explanation cases), and added equity regression checks.
+No visual/layout changes; verified exact text and embedded payload, not a new
+browser run. Both HTML files have dated before-fold-equity backups. Delivered
+trainer matches the built artifact by SHA256; no solver or source CSV changes.
+
 ## 2026-10-18 - trainer explanations by flop category
 
 Status: STARTED
